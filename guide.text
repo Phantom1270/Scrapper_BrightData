@@ -1,0 +1,1967 @@
+# Phase 2: Complete Build Specification
+
+## For AI Implementation — Read Top to Bottom, Build in Order
+
+---
+
+## 0. Project Overview
+
+Phase 2 receives a JSON file from Phase 1 containing URLs discovered from crawling a documentation website. Its job: group those URLs into the fewest possible structural patterns. Each pattern becomes a scraper template for Phase 3.
+
+**Input:** Phase 1 JSON (see exact schema below)
+**Output:** Template map JSON (see exact schema below)
+**Language:** Python 3.11+
+**Dependencies:** Only standard library + `pydantic` for data validation
+**No external APIs. No ML libraries. No HTTP calls. Pure string processing.**
+
+---
+
+## 1. File Structure
+
+Build files in this exact order. Each file has a specification below. Do not skip ahead.
+
+```
+phase2/
+│
+├── main.py                          # [BUILD 10th] Entry point
+├── config.py                        # [BUILD 1st]  Constants
+├── models.py                        # [BUILD 2nd]  Data models
+│
+├── utils/
+│   ├── __init__.py                  # [BUILD 3rd]  Empty file
+│   ├── url_parser.py                # [BUILD 3rd]  URL parsing
+│   ├── segment_classifier.py        # [BUILD 4th]  Segment type detection
+│   └── trie.py                      # [BUILD 5th]  Trie data structure
+│
+├── pipeline/
+│   ├── __init__.py                  # [BUILD 6th]  Empty file
+│   ├── ingestion.py                 # [BUILD 6th]  Stage 2.1
+│   ├── canonicalization.py          # [BUILD 6th]  Stage 2.2
+│   ├── version_detection.py         # [BUILD 6th]  Stage 2.3
+│   ├── generator_detection.py       # [BUILD 6th]  Stage 2.4
+│   ├── structural_grouping.py       # [BUILD 7th]  Stage 2.5 + 2.6
+│   ├── coverage.py                  # [BUILD 8th]  Stage 2.7
+│   └── output.py                    # [BUILD 9th]  Stage 2.8
+│
+├── tests/
+│   ├── __init__.py                  # [BUILD 11th] Empty file
+│   ├── fixtures/
+│   │   └── sample_phase1.json       # [BUILD 11th] Test fixture
+│   ├── test_url_parser.py           # [BUILD 11th]
+│   ├── test_segment_classifier.py   # [BUILD 11th]
+│   ├── test_trie.py                 # [BUILD 11th]
+│   ├── test_canonicalization.py     # [BUILD 11th]
+│   ├── test_version_detection.py    # [BUILD 11th]
+│   ├── test_structural_grouping.py  # [BUILD 11th]
+│   └── test_full_pipeline.py        # [BUILD 11th]
+│
+└── requirements.txt                 # [BUILD 1st]
+```
+
+---
+
+## 2. Build Step 1 — `requirements.txt` and `config.py`
+
+### `requirements.txt`
+
+```
+pydantic>=2.0
+```
+
+That is the only dependency. Everything else is standard library.
+
+### `config.py`
+
+```python
+"""
+Central configuration for Phase 2.
+Every constant used across the project lives here.
+No magic numbers anywhere else.
+"""
+
+# ─── Asset filtering ─────────────────────────────────────────
+# URLs ending with these extensions are assets, not pages.
+# Phase 2 does NOT build templates for assets.
+ASSET_EXTENSIONS: set[str] = {
+    ".css", ".js", ".mjs",
+    ".png", ".jpg", ".jpeg", ".gif", ".svg", ".ico", ".webp",
+    ".woff", ".woff2", ".ttf", ".eot",
+    ".mp4", ".mp3", ".wav",
+    ".zip", ".tar", ".gz",
+    ".pdf",
+    ".xml",  # except sitemap.xml — handled separately
+    ".map",  # source maps
+}
+
+# ─── Segment classification ──────────────────────────────────
+# Thresholds for determining if a path segment is static or variable.
+# If a segment value appears in >80% of URLs at the same position, treat as static.
+STATIC_THRESHOLD: float = 0.80
+
+# If a segment value appears in <10% of URLs, it is likely unique per page (variable).
+VARIABLE_THRESHOLD: float = 0.10
+
+# ─── Pattern grouping ────────────────────────────────────────
+# Minimum number of URLs to form a group.
+# Groups smaller than this get merged into a catch-all or sent to uncovered.
+MIN_GROUP_SIZE: int = 3
+
+# Two templates are considered mergeable if their fingerprints differ
+# by at most this many positions.
+TEMPLATE_MERGE_DISTANCE: int = 1
+
+# ─── Coverage ────────────────────────────────────────────────
+# Target coverage percentage. If below this, the pipeline logs a warning.
+TARGET_COVERAGE: float = 0.85
+
+# ─── Version detection ───────────────────────────────────────
+# Regex pattern for version prefixes in URL paths.
+# Matches: /stable/, /dev/, /latest/, /0.24/, /3.1.2/, /v2/, /en/stable/
+VERSION_PATTERN: str = (
+    r"^/"
+    r"(?:en/|fr/|de/|es/|ja/|zh/|ko/)?"  # optional language prefix
+    r"(?:stable|dev|latest|master|main"    # named versions
+    r"|v?\d+(?:\.\d+)*(?:\.\d+)?)"        # numeric versions like 0.24, v2, 3.1.2
+    r"(/|$)"
+)
+
+# ─── Generator detection ─────────────────────────────────────
+# Known path indicators for documentation generators
+GENERATOR_SIGNALS: dict[str, dict[str, str]] = {
+    "sphinx": {
+        "static_dir": "_static",
+        "sources_dir": "_sources",
+        "objects_inv": "objects.inv",
+        "search_js": "_static/searchtools.js",
+    },
+    "mkdocs": {
+        "search_json": "search/search_index.json",
+        "mkdocs_theme": "mkdocs",
+    },
+    "docusaurus": {
+        "assets_dir": "assets/js",
+        "docusaurus_js": "docusaurus",
+    },
+    "vuepress": {
+        "assets_dir": ".vuepress",
+    },
+    "hugo": {
+        "index_json": "index.json",
+    },
+}
+
+# ─── Output ──────────────────────────────────────────────────
+# Maximum number of example URLs to include per template in the output
+MAX_EXAMPLES_PER_TEMPLATE: int = 5
+
+# Maximum number of uncovered URLs to include in output (before truncating)
+MAX_UNCOVERED_IN_OUTPUT: int = 50
+```
+
+---
+
+## 3. Build Step 2 — `models.py`
+
+This file defines every data structure used across the entire pipeline. Build it completely. Every other file imports from here.
+
+```python
+"""
+Data models for Phase 2.
+All data flowing through the pipeline uses these types.
+Every field has a purpose. No unused fields.
+"""
+
+from __future__ import annotations
+from pydantic import BaseModel, Field
+from enum import Enum
+from typing import Optional
+
+
+# ─── Enums ────────────────────────────────────────────────────
+
+class URLClassification(str, Enum):
+    INTERNAL = "internal"
+    EXTERNAL = "external"
+
+
+class SegmentType(str, Enum):
+    """Lexical type of a single URL path segment."""
+    LITERAL = "literal"              # "modules", "generated", "user_guide"
+    SLUG = "slug"                    # "linear-model", "random-forest-classifier"
+    CAMEL_CASE = "camel_case"        # "LogisticRegression", "RandomForestClassifier"
+    DOTTED_PATH = "dotted_path"      # "sklearn.linear_model", "numpy.core"
+    INTEGER = "integer"              # "123", "42"
+    FLOAT = "float"                  # "3.14"
+    VERSION = "version"              # "v2.1", "0.24", "3.1.2"
+    DATE = "date"                    # "2024-01-15"
+    UUID = "uuid"                    # "550e8400-e29b-41d4-a716-446655440000"
+    HASH = "hash"                    # "a1b2c3d4" (hex string, 8+ chars)
+    FILENAME = "filename"            # "LogisticRegression.html", "plot_example.png"
+    EXTENSION = "extension"          # ".html", ".rst", ".md"
+    UNKNOWN = "unknown"
+
+
+class ExternalDomainType(str, Enum):
+    """Classification of external domains."""
+    DOCUMENTATION_CROSSREF = "documentation_crossref"
+    PROJECT_HOMEPAGE = "project_homepage"
+    PACKAGE_INDEX = "package_index"
+    CODE_HOSTING = "code_hosting"
+    UNKNOWN = "unknown"
+
+
+# ─── Input models (Phase 1 → Phase 2) ────────────────────────
+
+class DiscoveredURL(BaseModel):
+    """A single URL as discovered by Phase 1."""
+    url: str
+    source_url: str = Field(description="The page where this link was found")
+    depth: int = Field(description="Crawl depth from the root that discovered it")
+    link_text: str = Field(default="", description="Visible text of the anchor tag")
+    http_status: Optional[int] = Field(default=None, description="HTTP status if fetched")
+
+
+class Phase1Output(BaseModel):
+    """The complete input that Phase 2 receives from Phase 1."""
+    crawl_id: str = Field(description="Unique identifier for this crawl run")
+    root_domain: str = Field(description="The domain being crawled, e.g. scikit-learn.org")
+    root_urls: list[str] = Field(description="Entry point URLs that Phase 1 started from")
+
+    internal_urls: list[DiscoveredURL] = Field(
+        default_factory=list,
+        description="URLs belonging to root_domain"
+    )
+    external_urls: list[DiscoveredURL] = Field(
+        default_factory=list,
+        description="URLs pointing to other domains"
+    )
+
+    signals: dict = Field(
+        default_factory=dict,
+        description="Hints from Phase 1, e.g. has_objects_inv=True"
+    )
+
+
+# ─── Internal processing models ──────────────────────────────
+
+class ParsedSegment(BaseModel):
+    """One segment of a parsed URL path."""
+    raw: str                           # Original text: "LogisticRegression.html"
+    position: int                      # 0-indexed position in path
+    lexical_type: SegmentType          # Determined by segment classifier
+    is_static: Optional[bool] = None   # Filled in during grouping (Step 2.5)
+    frequency: Optional[float] = None  # How often this exact value appears at this position
+
+
+class ParsedURL(BaseModel):
+    """A fully parsed and classified URL."""
+    original_url: str
+    canonical_url: str
+    domain: str
+    scheme: str
+    path: str                          # Canonical path
+    segments: list[ParsedSegment]
+    query: Optional[str] = None
+    fragment: Optional[str] = None
+    classification: URLClassification
+    is_asset: bool
+    version: Optional[str] = None      # Extracted version prefix, e.g. "stable"
+    version_free_path: Optional[str] = None  # Path without version prefix
+    source_url: str = ""
+    depth: int = 0
+    link_text: str = ""
+
+
+# ─── Output models (Phase 2 → Phase 3) ───────────────────────
+
+class TemplatePattern(BaseModel):
+    """A discovered URL pattern that maps to one scraper template."""
+    template_id: str                   # e.g. "tpl_001"
+    name: Optional[str] = None         # Human-readable name, e.g. "api_reference"
+    pattern: str                       # e.g. "/modules/generated/<dotted_path>.<filename>"
+    fingerprint: str                   # e.g. "LIT/LIT/LIT/DOTTED_PATH.FILENAME"
+    member_count: int                  # How many URLs match this pattern
+    versions_covered: list[str] = Field(default_factory=list)
+    scope: str = "internal"            # "internal" or "external"
+    example_urls: list[str] = Field(default_factory=list)
+    confidence: float = Field(default=0.0, ge=0.0, le=1.0)
+
+
+class ExternalDomain(BaseModel):
+    """Summary of an external domain encountered during crawling."""
+    domain: str
+    url_count: int
+    classification: ExternalDomainType
+    observed_paths: list[str] = Field(default_factory=list)
+    note: str = ""
+
+
+class CoverageReport(BaseModel):
+    """How well the templates cover the discovered URLs."""
+    total_internal_urls: int
+    covered_urls: int
+    uncovered_urls: int
+    coverage_percent: float
+    template_count: int
+    avg_urls_per_template: float
+
+
+class UncoveredURL(BaseModel):
+    """A URL that no template matches. Sent to Phase 3 self-heal."""
+    url: str
+    reason: str
+    recommendation: str = "self_heal"
+
+
+class Phase2Output(BaseModel):
+    """The complete output that Phase 2 sends to Phase 3."""
+    crawl_id: str
+    root_domain: str
+    generator_detected: Optional[str] = None
+    generator_confidence: float = 0.0
+
+    summary: CoverageReport
+    templates: list[TemplatePattern] = Field(default_factory=list)
+    uncovered_urls: list[UncoveredURL] = Field(default_factory=list)
+    external_domains: list[ExternalDomain] = Field(default_factory=list)
+
+    # Phase 3 reads this directly: template_id → list of URLs to scrape
+    template_map: dict[str, list[str]] = Field(default_factory=dict)
+```
+
+---
+
+## 4. Build Step 3 — `utils/url_parser.py`
+
+```python
+"""
+URL parsing utilities.
+Takes a raw URL string. Returns structured components.
+Pure functions. No side effects. No I/O.
+"""
+
+from urllib.parse import urlparse, parse_qs, urlunparse
+from models import ParsedSegment, ParsedURL, URLClassification, SegmentType
+from typing import Optional
+import re
+
+
+def parse_url(raw_url: str) -> dict:
+    """
+    Decompose a URL into its components using urllib.parse.
+    
+    Input:  "https://scikit-learn.org/stable/modules/generated/sklearn.linear_model.LogisticRegression.html#section1"
+    Output: {
+        "scheme": "https",
+        "host": "scikit-learn.org", 
+        "path": "/stable/modules/generated/sklearn.linear_model.LogisticRegression.html",
+        "segments": ["stable", "modules", "generated", "sklearn.linear_model.LogisticRegression.html"],
+        "query": {},
+        "fragment": "section1"
+    }
+    
+    EDGE CASES TO HANDLE:
+    - URL with no path → path becomes "/"
+    - URL with trailing slash → keep trailing slash info but strip for segment parsing
+    - URL with query parameters → parse into dict
+    - URL with no scheme → assume https
+    """
+    pass  # IMPLEMENT THIS
+
+
+def split_path_segments(path: str) -> list[str]:
+    """
+    Split a URL path into its segments.
+    
+    Input:  "/stable/modules/generated/sklearn.linear_model.LogisticRegression.html"
+    Output: ["stable", "modules", "generated", "sklearn.linear_model.LogisticRegression.html"]
+    
+    RULES:
+    - Split on "/"
+    - Remove empty strings from result (handles leading slash and trailing slash)
+    - Do NOT split on dots within a segment (dots are part of the segment value)
+    """
+    pass  # IMPLEMENT THIS
+
+
+def classify_segment(raw_segment: str) -> SegmentType:
+    """
+    Determine the lexical type of a single URL path segment.
+    
+    Test this function with these exact inputs and expected outputs:
+    
+    "modules"           → LITERAL
+    "generated"         → LITERAL  
+    "stable"            → LITERAL
+    "user_guide"        → LITERAL
+    "linear-model"      → SLUG
+    "random-forest"     → SLUG
+    "LogisticRegression"  → CAMEL_CASE
+    "RandomForestClassifier" → CAMEL_CASE
+    "sklearn.linear_model"  → DOTTED_PATH
+    "numpy.core"        → DOTTED_PATH
+    "123"               → INTEGER
+    "42"                → INTEGER
+    "3.14"              → FLOAT
+    "v2.1"              → VERSION
+    "0.24"              → VERSION
+    "2024-01-15"        → DATE
+    "550e8400-e29b-41d4-a716-446655440000" → UUID
+    "a1b2c3d4e5f6"      → HASH
+    "LogisticRegression.html" → FILENAME
+    "plot_example.html"  → FILENAME
+    "index.html"         → FILENAME
+    "api.rst"            → FILENAME
+    "install.html"       → FILENAME
+    
+    ALGORITHM:
+    1. Check for UUID pattern: r'^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$'
+    2. Check for DATE pattern: r'^\d{4}-\d{2}-\d{2}$'
+    3. Check for VERSION pattern: r'^v?\d+(\.\d+)*$'
+    4. Check for INTEGER pattern: r'^\d+$'
+    5. Check for FLOAT pattern: r'^\d+\.\d+$' (but not if it looks like a filename)
+    6. Check for HASH pattern: r'^[0-9a-f]{8,}$'
+    7. Check for DOTTED_PATH pattern: contains dots AND each part is alphanumeric
+       r'^[a-zA-Z_][a-zA-Z0-9_]*(\.[a-zA-Z_][a-zA-Z0-9_]*)+$'
+       BUT: must check BEFORE FILENAME — "sklearn.linear_model" is a dotted path,
+       "LogisticRegression.html" is a filename
+    8. Check for FILENAME pattern: last part after final dot is a known extension
+       r'^.+\.(html|htm|rst|md|php|aspx|txt|json|xml|csv)$'
+    9. Check for CAMEL_CASE pattern: r'^[A-Z][a-zA-Z0-9]*$' (starts uppercase, no underscores/hyphens)
+    10. Check for SLUG pattern: r'^[a-z][a-z0-9]*(-[a-z0-9]+)*$' OR r'^[a-z][a-z0-9]*(_[a-z0-9]+)*$'
+    11. Default: LITERAL
+    
+    ORDER MATTERS. Check in the exact order above.
+    """
+    pass  # IMPLEMENT THIS
+
+
+def is_asset_url(url: str) -> bool:
+    """
+    Check if a URL points to an asset file (CSS, JS, image, font, etc.)
+    
+    Uses ASSET_EXTENSIONS from config.py.
+    
+    Input:  "https://scikit-learn.org/stable/_static/css/theme.css"
+    Output: True
+    
+    Input:  "https://scikit-learn.org/stable/modules/generated/sklearn.linear_model.LogisticRegression.html"
+    Output: False
+    """
+    pass  # IMPLEMENT THIS
+
+
+def build_parsed_url(
+    raw_url: str,
+    classification: URLClassification,
+    root_domain: str,
+    source_url: str = "",
+    depth: int = 0,
+    link_text: str = ""
+) -> ParsedURL:
+    """
+    Full URL processing. Combines parse_url + classify_segment + is_asset_url.
+    
+    This is the main function called by the ingestion pipeline.
+    
+    Steps:
+    1. Call parse_url(raw_url)
+    2. Call is_asset_url(raw_url)
+    3. Call split_path_segments(path)
+    4. For each segment, call classify_segment(segment) → build ParsedSegment
+    5. Return a complete ParsedURL object
+    
+    Note: version and version_free_path are NOT filled in here.
+    They are filled in by the version_detection pipeline stage.
+    """
+    pass  # IMPLEMENT THIS
+```
+
+---
+
+## 5. Build Step 4 — `utils/segment_classifier.py`
+
+```python
+"""
+Higher-level segment analysis utilities.
+Works on collections of ParsedURL objects.
+Used by the structural grouping stage.
+"""
+
+from models import ParsedURL, ParsedSegment, SegmentType
+from typing import Optional
+
+
+def compute_position_frequencies(
+    urls: list[ParsedURL],
+) -> dict[int, dict[str, float]]:
+    """
+    For each path position (0, 1, 2, ...), compute how frequently
+    each unique segment value appears.
+    
+    Input: 143 URLs, all with path like /modules/generated/X.html
+    Output: {
+        0: {"modules": 1.0},          # position 0 is always "modules"
+        1: {"generated": 1.0},        # position 1 is always "generated"
+        2: {"sklearn.linear_model.LogisticRegression.html": 0.007,
+            "sklearn.ensemble.RandomForestClassifier.html": 0.007,
+            ...}                       # position 2 is highly variable
+    }
+    
+    IMPORTANT: 
+    - Only process URLs that have version_free_path set (if available), 
+      otherwise use path.
+    - All URLs in the input list should have the same depth. 
+      If they don't, only use positions up to the minimum depth.
+    """
+    pass  # IMPLEMENT THIS
+
+
+def classify_positions(
+    position_frequencies: dict[int, dict[str, float]],
+    static_threshold: float = 0.80,
+    variable_threshold: float = 0.10,
+) -> dict[int, str]:
+    """
+    Based on frequency analysis, determine if each position is 
+    "static" or "variable".
+    
+    Algorithm:
+    - If ANY single value at a position has frequency >= static_threshold → "static"
+    - If NO single value has frequency >= variable_threshold → "variable"  
+    - Otherwise → "semi_variable" (a few repeated values, like enum)
+    
+    Input: position_frequencies from compute_position_frequencies
+    Output: {0: "static", 1: "static", 2: "variable"}
+    """
+    pass  # IMPLEMENT THIS
+
+
+def generate_fingerprint(
+    segments: list[ParsedSegment],
+    position_types: dict[int, str],
+) -> str:
+    """
+    Generate a structural fingerprint string for a URL's path.
+    
+    For static positions, use the actual value.
+    For variable positions, use the SegmentType name.
+    
+    Input segments: ["modules", "generated", "sklearn.linear_model.LogisticRegression.html"]
+    Input position_types: {0: "static", 1: "static", 2: "variable"}
+    Segment types: [LITERAL, LITERAL, FILENAME]
+    
+    Output: "modules/generated/FILENAME"
+    
+    For a different URL: ["user_guide", "linear_model.html"]
+    Position types: {0: "static", 1: "variable"}
+    Segment types: [LITERAL, FILENAME]
+    
+    Output: "user_guide/FILENAME"
+    """
+    pass  # IMPLEMENT THIS
+```
+
+---
+
+## 6. Build Step 5 — `utils/trie.py`
+
+```python
+"""
+Trie (prefix tree) data structure for URL path analysis.
+Used to discover common path prefixes and group URLs by structure.
+"""
+
+from __future__ import annotations
+from dataclasses import dataclass, field
+from typing import Optional
+from models import ParsedURL
+
+
+@dataclass
+class TrieNode:
+    """
+    A single node in the URL trie.
+    
+    The trie stores path segments as keys. Leaf nodes hold the actual URLs.
+    Intermediate nodes hold aggregate statistics about their children.
+    """
+    segment: str = ""                              # The path segment: "modules", "generated", etc.
+    depth: int = 0                                 # 0 = root
+    children: dict[str, TrieNode] = field(default_factory=dict)
+    urls: list[str] = field(default_factory=list)  # Only populated at leaf nodes
+    is_leaf: bool = False
+    
+    # Computed metrics — filled in by compute_metrics()
+    child_count: int = 0
+    descendant_count: int = 0                      # Total leaf URLs under this node
+    unique_segment_count: int = 0                  # How many unique child segment values
+    child_literal_ratio: float = 0.0               # Fraction of children with literal-like names
+    
+    def add_url(self, segments: list[str], url: str) -> None:
+        """
+        Insert a URL into the trie by following its path segments.
+        
+        Example:
+            trie.add_url(["modules", "generated", "sklearn.linear_model.LogisticRegression.html"], 
+                         "https://scikit-learn.org/stable/modules/generated/sklearn.linear_model.LogisticRegression.html")
+        
+        Creates nodes: root → modules → generated → sklearn.linear_model.LogisticRegression.html (leaf)
+        """
+        pass  # IMPLEMENT THIS — recursive or iterative
+
+    def compute_metrics(self) -> None:
+        """
+        Walk the entire tree and compute metrics for every node.
+        Must be called AFTER all URLs have been added.
+        
+        For each node, compute:
+        - child_count: len(self.children)
+        - descendant_count: sum of all urls in subtree
+        - unique_segment_count: number of distinct child segments
+        - child_literal_ratio: what fraction of child segments look "literal" 
+          (not containing dots with extensions, not camelCase, not numeric)
+          
+        Use a simple heuristic for child_literal_ratio:
+        A child segment is "literal-like" if:
+        - It's all lowercase
+        - It contains only letters, numbers, underscores, hyphens  
+        - It does NOT contain a file extension (.html, .rst, etc.)
+        - It's NOT camelCase
+        - It's NOT a dotted path
+        """
+        pass  # IMPLEMENT THIS — recursive post-order traversal
+
+    def find_pattern_anchors(self, literal_ratio_threshold: float = 0.3) -> list[TrieNode]:
+        """
+        Find nodes where the child literal ratio drops below the threshold.
+        These are "pattern anchors" — points where URL content becomes variable.
+        
+        All URLs under a pattern anchor likely belong to the same template.
+        
+        Returns list of TrieNode objects where child_literal_ratio < threshold
+        AND descendant_count >= MIN_GROUP_SIZE.
+        
+        IMPORTANT: Return the DEEPEST such nodes (don't return a parent if 
+        a child also qualifies).
+        """
+        pass  # IMPLEMENT THIS
+
+    def find_structural_junctions(self, literal_ratio_threshold: float = 0.7) -> list[TrieNode]:
+        """
+        Find nodes where most children are literal values.
+        These are "structural junctions" — points where the site branches 
+        into distinct sections (user_guide/, modules/, auto_examples/).
+        
+        Returns list of TrieNode objects where child_literal_ratio >= threshold
+        AND child_count >= 2.
+        """
+        pass  # IMPLEMENT THIS
+
+    def collect_leaves(self) -> list[str]:
+        """Collect all URLs stored in leaves of this subtree."""
+        pass  # IMPLEMENT THIS
+
+    def to_string(self, indent: int = 0) -> str:
+        """
+        Pretty-print the trie for debugging.
+        
+        Output format:
+        root
+        ├── modules [descendants=145, child_ratio=0.5]
+        │   ├── generated [descendants=143, child_ratio=0.0] ← PATTERN ANCHOR
+        │   │   ├── sklearn.linear_model.LogisticRegression.html
+        │   │   ├── sklearn.ensemble.RandomForestClassifier.html
+        │   │   └── ... (141 more)
+        │   └── api.html
+        ├── user_guide [descendants=62, child_ratio=0.0] ← PATTERN ANCHOR
+        │   ├── linear_model.html
+        │   └── ... (61 more)
+        └── install.html
+        """
+        pass  # IMPLEMENT THIS
+
+
+def build_trie(urls: list[ParsedURL], use_version_free_path: bool = True) -> TrieNode:
+    """
+    Build a trie from a list of parsed URLs.
+    
+    Parameters:
+    - urls: list of ParsedURL objects (internal URLs only, assets filtered out)
+    - use_version_free_path: if True, use version_free_path instead of path
+      (so /stable/modules/... and /dev/modules/... merge into the same trie branch)
+    
+    Returns:
+    - Root TrieNode with all URLs inserted and metrics computed
+    
+    Steps:
+    1. Create root TrieNode
+    2. For each URL:
+       a. Get the path (version_free_path if use_version_free_path, else path)
+       b. Split into segments
+       c. Call root.add_url(segments, url.canonical_url)
+    3. Call root.compute_metrics()
+    4. Return root
+    """
+    pass  # IMPLEMENT THIS
+```
+
+---
+
+## 7. Build Step 6 — Pipeline stages
+
+### `pipeline/ingestion.py` (Stage 2.1)
+
+```python
+"""
+Stage 2.1 — Ingestion
+Read Phase 1 JSON. Separate internal from external. Filter assets.
+Build ParsedURL objects for every URL.
+"""
+
+import json
+from pathlib import Path
+from models import Phase1Output, ParsedURL, URLClassification
+from utils.url_parser import build_parsed_url, is_asset_url
+
+
+def ingest(phase1_json_path: str) -> dict:
+    """
+    Main ingestion function.
+    
+    Input:  Path to Phase 1 output JSON file.
+    Output: {
+        "parsed_internal": list[ParsedURL],   # Internal page URLs (not assets)
+        "parsed_external": list[ParsedURL],   # External URLs
+        "asset_urls": list[str],              # Internal asset URLs (filtered out)
+        "phase1": Phase1Output                # Original Phase 1 data
+    }
+    
+    Steps:
+    1. Read and validate JSON against Phase1Output model
+    2. For each internal URL:
+       a. Call build_parsed_url with classification=INTERNAL
+       b. If is_asset_url → add to asset_urls list, skip
+       c. Otherwise → add to parsed_internal list
+    3. For each external URL:
+       a. Call build_parsed_url with classification=EXTERNAL
+       b. If is_asset_url → add to asset_urls list, skip
+       c. Otherwise → add to parsed_external list
+    4. Log counts: how many internal, external, assets
+    5. Return the dict
+    
+    DEDUPLICATION:
+    If the same canonical URL appears multiple times, keep the one with
+    the lowest depth. If same depth, keep the one with the most link_text.
+    """
+    pass  # IMPLEMENT THIS
+```
+
+### `pipeline/canonicalization.py` (Stage 2.2)
+
+```python
+"""
+Stage 2.2 — URL Canonicalization
+Normalize URLs so that equivalent URLs become identical strings.
+"""
+
+from models import ParsedURL
+from urllib.parse import urlparse, urlunparse, urlencode, parse_qs
+
+
+def canonicalize(url: str) -> str:
+    """
+    Normalize a URL to its canonical form.
+    
+    Transformations (apply in this order):
+    1. Parse with urlparse
+    2. Lowercase the scheme and host
+    3. Remove default ports (:80 for http, :443 for https)
+    4. Remove fragment (#...)
+    5. Remove tracking query parameters: utm_source, utm_medium, utm_campaign, 
+       utm_term, utm_content, ref, source, fbclid, gclid
+    6. Sort remaining query parameters alphabetically
+    7. Remove trailing slash from path UNLESS path is just "/"
+    8. Resolve "." and ".." in path
+    9. Remove duplicate slashes: "//" → "/"
+    10. Reconstruct URL
+    
+    Input:  "https://scikit-learn.org/stable/modules/generated/sklearn.linear_model.LogisticRegression.html?utm_source=docs#api"
+    Output: "https://scikit-learn.org/stable/modules/generated/sklearn.linear_model.LogisticRegression.html"
+    
+    EDGE CASES:
+    - Empty path → "/"
+    - Only fragment → remove fragment, keep rest
+    - Only query → keep query (minus tracking params)
+    """
+    pass  # IMPLEMENT THIS
+
+
+def canonicalize_batch(parsed_urls: list[ParsedURL]) -> list[ParsedURL]:
+    """
+    Apply canonicalize() to every URL in the list.
+    Update canonical_url field on each ParsedURL.
+    Also update the path and segments to match the canonical form.
+    
+    DEDUPLICATION: After canonicalization, if multiple URLs map to the same
+    canonical form, keep only one (prefer lower depth, then longer link_text).
+    
+    Return the deduplicated list.
+    """
+    pass  # IMPLEMENT THIS
+```
+
+### `pipeline/version_detection.py` (Stage 2.3)
+
+```python
+"""
+Stage 2.3 — Version Detection
+Identify and strip version prefixes from documentation URLs.
+"""
+
+import re
+from models import ParsedURL
+from config import VERSION_PATTERN
+
+
+def extract_version(path: str) -> tuple[str | None, str]:
+    """
+    Extract version prefix from a URL path.
+    
+    Returns: (version, version_free_path)
+    
+    Examples:
+    "/stable/modules/generated/sklearn.linear_model.LogisticRegression.html"
+    → ("stable", "/modules/generated/sklearn.linear_model.LogisticRegression.html")
+    
+    "/0.24/user_guide/linear_model.html"
+    → ("0.24", "/user_guide/linear_model.html")
+    
+    "/en/stable/install.html"
+    → ("stable", "/install.html")  ← language prefix is also stripped
+    
+    "/install.html"
+    → (None, "/install.html")  ← no version found
+    
+    IMPORTANT: Use VERSION_PATTERN from config.py as the regex.
+    """
+    pass  # IMPLEMENT THIS
+
+
+def apply_version_detection(parsed_urls: list[ParsedURL]) -> list[ParsedURL]:
+    """
+    For every URL, call extract_version and fill in:
+    - url.version
+    - url.version_free_path
+    
+    If no version is detected, version_free_path = path.
+    
+    Returns the updated list (mutates in place AND returns for chaining).
+    """
+    pass  # IMPLEMENT THIS
+```
+
+### `pipeline/generator_detection.py` (Stage 2.4)
+
+```python
+"""
+Stage 2.4 — Generator Detection
+Try to identify which documentation generator produced the site.
+This sets prior expectations for URL patterns.
+"""
+
+from models import ParsedURL, Phase1Output
+from config import GENERATOR_SIGNALS
+from utils.url_parser import split_path_segments
+
+
+def detect_generator(
+    phase1: Phase1Output,
+    parsed_urls: list[ParsedURL],
+) -> tuple[str | None, float]:
+    """
+    Analyze available signals to guess the documentation generator.
+    
+    Returns: (generator_name, confidence)
+    
+    Signals to check (in order of reliability):
+    
+    1. Phase 1 signals dict (if Phase 1 checked for objects.inv, etc.)
+       → If signals["has_objects_inv"] == True → "sphinx", 0.95
+    
+    2. URL path patterns:
+       - "/_static/" in any URL → strong Sphinx signal
+       - "/_sources/" in any URL → strong Sphinx signal  
+       - "/objects.inv" in any URL → definitive Sphinx
+       - "/search/search_index.json" in any URL → strong MkDocs signal
+       - "/assets/js/docusaurus" in any URL → strong Docusaurus signal
+       
+    3. File extensions in URLs:
+       - .html with paths like /modules/generated/ → Sphinx
+       - .html with flat paths → MkDocs
+       
+    4. Fallback: (None, 0.0)
+    
+    Algorithm:
+    - Check each signal category
+    - Assign confidence scores
+    - Return the generator with the highest confidence
+    - If max confidence < 0.3, return (None, 0.0)
+    """
+    pass  # IMPLEMENT THIS
+```
+
+---
+
+## 8. Build Step 7 — `pipeline/structural_grouping.py` (Stages 2.5 + 2.6)
+
+This is the most complex file. Take time with it.
+
+```python
+"""
+Stage 2.5 + 2.6 — Structural Grouping and Template Derivation
+Takes parsed URLs, builds trie, discovers groups, derives templates.
+This is the core intelligence of Phase 2.
+"""
+
+from models import (
+    ParsedURL, TemplatePattern, SegmentType, ParsedSegment
+)
+from utils.trie import TrieNode, build_trie
+from utils.segment_classifier import (
+    compute_position_frequencies, classify_positions, generate_fingerprint
+)
+from config import MIN_GROUP_SIZE, TEMPLATE_MERGE_DISTANCE, MAX_EXAMPLES_PER_TEMPLATE
+import re
+
+
+class URLGroup:
+    """
+    A group of URLs that likely share the same scraper template.
+    Intermediate representation before becoming a TemplatePattern.
+    """
+    def __init__(self, group_id: str, urls: list[str], path_prefix: str):
+        self.group_id = group_id
+        self.urls = urls              # List of canonical URLs
+        self.path_prefix = path_prefix  # Common prefix, e.g. "/modules/generated"
+        self.template_pattern = None   # Filled in by derive_template()
+        self.fingerprint = None        # Filled in by derive_template()
+
+
+def discover_groups(
+    urls: list[ParsedURL],
+    generator_hint: str | None = None,
+) -> list[URLGroup]:
+    """
+    Main grouping function. Discovers URL groups from a list of parsed URLs.
+    
+    Steps:
+    1. Build a trie from the URLs (using version_free_path)
+    2. Find pattern anchors (nodes where content becomes variable)
+    3. Find structural junctions (nodes where site branches)
+    4. For each pattern anchor:
+       a. Collect all leaf URLs under it
+       b. If count >= MIN_GROUP_SIZE → create a URLGroup
+       c. If count < MIN_GROUP_SIZE → mark as candidate for catch-all group
+    5. For structural junctions with only 1-2 leaf children (small sections):
+       a. Group them into a "static_pages" catch-all
+    6. Return all groups
+    
+    If generator_hint is "sphinx", you can use known Sphinx patterns:
+    - /modules/generated/ → API reference (high confidence)
+    - /user_guide/ → user guide
+    - /auto_examples/ → examples
+    Use these as hints but still verify with actual URL data.
+    """
+    pass  # IMPLEMENT THIS
+
+
+def derive_template(group: URLGroup, all_urls: list[ParsedURL]) -> TemplatePattern:
+    """
+    Given a URLGroup, derive a TemplatePattern.
+    
+    Steps:
+    1. Get all ParsedURL objects that belong to this group
+    2. All URLs in a group should have the same number of path segments
+       (same depth). If not, split into depth-based subgroups.
+    3. For each segment position:
+       a. Collect all values at that position across the group
+       b. If all identical → static segment, use the literal value
+       c. If highly varied → variable segment, use <TYPE> placeholder
+       d. If few unique values repeated → could be enum, use <TYPE> placeholder
+    4. Build the pattern string: "/literal/literal/<DOTTED_PATH>.<FILENAME>"
+    5. Build the fingerprint: "LIT/LIT/DOTTED_PATH.FILENAME"
+    6. Compute confidence based on:
+       - How uniform are the segment types across the group
+       - How many URLs are in the group (more = higher confidence)
+    7. Return TemplatePattern
+    
+    PATTERN STRING FORMAT:
+    - Static segments: written as-is → "modules"
+    - Variable segments: wrapped in angle brackets with type → "<dotted_path>"
+    - FILENAME segments: if the extension is always .html, include it → "<filename>.html"
+    - Example: "/modules/generated/<dotted_path>.<camel_case>.html"
+    
+    FINGERPRINT FORMAT:
+    - "/" separated
+    - Static segments: the actual value in UPPERCASE
+    - Variable segments: the SegmentType name
+    - Example: "MODULES/GENERATED/DOTTED_PATH/CAMEL_CASE"
+    """
+    pass  # IMPLEMENT THIS
+
+
+def merge_similar_templates(
+    templates: list[TemplatePattern],
+) -> list[TemplatePattern]:
+    """
+    After initial template derivation, check if any templates should be merged.
+    
+    Merge criteria:
+    Two templates can be merged if:
+    1. They have the same number of segments
+    2. Their fingerprints differ in at most TEMPLATE_MERGE_DISTANCE positions
+    3. The differing positions are all variable (both are type names, not literals)
+    
+    When merging:
+    - Keep the template with more members
+    - Add the other template's URLs to it
+    - Recalculate the pattern (the variable types might need updating)
+    - Add a note that this template was merged
+    
+    Also handle the "version prefix" case:
+    If two templates differ only because one has an extra leading segment 
+    that looks like a version, merge them. This shouldn't happen if 
+    version stripping worked correctly, but handle it defensively.
+    
+    Return the merged list (fewer templates).
+    """
+    pass  # IMPLEMENT THIS
+
+
+def finalize_templates(
+    groups: list[URLGroup],
+    all_urls: list[ParsedURL],
+) -> list[TemplatePattern]:
+    """
+    Convert URLGroups → TemplatePatterns, then merge similar ones.
+    
+    Steps:
+    1. For each group, call derive_template(group, all_urls)
+    2. Assign template_ids: tpl_001, tpl_002, tpl_003, ...
+    3. Call merge_similar_templates(templates)
+    4. Re-assign template_ids after merge (no gaps)
+    5. Sort by member_count descending (biggest template first)
+    6. Return final list
+    """
+    pass  # IMPLEMENT THIS
+```
+
+---
+
+## 9. Build Step 8 — `pipeline/coverage.py` (Stage 2.7)
+
+```python
+"""
+Stage 2.7 — Coverage Check
+Determine how well the derived templates cover all discovered URLs.
+Identify uncovered URLs for Phase 3 self-heal.
+"""
+
+from models import (
+    ParsedURL, TemplatePattern, CoverageReport, UncoveredURL
+)
+from config import TARGET_COVERAGE, MIN_GROUP_SIZE
+
+
+def match_url_to_template(url: ParsedURL, template: TemplatePattern) -> bool:
+    """
+    Check if a URL matches a template pattern.
+    
+    Algorithm:
+    1. Get the URL's path (use version_free_path if available, else path)
+    2. Split into segments
+    3. Split the template pattern into segments
+    4. If segment counts differ → no match
+    5. For each position:
+       a. If template segment is a literal → must exactly equal URL segment
+       b. If template segment is a <type> placeholder → check that the URL 
+          segment's lexical type matches the expected type
+    6. All positions must match → return True
+    
+    Example:
+    URL path: /modules/generated/sklearn.linear_model.LogisticRegression.html
+    Pattern:  /modules/generated/<dotted_path>.<camel_case>.html
+    
+    Position 0: "modules" == "modules" ✓
+    Position 1: "generated" == "generated" ✓
+    Position 2: "sklearn.linear_model.LogisticRegression.html" matches "<dotted_path>.<camel_case>.html" ✓
+    
+    HOW TO MATCH THE LAST CASE:
+    The template segment is "<dotted_path>.<camel_case>.html"
+    The URL segment is "sklearn.linear_model.LogisticRegression.html"
+    
+    Strategy:
+    - Split template segment on "." → ["<dotted_path>", "<camel_case>", "html"]
+    - Split URL segment on "." → ["sklearn", "linear_model", "LogisticRegression", "html"]
+    
+    Wait — that doesn't align. "sklearn.linear_model" is one dotted_path, 
+    but splitting on "." breaks it.
+    
+    BETTER STRATEGY for compound segments (segments with dots):
+    - Check if the template segment contains <dotted_path> 
+    - If so, the URL segment before the final ".ext" part is the dotted_path
+    - Match the extension literally
+    - Match the remaining parts by type
+    
+    Implement a flexible matcher that handles this.
+    """
+    pass  # IMPLEMENT THIS
+
+
+def compute_coverage(
+    urls: list[ParsedURL],
+    templates: list[TemplatePattern],
+) -> tuple[CoverageReport, list[UncoveredURL], dict[str, list[str]]]:
+    """
+    Main coverage computation.
+    
+    Returns:
+    1. CoverageReport with statistics
+    2. List of UncoveredURL objects (for Phase 3 self-heal)
+    3. template_map: dict mapping template_id → list of matched URL strings
+    
+    Steps:
+    1. For each URL:
+       a. Try matching against each template (in order of specificity: 
+          most specific templates first, catch-all last)
+       b. If match found → add URL to that template's map entry
+       c. If no match → add to uncovered list
+    2. Compute statistics:
+       - total_internal_urls: len(urls)
+       - covered_urls: count of URLs that matched at least one template
+       - uncovered_urls: count that matched none
+       - coverage_percent: covered / total
+       - template_count: len(templates)
+       - avg_urls_per_template: covered / template_count
+    3. For uncovered URLs, set reason="no_template_match" and 
+       recommendation="self_heal"
+    4. Log warning if coverage_percent < TARGET_COVERAGE
+    5. Return all three results
+    
+    IMPORTANT: A URL should match at most ONE template. 
+    Match the most specific template first (deepest path pattern).
+    Catch-all templates match last.
+    """
+    pass  # IMPLEMENT THIS
+
+
+def external_domain_analysis(
+    external_urls: list[ParsedURL],
+) -> list[dict]:
+    """
+    Analyze external URLs by domain.
+    
+    Steps:
+    1. Group external URLs by domain
+    2. For each domain:
+       a. Count URLs
+       b. List observed paths
+       c. Classify domain type:
+          - If path contains /doc/, /docs/, /documentation/, /api/, /reference/, 
+            /stable/, /en/latest/ → DOCUMENTATION_CROSSREF
+          - If path is just "/" or "" → PROJECT_HOMEPAGE
+          - If domain is pypi.org → PACKAGE_INDEX
+          - If domain is github.com, gitlab.com, bitbucket.org → CODE_HOSTING
+          - Otherwise → UNKNOWN
+    3. Return list of ExternalDomain dicts
+    """
+    pass  # IMPLEMENT THIS
+```
+
+---
+
+## 10. Build Step 9 — `pipeline/output.py` (Stage 2.8)
+
+```python
+"""
+Stage 2.8 — Output Generation
+Assemble the final Phase 2 output JSON.
+"""
+
+import json
+from pathlib import Path
+from models import (
+    Phase2Output, Phase1Output, TemplatePattern, 
+    CoverageReport, UncoveredURL, ExternalDomain
+)
+
+
+def build_output(
+    phase1: Phase1Output,
+    generator_detected: str | None,
+    generator_confidence: float,
+    templates: list[TemplatePattern],
+    coverage: CoverageReport,
+    uncovered: list[UncoveredURL],
+    external_domains: list[ExternalDomain],
+    template_map: dict[str, list[str]],
+) -> Phase2Output:
+    """
+    Assemble the complete Phase 2 output.
+    
+    Steps:
+    1. Create Phase2Output with all fields
+    2. Trim example_urls in each template to MAX_EXAMPLES_PER_TEMPLATE
+    3. Trim uncovered_urls to MAX_UNCOVERED_IN_OUTPUT
+    4. Sort templates by member_count descending
+    5. Return Phase2Output
+    """
+    pass  # IMPLEMENT THIS
+
+
+def save_output(output: Phase2Output, output_path: str) -> None:
+    """
+    Write Phase2Output to a JSON file.
+    
+    Use model_dump_json with indent=2 for readability.
+    Create parent directories if they don't exist.
+    """
+    pass  # IMPLEMENT THIS
+
+
+def print_summary(output: Phase2Output) -> None:
+    """
+    Print a human-readable summary to stdout.
+    
+    Format:
+    ═══════════════════════════════════════════════
+    PHASE 2 RESULTS — scikit-learn.org
+    ═══════════════════════════════════════════════
+    
+    Generator detected: sphinx (confidence: 0.95)
+    
+    Coverage: 217/235 URLs (92.3%) with 4 templates
+    
+    Templates:
+      tpl_001  modules/generated/<>.<>.html  (143 URLs)  ← api_reference
+      tpl_002  user_guide/<>.html            (62 URLs)   ← user_guide  
+      tpl_003  auto_examples/<>/<>.html      (20 URLs)   ← examples
+      tpl_004  <>.html                       (10 URLs)   ← catch_all
+    
+    Uncovered: 18 URLs → self-heal
+    
+    External domains: numpy.org (5), scipy.org (3), matplotlib.org (4)
+    ═══════════════════════════════════════════════
+    """
+    pass  # IMPLEMENT THIS
+```
+
+---
+
+## 11. Build Step 10 — `main.py`
+
+```python
+"""
+Phase 2 — Entry Point
+
+Usage:
+    python main.py input.json
+    python main.py input.json --output output.json
+    python main.py input.json --output output.json --verbose
+
+Reads Phase 1 JSON, runs the full pipeline, writes Phase 2 JSON.
+"""
+
+import sys
+import argparse
+import json
+from pathlib import Path
+
+from pipeline.ingestion import ingest
+from pipeline.canonicalization import canonicalize_batch
+from pipeline.version_detection import apply_version_detection
+from pipeline.generator_detection import detect_generator
+from pipeline.structural_grouping import discover_groups, finalize_templates
+from pipeline.coverage import compute_coverage, external_domain_analysis
+from pipeline.output import build_output, save_output, print_summary
+
+
+def run_pipeline(input_path: str, output_path: str, verbose: bool = False) -> None:
+    """
+    Run the complete Phase 2 pipeline.
+    
+    Steps:
+    1. INGEST → load JSON, parse URLs, separate internal/external, filter assets
+    2. CANONICALIZE → normalize all URL strings, deduplicate
+    3. VERSION DETECTION → strip version prefixes, set version_free_path
+    4. GENERATOR DETECTION → guess Sphinx/MkDocs/Docusaurus
+    5. STRUCTURAL GROUPING → build trie, discover groups, derive templates
+    6. COVERAGE → match URLs to templates, find uncovered
+    7. EXTERNAL ANALYSIS → classify external domains
+    8. OUTPUT → assemble JSON, write file, print summary
+    
+    Each step logs progress if verbose=True.
+    
+    ERROR HANDLING:
+    - If input file doesn't exist → print error, exit 1
+    - If JSON is invalid → print error with line number, exit 1
+    - If no internal URLs found → print warning, output empty template map
+    - If any pipeline stage raises an exception → print the error with 
+      the stage name, re-raise
+    """
+    
+    # Step 1
+    if verbose:
+        print("[1/8] Ingesting Phase 1 output...")
+    ingested = ingest(input_path)
+    
+    # Step 2
+    if verbose:
+        print(f"[2/8] Canonicalizing {len(ingested['parsed_internal'])} internal URLs...")
+    internal = canonicalize_batch(ingested["parsed_internal"])
+    external = canonicalize_batch(ingested["parsed_external"])
+    
+    # Step 3
+    if verbose:
+        print("[3/8] Detecting version prefixes...")
+    internal = apply_version_detection(internal)
+    external = apply_version_detection(external)
+    
+    # Step 4
+    if verbose:
+        print("[4/8] Detecting documentation generator...")
+    generator, gen_confidence = detect_generator(ingested["phase1"], internal)
+    if verbose:
+        print(f"       → {generator or 'unknown'} (confidence: {gen_confidence:.2f})")
+    
+    # Step 5
+    if verbose:
+        print("[5/8] Discovering URL groups and deriving templates...")
+    groups = discover_groups(internal, generator_hint=generator)
+    templates = finalize_templates(groups, internal)
+    if verbose:
+        print(f"       → {len(templates)} templates derived")
+    
+    # Step 6
+    if verbose:
+        print("[6/8] Computing coverage...")
+    coverage, uncovered, template_map = compute_coverage(internal, templates)
+    if verbose:
+        print(f"       → {coverage.coverage_percent:.1f}% coverage")
+        print(f"       → {len(uncovered)} uncovered URLs")
+    
+    # Step 7
+    if verbose:
+        print("[7/8] Analyzing external domains...")
+    ext_domains = external_domain_analysis(external)
+    if verbose:
+        print(f"       → {len(ext_domains)} external domains")
+    
+    # Step 8
+    if verbose:
+        print("[8/8] Writing output...")
+    output = build_output(
+        phase1=ingested["phase1"],
+        generator_detected=generator,
+        generator_confidence=gen_confidence,
+        templates=templates,
+        coverage=coverage,
+        uncovered=uncovered,
+        external_domains=ext_domains,
+        template_map=template_map,
+    )
+    save_output(output, output_path)
+    print_summary(output)
+    
+    if verbose:
+        print(f"\nOutput written to: {output_path}")
+
+
+def main():
+    parser = argparse.ArgumentParser(
+        description="Phase 2: URL Structure Classifier"
+    )
+    parser.add_argument(
+        "input",
+        help="Path to Phase 1 output JSON file"
+    )
+    parser.add_argument(
+        "--output", "-o",
+        default=None,
+        help="Path for Phase 2 output JSON (default: input_dir/phase2_output.json)"
+    )
+    parser.add_argument(
+        "--verbose", "-v",
+        action="store_true",
+        help="Print progress to stdout"
+    )
+    
+    args = parser.parse_args()
+    
+    # Default output path
+    output_path = args.output
+    if output_path is None:
+        input_stem = Path(args.input).stem
+        output_path = str(Path(args.input).parent / f"{input_stem}_phase2.json")
+    
+    run_pipeline(args.input, output_path, verbose=args.verbose)
+
+
+if __name__ == "__main__":
+    main()
+```
+
+---
+
+## 12. Build Step 11 — Tests
+
+### `tests/fixtures/sample_phase1.json`
+
+Create this exact file for testing:
+
+```json
+{
+  "crawl_id": "test_crawl_001",
+  "root_domain": "scikit-learn.org",
+  "root_urls": ["https://scikit-learn.org/stable/"],
+  "signals": {
+    "has_objects_inv": true,
+    "static_dir": "_static"
+  },
+  "internal_urls": [
+    {
+      "url": "https://scikit-learn.org/stable/modules/generated/sklearn.linear_model.LogisticRegression.html",
+      "source_url": "https://scikit-learn.org/stable/modules/classes.html",
+      "depth": 2,
+      "link_text": "LogisticRegression"
+    },
+    {
+      "url": "https://scikit-learn.org/stable/modules/generated/sklearn.ensemble.RandomForestClassifier.html",
+      "source_url": "https://scikit-learn.org/stable/modules/classes.html",
+      "depth": 2,
+      "link_text": "RandomForestClassifier"
+    },
+    {
+      "url": "https://scikit-learn.org/stable/modules/generated/sklearn.tree.DecisionTreeClassifier.html",
+      "source_url": "https://scikit-learn.org/stable/modules/classes.html",
+      "depth": 2,
+      "link_text": "DecisionTreeClassifier"
+    },
+    {
+      "url": "https://scikit-learn.org/stable/modules/generated/sklearn.svm.SVC.html",
+      "source_url": "https://scikit-learn.org/stable/modules/classes.html",
+      "depth": 2,
+      "link_text": "SVC"
+    },
+    {
+      "url": "https://scikit-learn.org/stable/modules/generated/sklearn.cluster.KMeans.html",
+      "source_url": "https://scikit-learn.org/stable/modules/classes.html",
+      "depth": 2,
+      "link_text": "KMeans"
+    },
+    {
+      "url": "https://scikit-learn.org/dev/modules/generated/sklearn.linear_model.LogisticRegression.html",
+      "source_url": "https://scikit-learn.org/dev/",
+      "depth": 2,
+      "link_text": "LogisticRegression"
+    },
+    {
+      "url": "https://scikit-learn.org/stable/user_guide/linear_model.html",
+      "source_url": "https://scikit-learn.org/stable/user_guide.html",
+      "depth": 2,
+      "link_text": "Linear Models"
+    },
+    {
+      "url": "https://scikit-learn.org/stable/user_guide/ensemble.html",
+      "source_url": "https://scikit-learn.org/stable/user_guide.html",
+      "depth": 2,
+      "link_text": "Ensemble Methods"
+    },
+    {
+      "url": "https://scikit-learn.org/stable/user_guide/clustering.html",
+      "source_url": "https://scikit-learn.org/stable/user_guide.html",
+      "depth": 2,
+      "link_text": "Clustering"
+    },
+    {
+      "url": "https://scikit-learn.org/stable/user_guide/svm.html",
+      "source_url": "https://scikit-learn.org/stable/user_guide.html",
+      "depth": 2,
+      "link_text": "Support Vector Machines"
+    },
+    {
+      "url": "https://scikit-learn.org/stable/auto_examples/classification/plot_classifier_comparison.html",
+      "source_url": "https://scikit-learn.org/stable/auto_examples/index.html",
+      "depth": 2,
+      "link_text": "Classifier Comparison"
+    },
+    {
+      "url": "https://scikit-learn.org/stable/auto_examples/clustering/plot_kmeans_digits.html",
+      "source_url": "https://scikit-learn.org/stable/auto_examples/index.html",
+      "depth": 2,
+      "link_text": "KMeans Digits"
+    },
+    {
+      "url": "https://scikit-learn.org/stable/install.html",
+      "source_url": "https://scikit-learn.org/stable/",
+      "depth": 1,
+      "link_text": "Install"
+    },
+    {
+      "url": "https://scikit-learn.org/stable/index.html",
+      "source_url": "https://scikit-learn.org/stable/",
+      "depth": 1,
+      "link_text": "Home"
+    },
+    {
+      "url": "https://scikit-learn.org/stable/_static/css/theme.css",
+      "source_url": "https://scikit-learn.org/stable/",
+      "depth": 1,
+      "link_text": ""
+    },
+    {
+      "url": "https://scikit-learn.org/stable/_static/js/custom.js",
+      "source_url": "https://scikit-learn.org/stable/",
+      "depth": 1,
+      "link_text": ""
+    }
+  ],
+  "external_urls": [
+    {
+      "url": "https://numpy.org/doc/stable/reference/generated/numpy.array.html",
+      "source_url": "https://scikit-learn.org/stable/user_guide/linear_model.html",
+      "depth": 3,
+      "link_text": "numpy.array"
+    },
+    {
+      "url": "https://numpy.org/doc/stable/",
+      "source_url": "https://scikit-learn.org/stable/install.html",
+      "depth": 2,
+      "link_text": "NumPy documentation"
+    },
+    {
+      "url": "https://scipy.org/",
+      "source_url": "https://scikit-learn.org/stable/install.html",
+      "depth": 2,
+      "link_text": "SciPy"
+    },
+    {
+      "url": "https://matplotlib.org/",
+      "source_url": "https://scikit-learn.org/stable/index.html",
+      "depth": 2,
+      "link_text": "Matplotlib"
+    },
+    {
+      "url": "https://pypi.org/project/scikit-learn/",
+      "source_url": "https://scikit-learn.org/stable/install.html",
+      "depth": 2,
+      "link_text": "PyPI"
+    }
+  ]
+}
+```
+
+### `tests/test_full_pipeline.py`
+
+```python
+"""
+Integration test: run the full pipeline on the sample fixture
+and verify the output structure.
+"""
+
+import json
+import pytest
+from pathlib import Path
+from main import run_pipeline
+
+
+FIXTURE_PATH = Path(__file__).parent / "fixtures" / "sample_phase1.json"
+OUTPUT_PATH = Path(__file__).parent / "fixtures" / "test_output.json"
+
+
+class TestFullPipeline:
+    """Run the complete pipeline and validate output."""
+    
+    @pytest.fixture(autouse=True)
+    def run(self):
+        """Run pipeline before each test."""
+        run_pipeline(str(FIXTURE_PATH), str(OUTPUT_PATH), verbose=True)
+        with open(OUTPUT_PATH) as f:
+            self.output = json.load(f)
+    
+    def test_output_has_required_keys(self):
+        """Output must have all top-level keys."""
+        required = [
+            "crawl_id", "root_domain", "generator_detected",
+            "summary", "templates", "uncovered_urls",
+            "external_domains", "template_map"
+        ]
+        for key in required:
+            assert key in self.output, f"Missing key: {key}"
+    
+    def test_root_domain_preserved(self):
+        assert self.output["root_domain"] == "scikit-learn.org"
+    
+    def test_generator_detected_as_sphinx(self):
+        """Fixture has has_objects_inv=true → should detect Sphinx."""
+        assert self.output["generator_detected"] == "sphinx"
+        assert self.output["generator_confidence"] >= 0.8
+    
+    def test_assets_filtered_out(self):
+        """CSS and JS URLs should not appear in any template."""
+        all_template_urls = []
+        for urls in self.output["template_map"].values():
+            all_template_urls.extend(urls)
+        
+        for url in all_template_urls:
+            assert not url.endswith(".css"), f"Asset in templates: {url}"
+            assert not url.endswith(".js"), f"Asset in templates: {url}"
+    
+    def test_templates_exist(self):
+        """Should derive at least 2 templates from the fixture."""
+        assert len(self.output["templates"]) >= 2
+    
+    def test_api_reference_template_exists(self):
+        """One template should cover the /modules/generated/ URLs."""
+        patterns = [t["pattern"] for t in self.output["templates"]]
+        api_pattern = [p for p in patterns if "generated" in p or "modules" in p.lower()]
+        assert len(api_pattern) >= 1, "No API reference template found"
+    
+    def test_user_guide_template_exists(self):
+        """One template should cover the /user_guide/ URLs."""
+        patterns = [t["pattern"] for t in self.output["templates"]]
+        guide_pattern = [p for p in patterns if "user_guide" in p]
+        assert len(guide_pattern) >= 1, "No user guide template found"
+    
+    def test_versioned_urls_share_template(self):
+        """/stable/ and /dev/ versions of the same page should share a template."""
+        template_map = self.output["template_map"]
+        
+        stable_url = "https://scikit-learn.org/stable/modules/generated/sklearn.linear_model.LogisticRegression.html"
+        dev_url = "https://scikit-learn.org/dev/modules/generated/sklearn.linear_model.LogisticRegression.html"
+        
+        # Find which template each belongs to
+        stable_template = None
+        dev_template = None
+        for tpl_id, urls in template_map.items():
+            if stable_url in urls:
+                stable_template = tpl_id
+            if dev_url in urls:
+                dev_template = tpl_id
+        
+        # They might both be uncovered (that's also a valid outcome for a small fixture)
+        # But if they're covered, they should be in the same template
+        if stable_template and dev_template:
+            assert stable_template == dev_template, \
+                f"Versioned URLs got different templates: {stable_template} vs {dev_template}"
+    
+    def test_coverage_reasonable(self):
+        """Coverage should be >= 75% even with this small fixture."""
+        summary = self.output["summary"]
+        assert summary["coverage_percent"] >= 75.0
+    
+    def test_external_domains_present(self):
+        """Should identify numpy.org, scipy.org, matplotlib.org, pypi.org."""
+        domains = [d["domain"] for d in self.output["external_domains"]]
+        assert "numpy.org" in domains
+        assert "scipy.org" in domains
+    
+    def test_pypi_classified_as_package_index(self):
+        """pypi.org should be classified as package_index."""
+        for domain in self.output["external_domains"]:
+            if domain["domain"] == "pypi.org":
+                assert domain["classification"] == "package_index"
+                return
+        pytest.skip("pypi.org not in external domains")
+    
+    def test_numpy_classified_as_doc_crossref(self):
+        """numpy.org URLs with /doc/ paths should be documentation_crossref."""
+        for domain in self.output["external_domains"]:
+            if domain["domain"] == "numpy.org":
+                assert domain["classification"] == "documentation_crossref"
+                return
+        pytest.skip("numpy.org not in external domains")
+    
+    def test_template_map_matches_templates(self):
+        """Every template_id in template_map should exist in templates list."""
+        template_ids_from_list = {t["template_id"] for t in self.output["templates"]}
+        template_ids_from_map = set(self.output["template_map"].keys())
+        assert template_ids_from_map.issubset(template_ids_from_list), \
+            f"Map has IDs not in list: {template_ids_from_map - template_ids_from_list}"
+    
+    def test_no_duplicate_urls_across_templates(self):
+        """A URL should appear in at most one template."""
+        all_urls = []
+        for urls in self.output["template_map"].values():
+            all_urls.extend(urls)
+        assert len(all_urls) == len(set(all_urls)), "Duplicate URLs found across templates"
+```
+
+### Unit tests (one file per module, key tests only)
+
+```python
+# tests/test_url_parser.py
+
+from utils.url_parser import classify_segment, is_asset_url, parse_url, split_path_segments
+from models import SegmentType
+
+
+class TestClassifySegment:
+    """Test segment type classification with exact expected outputs."""
+    
+    def test_literal(self):
+        assert classify_segment("modules") == SegmentType.LITERAL
+        assert classify_segment("generated") == SegmentType.LITERAL
+        assert classify_segment("stable") == SegmentType.LITERAL
+        assert classify_segment("user_guide") == SegmentType.LITERAL
+    
+    def test_slug(self):
+        assert classify_segment("linear-model") == SegmentType.SLUG
+        assert classify_segment("random-forest") == SegmentType.SLUG
+    
+    def test_camel_case(self):
+        assert classify_segment("LogisticRegression") == SegmentType.CAMEL_CASE
+        assert classify_segment("RandomForestClassifier") == SegmentType.CAMEL_CASE
+    
+    def test_dotted_path(self):
+        assert classify_segment("sklearn.linear_model") == SegmentType.DOTTED_PATH
+        assert classify_segment("numpy.core") == SegmentType.DOTTED_PATH
+    
+    def test_integer(self):
+        assert classify_segment("123") == SegmentType.INTEGER
+        assert classify_segment("42") == SegmentType.INTEGER
+    
+    def test_version(self):
+        assert classify_segment("v2.1") == SegmentType.VERSION
+        assert classify_segment("0.24") == SegmentType.VERSION
+    
+    def test_filename(self):
+        assert classify_segment("LogisticRegression.html") == SegmentType.FILENAME
+        assert classify_segment("plot_example.html") == SegmentType.FILENAME
+        assert classify_segment("index.html") == SegmentType.FILENAME
+        assert classify_segment("api.rst") == SegmentType.FILENAME
+    
+    def test_dotted_path_vs_filename(self):
+        """Dotted path without known extension should be DOTTED_PATH, not FILENAME."""
+        assert classify_segment("sklearn.linear_model") == SegmentType.DOTTED_PATH
+        assert classify_segment("sklearn.linear_model.LogisticRegression.html") == SegmentType.FILENAME
+    
+    def test_uuid(self):
+        assert classify_segment("550e8400-e29b-41d4-a716-446655440000") == SegmentType.UUID
+
+
+class TestIsAssetUrl:
+    def test_css_is_asset(self):
+        assert is_asset_url("https://example.com/_static/css/theme.css") is True
+    
+    def test_js_is_asset(self):
+        assert is_asset_url("https://example.com/assets/app.js") is True
+    
+    def test_html_is_not_asset(self):
+        assert is_asset_url("https://example.com/docs/page.html") is False
+    
+    def test_image_is_asset(self):
+        assert is_asset_url("https://example.com/images/logo.png") is True
+    
+    def test_pdf_is_asset(self):
+        assert is_asset_url("https://example.com/docs/manual.pdf") is True
+
+
+class TestSplitPathSegments:
+    def test_basic(self):
+        result = split_path_segments("/stable/modules/generated/file.html")
+        assert result == ["stable", "modules", "generated", "file.html"]
+    
+    def test_trailing_slash(self):
+        result = split_path_segments("/stable/modules/")
+        assert result == ["stable", "modules"]
+    
+    def test_root(self):
+        result = split_path_segments("/")
+        assert result == []
+    
+    def test_no_leading_slash(self):
+        result = split_path_segments("stable/modules/file.html")
+        assert result == ["stable", "modules", "file.html"]
+```
+
+```python
+# tests/test_trie.py
+
+from utils.trie import TrieNode, build_trie
+from models import ParsedURL, URLClassification, SegmentType
+
+
+def make_parsed_url(path: str, url: str = None) -> ParsedURL:
+    """Helper to create a minimal ParsedURL for testing."""
+    segments = path.strip("/").split("/")
+    return ParsedURL(
+        original_url=url or f"https://example.com{path}",
+        canonical_url=url or f"https://example.com{path}",
+        domain="example.com",
+        scheme="https",
+        path=path,
+        segments=[],  # Not needed for trie tests
+        classification=URLClassification.INTERNAL,
+        is_asset=False,
+        version_free_path=path,
+    )
+
+
+class TestTrie:
+    def test_add_single_url(self):
+        root = TrieNode()
+        root.add_url(["modules", "generated", "file.html"], "https://example.com/modules/generated/file.html")
+        assert "modules" in root.children
+        assert "generated" in root.children["modules"].children
+        assert root.children["modules"].children["generated"].children["file.html"].is_leaf
+    
+    def test_common_prefix(self):
+        root = TrieNode()
+        root.add_url(["a", "b", "c.html"], "url1")
+        root.add_url(["a", "b", "d.html"], "url2")
+        # "a" and "b" should be shared
+        assert len(root.children) == 1
+        assert len(root.children["a"].children) == 1
+        assert len(root.children["a"].children["b"].children) == 2
+    
+    def test_different_prefixes(self):
+        root = TrieNode()
+        root.add_url(["x", "file.html"], "url1")
+        root.add_url(["y", "file.html"], "url2")
+        assert len(root.children) == 2
+    
+    def test_collect_leaves(self):
+        root = TrieNode()
+        root.add_url(["a", "1.html"], "url1")
+        root.add_url(["a", "2.html"], "url2")
+        root.add_url(["b", "3.html"], "url3")
+        leaves = root.collect_leaves()
+        assert len(leaves) == 3
+        assert "url1" in leaves
+        assert "url3" in leaves
+    
+    def test_build_trie_from_parsed_urls(self):
+        urls = [
+            make_parsed_url("/modules/generated/a.html"),
+            make_parsed_url("/modules/generated/b.html"),
+            make_parsed_url("/user_guide/c.html"),
+        ]
+        root = build_trie(urls)
+        assert "modules" in root.children
+        assert "user_guide" in root.children
+    
+    def test_metrics_computed(self):
+        urls = [
+            make_parsed_url("/modules/generated/a.html"),
+            make_parsed_url("/modules/generated/b.html"),
+        ]
+        root = build_trie(urls)
+        # After compute_metrics, root should know about descendants
+        assert root.descendant_count == 2
+    
+    def test_to_string_runs(self):
+        """to_string should not crash."""
+        urls = [
+            make_parsed_url("/a/b/c.html"),
+            make_parsed_url("/a/d.html"),
+        ]
+        root = build_trie(urls)
+        s = root.to_string()
+        assert isinstance(s, str)
+        assert len(s) > 0
+```
+
+```python
+# tests/test_canonicalization.py
+
+from pipeline.canonicalization import canonicalize
+
+
+class TestCanonicalize:
+    def test_removes_fragment(self):
+        result = canonicalize("https://example.com/page.html#section")
+        assert "#" not in result
+        assert result == "https://example.com/page.html"
+    
+    def test_removes_utm_params(self):
+        result = canonicalize("https://example.com/page.html?utm_source=docs&utm_medium=link")
+        assert "utm_" not in result
+        assert result == "https://example.com/page.html"
+    
+    def test_keeps_important_params(self):
+        result = canonicalize("https://example.com/search?q=test&page=2")
+        assert "q=test" in result
+        assert "page=2" in result
+    
+    def test_sorts_params(self):
+        result = canonicalize("https://example.com/page?b=2&a=1")
+        assert "a=1" in result
+        # a=1 should come before b=2
+        assert result.index("a=1") < result.index("b=2")
+    
+    def test_removes_trailing_slash(self):
+        result = canonicalize("https://example.com/stable/modules/")
+        assert result == "https://example.com/stable/modules"
+    
+    def test_preserves_root_slash(self):
+        result = canonicalize("https://example.com/")
+        assert result == "https://example.com/"
+    
+    def test_lowercase_host(self):
+        result = canonicalize("https://EXAMPLE.COM/page.html")
+        assert "example.com" in result
+    
+    def test_removes_default_port(self):
+        result = canonicalize("https://example.com:443/page.html")
+        assert ":443" not in result
+    
+    def test_normalizes_double_slash(self):
+        result = canonicalize("https://example.com//stable//modules//page.html")
+        assert "//" not in result.replace("https://", "")
+```
+
+---
+
+## 13. How to Run
+
+```bash
+# Install dependencies
+pip install -r requirements.txt
+
+# Run pipeline
+python main.py path/to/phase1_output.json --verbose
+
+# Run tests
+pytest tests/ -v
+
+# Run specific test file
+pytest tests/test_url_parser.py -v
+
+# Run with coverage
+pytest tests/ -v --tb=short
+```
+
+---
+
+## 14. Implementation Order (for the AI)
+
+Follow this order exactly. Each step builds on the previous one. Do not skip ahead.
+
+```
+Step  1: requirements.txt + config.py          → Just constants, no logic
+Step  2: models.py                              → All data structures
+Step  3: utils/__init__.py + utils/url_parser.py → URL parsing + segment classification
+Step  4: utils/segment_classifier.py            → Position frequency analysis
+Step  5: utils/trie.py                          → Trie data structure
+Step  6: All pipeline/*.py files                → Wire up the stages
+Step  7: pipeline/structural_grouping.py        → The hard part (trie → groups → templates)
+Step  8: pipeline/coverage.py                   → Template matching + coverage stats
+Step  9: pipeline/output.py                     → JSON assembly
+Step 10: main.py                                → Entry point
+Step 11: All test files + fixture               → Validate everything works
+Step 12: Run tests, fix any failures            → Iterate until green
+```
+
+At each step, the AI should be able to implement the file completely from the specification above without ambiguity. If there is ambiguity, the docstrings and test cases define the expected behavior.

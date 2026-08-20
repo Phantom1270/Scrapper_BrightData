@@ -1,0 +1,143 @@
+{
+  "crawl_id": "test_crawl_001",
+  "root_domain": "scikit-learn.org",
+  "generator_detected": "sphinx",
+  "generator_confidence": 0.95,
+  "summary": {
+    "total_internal_urls": 14,
+    "covered_urls": 12,
+    "uncovered_urls": 2,
+    "coverage_percent": 85.71,
+    "template_count": 3,
+    "avg_urls_per_template": 4.0
+  },
+  "templates": [
+    {
+      "template_id": "tpl_001",
+      "name": "api_reference",
+      "pattern": "/modules/generated/<filename>",
+      "fingerprint": "MODULES/GENERATED/FILENAME",
+      "member_count": 6,
+      "versions_covered": [
+        "stable",
+        "dev"
+      ],
+      "scope": "internal",
+      "example_urls": [
+        "https://scikit-learn.org/stable/modules/generated/sklearn.linear_model.LogisticRegression.html",
+        "https://scikit-learn.org/dev/modules/generated/sklearn.linear_model.LogisticRegression.html",
+        "https://scikit-learn.org/stable/modules/generated/sklearn.ensemble.RandomForestClassifier.html",
+        "https://scikit-learn.org/stable/modules/generated/sklearn.tree.DecisionTreeClassifier.html",
+        "https://scikit-learn.org/stable/modules/generated/sklearn.svm.SVC.html"
+      ],
+      "confidence": 0.7233
+    },
+    {
+      "template_id": "tpl_002",
+      "name": "user_guide",
+      "pattern": "/user_guide/<filename>",
+      "fingerprint": "USER_GUIDE/FILENAME",
+      "member_count": 4,
+      "versions_covered": [
+        "stable"
+      ],
+      "scope": "internal",
+      "example_urls": [
+        "https://scikit-learn.org/stable/user_guide/linear_model.html",
+        "https://scikit-learn.org/stable/user_guide/ensemble.html",
+        "https://scikit-learn.org/stable/user_guide/clustering.html",
+        "https://scikit-learn.org/stable/user_guide/svm.html"
+      ],
+      "confidence": 0.66
+    },
+    {
+      "template_id": "tpl_003",
+      "name": "examples",
+      "pattern": "/auto_examples/<literal>/<filename>",
+      "fingerprint": "AUTO_EXAMPLES/LITERAL/FILENAME",
+      "member_count": 4,
+      "versions_covered": [
+        "stable"
+      ],
+      "scope": "internal",
+      "example_urls": [
+        "https://scikit-learn.org/stable/auto_examples/classification/plot_classifier_comparison.html",
+        "https://scikit-learn.org/stable/auto_examples/clustering/plot_kmeans_digits.html",
+        "https://scikit-learn.org/stable/install.html",
+        "https://scikit-learn.org/stable/index.html"
+      ],
+      "confidence": 0.6267
+    }
+  ],
+  "uncovered_urls": [
+    {
+      "url": "https://scikit-learn.org/stable/install.html",
+      "reason": "no_template_match",
+      "recommendation": "self_heal"
+    },
+    {
+      "url": "https://scikit-learn.org/stable/index.html",
+      "reason": "no_template_match",
+      "recommendation": "self_heal"
+    }
+  ],
+  "external_domains": [
+    {
+      "domain": "numpy.org",
+      "url_count": 2,
+      "classification": "documentation_crossref",
+      "observed_paths": [
+        "/doc/stable/reference/generated/numpy.array.html",
+        "/doc/stable"
+      ],
+      "note": ""
+    },
+    {
+      "domain": "scipy.org",
+      "url_count": 1,
+      "classification": "project_homepage",
+      "observed_paths": [
+        "/"
+      ],
+      "note": ""
+    },
+    {
+      "domain": "matplotlib.org",
+      "url_count": 1,
+      "classification": "project_homepage",
+      "observed_paths": [
+        "/"
+      ],
+      "note": ""
+    },
+    {
+      "domain": "pypi.org",
+      "url_count": 1,
+      "classification": "package_index",
+      "observed_paths": [
+        "/project/scikit-learn"
+      ],
+      "note": ""
+    }
+  ],
+  "template_map": {
+    "tpl_001": [
+      "https://scikit-learn.org/stable/modules/generated/sklearn.linear_model.LogisticRegression.html",
+      "https://scikit-learn.org/stable/modules/generated/sklearn.ensemble.RandomForestClassifier.html",
+      "https://scikit-learn.org/stable/modules/generated/sklearn.tree.DecisionTreeClassifier.html",
+      "https://scikit-learn.org/stable/modules/generated/sklearn.svm.SVC.html",
+      "https://scikit-learn.org/stable/modules/generated/sklearn.cluster.KMeans.html",
+      "https://scikit-learn.org/dev/modules/generated/sklearn.linear_model.LogisticRegression.html"
+    ],
+    "tpl_002": [
+      "https://scikit-learn.org/stable/user_guide/linear_model.html",
+      "https://scikit-learn.org/stable/user_guide/ensemble.html",
+      "https://scikit-learn.org/stable/user_guide/clustering.html",
+      "https://scikit-learn.org/stable/user_guide/svm.html"
+    ],
+    "tpl_003": [
+      "https://scikit-learn.org/stable/auto_examples/classification/plot_classifier_comparison.html",
+      "https://scikit-learn.org/stable/auto_examples/clustering/plot_kmeans_digits.html"
+    ]
+  }
+}

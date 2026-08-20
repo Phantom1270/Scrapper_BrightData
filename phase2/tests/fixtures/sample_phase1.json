@@ -1,0 +1,139 @@
+{
+  "crawl_id": "test_crawl_001",
+  "root_domain": "scikit-learn.org",
+  "root_urls": ["https://scikit-learn.org/stable/"],
+  "signals": {
+    "has_objects_inv": true,
+    "static_dir": "_static"
+  },
+  "internal_urls": [
+    {
+      "url": "https://scikit-learn.org/stable/modules/generated/sklearn.linear_model.LogisticRegression.html",
+      "source_url": "https://scikit-learn.org/stable/modules/classes.html",
+      "depth": 2,
+      "link_text": "LogisticRegression"
+    },
+    {
+      "url": "https://scikit-learn.org/stable/modules/generated/sklearn.ensemble.RandomForestClassifier.html",
+      "source_url": "https://scikit-learn.org/stable/modules/classes.html",
+      "depth": 2,
+      "link_text": "RandomForestClassifier"
+    },
+    {
+      "url": "https://scikit-learn.org/stable/modules/generated/sklearn.tree.DecisionTreeClassifier.html",
+      "source_url": "https://scikit-learn.org/stable/modules/classes.html",
+      "depth": 2,
+      "link_text": "DecisionTreeClassifier"
+    },
+    {
+      "url": "https://scikit-learn.org/stable/modules/generated/sklearn.svm.SVC.html",
+      "source_url": "https://scikit-learn.org/stable/modules/classes.html",
+      "depth": 2,
+      "link_text": "SVC"
+    },
+    {
+      "url": "https://scikit-learn.org/stable/modules/generated/sklearn.cluster.KMeans.html",
+      "source_url": "https://scikit-learn.org/stable/modules/classes.html",
+      "depth": 2,
+      "link_text": "KMeans"
+    },
+    {
+      "url": "https://scikit-learn.org/dev/modules/generated/sklearn.linear_model.LogisticRegression.html",
+      "source_url": "https://scikit-learn.org/dev/",
+      "depth": 2,
+      "link_text": "LogisticRegression"
+    },
+    {
+      "url": "https://scikit-learn.org/stable/user_guide/linear_model.html",
+      "source_url": "https://scikit-learn.org/stable/user_guide.html",
+      "depth": 2,
+      "link_text": "Linear Models"
+    },
+    {
+      "url": "https://scikit-learn.org/stable/user_guide/ensemble.html",
+      "source_url": "https://scikit-learn.org/stable/user_guide.html",
+      "depth": 2,
+      "link_text": "Ensemble Methods"
+    },
+    {
+      "url": "https://scikit-learn.org/stable/user_guide/clustering.html",
+      "source_url": "https://scikit-learn.org/stable/user_guide.html",
+      "depth": 2,
+      "link_text": "Clustering"
+    },
+    {
+      "url": "https://scikit-learn.org/stable/user_guide/svm.html",
+      "source_url": "https://scikit-learn.org/stable/user_guide.html",
+      "depth": 2,
+      "link_text": "Support Vector Machines"
+    },
+    {
+      "url": "https://scikit-learn.org/stable/auto_examples/classification/plot_classifier_comparison.html",
+      "source_url": "https://scikit-learn.org/stable/auto_examples/index.html",
+      "depth": 2,
+      "link_text": "Classifier Comparison"
+    },
+    {
+      "url": "https://scikit-learn.org/stable/auto_examples/clustering/plot_kmeans_digits.html",
+      "source_url": "https://scikit-learn.org/stable/auto_examples/index.html",
+      "depth": 2,
+      "link_text": "KMeans Digits"
+    },
+    {
+      "url": "https://scikit-learn.org/stable/install.html",
+      "source_url": "https://scikit-learn.org/stable/",
+      "depth": 1,
+      "link_text": "Install"
+    },
+    {
+      "url": "https://scikit-learn.org/stable/index.html",
+      "source_url": "https://scikit-learn.org/stable/",
+      "depth": 1,
+      "link_text": "Home"
+    },
+    {
+      "url": "https://scikit-learn.org/stable/_static/css/theme.css",
+      "source_url": "https://scikit-learn.org/stable/",
+      "depth": 1,
+      "link_text": ""
+    },
+    {
+      "url": "https://scikit-learn.org/stable/_static/js/custom.js",
+      "source_url": "https://scikit-learn.org/stable/",
+      "depth": 1,
+      "link_text": ""
+    }
+  ],
+  "external_urls": [
+    {
+      "url": "https://numpy.org/doc/stable/reference/generated/numpy.array.html",
+      "source_url": "https://scikit-learn.org/stable/user_guide/linear_model.html",
+      "depth": 3,
+      "link_text": "numpy.array"
+    },
+    {
+      "url": "https://numpy.org/doc/stable/",
+      "source_url": "https://scikit-learn.org/stable/install.html",
+      "depth": 2,
+      "link_text": "NumPy documentation"
+    },
+    {
+      "url": "https://scipy.org/",
+      "source_url": "https://scikit-learn.org/stable/install.html",
+      "depth": 2,
+      "link_text": "SciPy"
+    },
+    {
+      "url": "https://matplotlib.org/",
+      "source_url": "https://scikit-learn.org/stable/index.html",
+      "depth": 2,
+      "link_text": "Matplotlib"
+    },
+    {
+      "url": "https://pypi.org/project/scikit-learn/",
+      "source_url": "https://scikit-learn.org/stable/install.html",
+      "depth": 2,
+      "link_text": "PyPI"
+    }
+  ]
+}
