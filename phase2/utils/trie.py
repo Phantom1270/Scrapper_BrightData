@@ -8,6 +8,7 @@ from dataclasses import dataclass, field
 from typing import Optional
 from models import ParsedURL
 from config import MIN_GROUP_SIZE
+from utils.url_parser import split_path_segments
 import re
 
 
@@ -51,6 +52,7 @@ class TrieNode:
     """
     segment: str = ""                              # The path segment: "modules", "generated", etc.
     depth: int = 0                                 # 0 = root
+    path_from_root: str = ""                       # e.g. "auto_examples/cluster"
     children: dict[str, "TrieNode"] = field(default_factory=dict)
     urls: list[str] = field(default_factory=list)  # Only populated at leaf nodes
     is_leaf: bool = False
@@ -61,7 +63,7 @@ class TrieNode:
     unique_segment_count: int = 0                  # How many unique child segment values
     child_literal_ratio: float = 0.0               # Fraction of children with literal-like names
 
-    def add_url(self, segments: list[str], url: str) -> None:
+    def add_url(self, segments: list[str], url: str, path_so_far: str = "") -> None:
         """
         Insert a URL into the trie by following its path segments.
 
@@ -77,20 +79,17 @@ class TrieNode:
             self.urls.append(url)
             return
 
-        seg = segments[0]
-        rest = segments[1:]
+        first, rest = segments[0], segments[1:]
+        child_path = f"{path_so_far}/{first}" if path_so_far else first
 
-        if seg not in self.children:
-            self.children[seg] = TrieNode(segment=seg, depth=self.depth + 1)
+        if first not in self.children:
+            self.children[first] = TrieNode(
+                segment=first,
+                depth=self.depth + 1,
+                path_from_root=child_path
+            )
 
-        child = self.children[seg]
-
-        if not rest:
-            # Next is leaf
-            child.is_leaf = True
-            child.urls.append(url)
-        else:
-            child.add_url(rest, url)
+        self.children[first].add_url(rest, url, child_path)
 
     def compute_metrics(self) -> None:
         """
@@ -127,22 +126,21 @@ class TrieNode:
         """
         results = []
 
-        def _walk(node: TrieNode) -> bool:
-            """Returns True if any descendant is a pattern anchor (so we skip the parent)."""
-            child_is_anchor = False
+        def _walk(node: TrieNode):
+            child_qualifies = False
             for child in node.children.values():
-                if _walk(child):
-                    child_is_anchor = True
-
-            if not child_is_anchor:
-                # Check if THIS node qualifies
-                if (node.child_literal_ratio < literal_ratio_threshold
-                        and node.descendant_count >= MIN_GROUP_SIZE
-                        and node.child_count > 0):
-                    results.append(node)
-                    return True
-
-            return child_is_anchor
+                _walk(child)
+                # After walking child, check if it was added to results
+                if child in results:
+                    child_qualifies = True
+            
+            # This node qualifies if its ratio is below threshold
+            # AND it has enough descendants
+            if (node.child_literal_ratio < literal_ratio_threshold 
+                and node.descendant_count >= MIN_GROUP_SIZE
+                and node.child_count > 0
+                and not child_qualifies):  # Only if no child already qualified
+                results.append(node)
 
         _walk(self)
         return results
@@ -204,27 +202,10 @@ class TrieNode:
 
 
 def build_trie(urls: list[ParsedURL], use_version_free_path: bool = True) -> TrieNode:
-    """
-    Build a trie from a list of parsed URLs.
-
-    Parameters:
-    - urls: list of ParsedURL objects (internal URLs only, assets filtered out)
-    - use_version_free_path: if True, use version_free_path instead of path
-      (so /stable/modules/... and /dev/modules/... merge into the same trie branch)
-
-    Returns:
-    - Root TrieNode with all URLs inserted and metrics computed
-    """
-    root = TrieNode(segment="", depth=0)
-
+    root = TrieNode()
     for url in urls:
-        if use_version_free_path and url.version_free_path:
-            path = url.version_free_path
-        else:
-            path = url.path
-
-        segments = [s for s in path.split("/") if s]
-        root.add_url(segments, url.canonical_url)
-
+        path = url.version_free_path if use_version_free_path and url.version_free_path else url.path
+        segments = split_path_segments(path)
+        root.add_url(segments, url.canonical_url, "")
     root.compute_metrics()
     return root

@@ -15,70 +15,88 @@ def detect_generator(
 ) -> tuple[str | None, float]:
     """
     Analyze available signals to guess the documentation generator.
-
     Returns: (generator_name, confidence)
-
-    Signals to check (in order of reliability):
-    1. Phase 1 signals dict (if Phase 1 checked for objects.inv, etc.)
-    2. URL path patterns
-    3. File extensions in URLs
-    4. Fallback: (None, 0.0)
     """
-    scores: dict[str, float] = {gen: 0.0 for gen in GENERATOR_SIGNALS}
-
-    # ── Signal 1: Phase 1 explicit signals ──
+    
+    # ── Priority 1: Phase 1 signals (highest reliability) ──────
     signals = phase1.signals or {}
-
+    
     if signals.get("has_objects_inv") is True:
-        scores["sphinx"] = max(scores["sphinx"], 0.95)
-
-    if signals.get("static_dir") == "_static":
-        scores["sphinx"] = max(scores["sphinx"], 0.7)
-
-    # ── Signal 2: URL path patterns ──
-    all_paths = [u.canonical_url for u in parsed_urls]
-
-    sphinx_indicators = ["/_static/", "/_sources/", "/objects.inv"]
-    mkdocs_indicators = ["/search/search_index.json", "mkdocs"]
-    docusaurus_indicators = ["/assets/js/docusaurus", "docusaurus"]
-
-    for url_str in all_paths:
-        for ind in sphinx_indicators:
-            if ind in url_str:
-                scores["sphinx"] = max(scores["sphinx"], 0.8)
-                break
-        for ind in mkdocs_indicators:
-            if ind in url_str:
-                scores["mkdocs"] = max(scores["mkdocs"], 0.75)
-                break
-        for ind in docusaurus_indicators:
-            if ind in url_str:
-                scores["docusaurus"] = max(scores["docusaurus"], 0.75)
-                break
-
-    # ── Signal 3: Path structure heuristics ──
-    # Sphinx-style: paths with /modules/generated/
-    sphinx_path_hits = sum(
-        1 for u in parsed_urls
-        if "/modules/generated/" in u.path or "/_sources" in u.path
-    )
-    if sphinx_path_hits > 0:
-        scores["sphinx"] = max(scores["sphinx"], 0.6)
-
-    # MkDocs: flat .html files with simple names
-    flat_html_count = sum(
-        1 for u in parsed_urls
-        if u.path.count('/') <= 2 and u.path.endswith('.html')
-    )
-    total = len(parsed_urls) or 1
-    if flat_html_count / total > 0.5 and scores["sphinx"] < 0.5:
-        scores["mkdocs"] = max(scores["mkdocs"], 0.4)
-
-    # ── Select winner ──
-    best_gen = max(scores, key=lambda g: scores[g])
-    best_score = scores[best_gen]
-
-    if best_score < 0.3:
-        return None, 0.0
-
-    return best_gen, round(best_score, 4)
+        return ("sphinx", 0.95)  # MUST be 0.95
+        
+    if signals.get("search_index_json") is True:
+        return ("mkdocs", 0.95)
+        
+    if signals.get("detected_tool"):
+        tool = signals["detected_tool"]
+        if tool in ("sphinx", "mkdocs", "docusaurus", "vuepress", "hugo"):
+            return (tool, 0.90)
+    
+    # ── Priority 2: URL path pattern analysis ──────────────────
+    # Collect all paths for analysis
+    paths = []
+    for url in parsed_urls:
+        path = url.version_free_path or url.path
+        paths.append(path.lower())
+    
+    path_blob = " ".join(paths)  # One big string for substring checks
+    
+    scores: dict[str, float] = {}
+    
+    # Sphinx signals
+    sphinx_score = 0.0
+    if "/_static/searchtools.js" in path_blob:
+        sphinx_score = max(sphinx_score, 0.90)
+    if "/_static/" in path_blob:
+        sphinx_score = max(sphinx_score, 0.70)
+    if "/_sources/" in path_blob:
+        sphinx_score = max(sphinx_score, 0.75)
+    if "/objects.inv" in path_blob:
+        sphinx_score = max(sphinx_score, 0.95)
+    # Sphinx typically has /modules/generated/ pattern
+    modules_generated_count = sum(1 for p in paths if "/modules/generated/" in p)
+    if modules_generated_count > 10:
+        sphinx_score = max(sphinx_score, 0.60)
+    
+    if sphinx_score > 0:
+        scores["sphinx"] = sphinx_score
+    
+    # MkDocs signals
+    mkdocs_score = 0.0
+    if "/search/search_index.json" in path_blob:
+        mkdocs_score = max(mkdocs_score, 0.90)
+    if "mkdocs" in path_blob:
+        mkdocs_score = max(mkdocs_score, 0.60)
+    
+    if mkdocs_score > 0:
+        scores["mkdocs"] = mkdocs_score
+    
+    # Docusaurus signals
+    docusaurus_score = 0.0
+    if "/assets/js/docusaurus" in path_blob:
+        docusaurus_score = max(docusaurus_score, 0.85)
+    if "docusaurus" in path_blob:
+        docusaurus_score = max(docusaurus_score, 0.50)
+    
+    if docusaurus_score > 0:
+        scores["docusaurus"] = docusaurus_score
+    
+    # VuePress signals
+    if "/.vuepress/" in path_blob:
+        scores["vuepress"] = 0.80
+    
+    # Hugo signals
+    if "/index.json" in path_blob:
+        scores["hugo"] = max(scores.get("hugo", 0), 0.50)
+    
+    # ── Priority 3: Return best match ──────────────────────────
+    if not scores:
+        return (None, 0.0)
+    
+    best_generator = max(scores, key=scores.get)
+    best_confidence = scores[best_generator]
+    
+    if best_confidence < 0.30:
+        return (None, 0.0)
+    
+    return (best_generator, best_confidence)

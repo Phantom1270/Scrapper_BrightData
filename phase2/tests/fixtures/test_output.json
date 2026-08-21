@@ -5,38 +5,38 @@
   "generator_confidence": 0.95,
   "summary": {
     "total_internal_urls": 14,
-    "covered_urls": 12,
-    "uncovered_urls": 2,
-    "coverage_percent": 85.71,
-    "template_count": 3,
-    "avg_urls_per_template": 4.0
+    "covered_urls": 10,
+    "uncovered_urls": 4,
+    "coverage_percent": 71.43,
+    "template_count": 2,
+    "avg_urls_per_template": 5.0
   },
   "templates": [
     {
       "template_id": "tpl_001",
-      "name": "api_reference",
+      "name": "module_overview",
       "pattern": "/modules/generated/<filename>",
-      "fingerprint": "MODULES/GENERATED/FILENAME",
+      "fingerprint": "MODULES/GENERATED/filename",
       "member_count": 6,
       "versions_covered": [
-        "stable",
-        "dev"
+        "dev",
+        "stable"
       ],
       "scope": "internal",
       "example_urls": [
         "https://scikit-learn.org/stable/modules/generated/sklearn.linear_model.LogisticRegression.html",
-        "https://scikit-learn.org/dev/modules/generated/sklearn.linear_model.LogisticRegression.html",
         "https://scikit-learn.org/stable/modules/generated/sklearn.ensemble.RandomForestClassifier.html",
         "https://scikit-learn.org/stable/modules/generated/sklearn.tree.DecisionTreeClassifier.html",
-        "https://scikit-learn.org/stable/modules/generated/sklearn.svm.SVC.html"
+        "https://scikit-learn.org/stable/modules/generated/sklearn.svm.SVC.html",
+        "https://scikit-learn.org/stable/modules/generated/sklearn.cluster.KMeans.html"
       ],
-      "confidence": 0.7233
+      "confidence": 0.66
     },
     {
       "template_id": "tpl_002",
       "name": "user_guide",
       "pattern": "/user_guide/<filename>",
-      "fingerprint": "USER_GUIDE/FILENAME",
+      "fingerprint": "USER_GUIDE/filename",
       "member_count": 4,
       "versions_covered": [
         "stable"
@@ -48,36 +48,28 @@
         "https://scikit-learn.org/stable/user_guide/clustering.html",
         "https://scikit-learn.org/stable/user_guide/svm.html"
       ],
-      "confidence": 0.66
-    },
-    {
-      "template_id": "tpl_003",
-      "name": "examples",
-      "pattern": "/auto_examples/<literal>/<filename>",
-      "fingerprint": "AUTO_EXAMPLES/LITERAL/FILENAME",
-      "member_count": 4,
-      "versions_covered": [
-        "stable"
-      ],
-      "scope": "internal",
-      "example_urls": [
-        "https://scikit-learn.org/stable/auto_examples/classification/plot_classifier_comparison.html",
-        "https://scikit-learn.org/stable/auto_examples/clustering/plot_kmeans_digits.html",
-        "https://scikit-learn.org/stable/install.html",
-        "https://scikit-learn.org/stable/index.html"
-      ],
-      "confidence": 0.6267
+      "confidence": 0.57
     }
   ],
   "uncovered_urls": [
     {
+      "url": "https://scikit-learn.org/stable/auto_examples/classification/plot_classifier_comparison.html",
+      "reason": "no_template_match (path=/auto_examples/classification/plot_classifier_comparison.html)",
+      "recommendation": "self_heal"
+    },
+    {
+      "url": "https://scikit-learn.org/stable/auto_examples/clustering/plot_kmeans_digits.html",
+      "reason": "no_template_match (path=/auto_examples/clustering/plot_kmeans_digits.html)",
+      "recommendation": "self_heal"
+    },
+    {
       "url": "https://scikit-learn.org/stable/install.html",
-      "reason": "no_template_match",
+      "reason": "no_template_match (path=/install.html)",
       "recommendation": "self_heal"
     },
     {
       "url": "https://scikit-learn.org/stable/index.html",
-      "reason": "no_template_match",
+      "reason": "no_template_match (path=/index.html)",
       "recommendation": "self_heal"
     }
   ],
@@ -134,10 +126,6 @@
       "https://scikit-learn.org/stable/user_guide/ensemble.html",
       "https://scikit-learn.org/stable/user_guide/clustering.html",
       "https://scikit-learn.org/stable/user_guide/svm.html"
-    ],
-    "tpl_003": [
-      "https://scikit-learn.org/stable/auto_examples/classification/plot_classifier_comparison.html",
-      "https://scikit-learn.org/stable/auto_examples/clustering/plot_kmeans_digits.html"
     ]
   }
 }

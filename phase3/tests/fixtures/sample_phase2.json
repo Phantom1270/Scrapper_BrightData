@@ -1,0 +1,56 @@
+{
+  "crawl_id": "test_crawl_001",
+  "root_domain": "example.com",
+  "generator_detected": "sphinx",
+  "generator_confidence": 0.95,
+  "summary": {
+    "total_internal_urls": 10,
+    "covered_urls": 10,
+    "uncovered_urls": 0,
+    "coverage_percent": 100.0,
+    "template_count": 2,
+    "avg_urls_per_template": 5.0
+  },
+  "templates": [
+    {
+      "template_id": "tpl_001",
+      "name": "api_reference",
+      "pattern": "/modules/generated/<filename>",
+      "fingerprint": "MODULES/GENERATED/FILENAME",
+      "member_count": 5,
+      "versions_covered": ["stable"],
+      "scope": "internal",
+      "example_urls": ["https://example.com/modules/generated/classA.html"],
+      "confidence": 0.9
+    },
+    {
+      "template_id": "tpl_002",
+      "name": "user_guide",
+      "pattern": "/user_guide/<filename>",
+      "fingerprint": "USER_GUIDE/FILENAME",
+      "member_count": 5,
+      "versions_covered": ["stable"],
+      "scope": "internal",
+      "example_urls": ["https://example.com/user_guide/intro.html"],
+      "confidence": 0.8
+    }
+  ],
+  "uncovered_urls": [],
+  "external_domains": [],
+  "template_map": {
+    "tpl_001": [
+      "https://example.com/modules/generated/classA.html",
+      "https://example.com/modules/generated/classB.html",
+      "https://example.com/modules/generated/classC.html",
+      "https://example.com/modules/generated/classD.html",
+      "https://example.com/modules/generated/classE.html"
+    ],
+    "tpl_002": [
+      "https://example.com/user_guide/intro.html",
+      "https://example.com/user_guide/install.html",
+      "https://example.com/user_guide/tutorial.html",
+      "https://example.com/user_guide/faq.html",
+      "https://example.com/user_guide/api.html"
+    ]
+  }
+}

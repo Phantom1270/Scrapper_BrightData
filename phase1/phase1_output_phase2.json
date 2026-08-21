@@ -105,11 +105,11 @@
       ],
       "scope": "internal",
       "example_urls": [
+        "https://scikit-learn.org/stable/modules/clustering.html",
+        "https://scikit-learn.org/stable/whats_new/v1.9.html",
         "https://scikit-learn.org/stable/modules/ensemble.html",
-        "https://scikit-learn.org/stable/whats_new/v1.5.html",
-        "https://scikit-learn.org/stable/whats_new/v1.8.html",
-        "https://scikit-learn.org/stable/modules/linear_model.html",
-        "https://scikit-learn.org/stable/whats_new/v1.9.html"
+        "https://scikit-learn.org/dev/whats_new/v1.10.html",
+        "https://scikit-learn.org/stable/modules/linear_model.html"
       ],
       "confidence": 0.55
     },
@@ -167,10 +167,10 @@
       "scope": "internal",
       "example_urls": [
         "https://scikit-learn.org/dev",
-        "https://scikit-learn.org/stable/faq.html",
-        "https://blog.scikit-learn.org/",
         "https://scikit-learn.org/stable/install.html",
-        "https://scikit-learn.org/1.8"
+        "https://scikit-learn.org/stable/getting_started.html",
+        "https://scikit-learn.org/stable/support.html",
+        "https://scikit-learn.org/stable"
       ],
       "confidence": 0.42
     },

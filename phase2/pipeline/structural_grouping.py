@@ -12,6 +12,7 @@ from utils.segment_classifier import (
     compute_position_frequencies, classify_positions, generate_fingerprint
 )
 from config import MIN_GROUP_SIZE, TEMPLATE_MERGE_DISTANCE, MAX_EXAMPLES_PER_TEMPLATE
+from utils.url_parser import split_path_segments, classify_segment
 import re
 
 
@@ -28,357 +29,317 @@ class URLGroup:
         self.fingerprint = None        # Filled in by derive_template()
 
 
-def discover_groups(
-    urls: list[ParsedURL],
-    generator_hint: str | None = None,
-) -> list[URLGroup]:
+def discover_groups(urls, generator_hint=None):
     """
-    Main grouping function. Discovers URL groups from a list of parsed URLs.
+    CORE RULE: Structural junctions are section boundaries.
+    Never merge URLs from different sections into the same group.
 
-    Steps:
-    1. Build a trie from the URLs (using version_free_path)
-    2. Find pattern anchors (nodes where content becomes variable)
-    3. Find structural junctions (nodes where site branches)
-    4. For each pattern anchor:
-       a. Collect all leaf URLs under it
-       b. If count >= MIN_GROUP_SIZE → create a URLGroup
-       c. If count < MIN_GROUP_SIZE → mark as candidate for catch-all group
-    5. For structural junctions with only 1-2 leaf children (small sections):
-       a. Group them into a "static_pages" catch-all
-    6. Return all groups
+    EXCEPTION: If a junction's children all have identical subtree shapes
+    (same depth, same child types), they are "category variants" like
+    auto_examples/cluster, auto_examples/linear_model. These CAN merge.
     """
-    if not urls:
-        return []
+    from collections import defaultdict
 
     trie = build_trie(urls, use_version_free_path=True)
+    url_lookup = {u.canonical_url: u for u in urls}
+    groups = []
+    assigned_urls = set()
 
-    groups: list[URLGroup] = []
-    small_url_pool: list[str] = []
-    covered_urls: set[str] = set()
+    def _is_section_name(segment, node):
+        seg_type = classify_segment(segment)
+        if seg_type not in (SegmentType.LITERAL, SegmentType.SLUG):
+            return False
+        if node.descendant_count < 3:
+            return False
+        return True
 
-    # ── Step 2: Find pattern anchors ──
-    pattern_anchors = trie.find_pattern_anchors(literal_ratio_threshold=0.3)
-
-    group_counter = [1]
-
-    def make_group_id() -> str:
-        gid = f"grp_{group_counter[0]:03d}"
-        group_counter[0] += 1
-        return gid
-
-    for anchor in pattern_anchors:
-        leaf_urls = anchor.collect_leaves()
-        if len(leaf_urls) >= MIN_GROUP_SIZE:
-            # Reconstruct the path prefix from the anchor's ancestors
-            # We use the anchor's segment as the leaf prefix
-            # Build prefix by walking the segment chain
-            prefix = _build_prefix(anchor)
-            grp = URLGroup(make_group_id(), leaf_urls, prefix)
-            groups.append(grp)
-            covered_urls.update(leaf_urls)
-        else:
-            small_url_pool.extend(leaf_urls)
-
-    # ── Step 3: Find structural junctions ──
-    junctions = trie.find_structural_junctions(literal_ratio_threshold=0.7)
-
-    for junction in junctions:
-        for seg, child_node in junction.children.items():
-            leaf_urls = child_node.collect_leaves()
-            # Skip already covered
-            new_urls = [u for u in leaf_urls if u not in covered_urls]
-            if not new_urls:
+    def _are_category_variants(children):
+        """Check if children are same content type under different names."""
+        if len(children) < 2:
+            return False
+        profiles = []
+        for seg, child in children.items():
+            leaves = child.collect_leaves()
+            if not leaves:
                 continue
-            if len(new_urls) >= MIN_GROUP_SIZE:
-                prefix = _build_prefix(child_node)
-                grp = URLGroup(make_group_id(), new_urls, prefix)
-                groups.append(grp)
-                covered_urls.update(new_urls)
+            profiles.append({
+                "child_literal_ratio": child.child_literal_ratio,
+                "descendant_count": child.descendant_count,
+                "has_children": len(child.children) > 0,
+            })
+        if len(profiles) < 2:
+            return False
+        all_variable = all(p["child_literal_ratio"] < 0.5 for p in profiles)
+        all_have_content = all(p["descendant_count"] > 0 for p in profiles)
+        all_same_depth = len(set(p["has_children"] for p in profiles)) == 1
+        return all_variable and all_have_content and all_same_depth
+
+    def _collect_group(node):
+        leaves = node.collect_leaves()
+        uncovered = [u for u in leaves if u not in assigned_urls]
+        if len(uncovered) < MIN_GROUP_SIZE:
+            return
+        prefix = "/" + node.path_from_root if node.path_from_root else "/"
+        group = URLGroup(
+            group_id=f"grp_{len(groups) + 1:03d}",
+            urls=uncovered,
+            path_prefix=prefix,
+        )
+        groups.append(group)
+        assigned_urls.update(uncovered)
+
+    def process_node(node):
+        if not node.children:
+            return
+        literal_children = {}
+        for seg, child in node.children.items():
+            if _is_section_name(seg, child):
+                literal_children[seg] = child
+        is_junction = len(literal_children) >= 2
+
+        # Special case: exactly 1 literal child with a large subtree alongside non-literal children
+        is_mixed_with_one_large_literal = False
+        if len(literal_children) == 1 and len(node.children) > 1:
+            literal_child = list(literal_children.values())[0]
+            if literal_child.descendant_count >= MIN_GROUP_SIZE:
+                is_mixed_with_one_large_literal = True
+
+        if is_junction or is_mixed_with_one_large_literal:
+            if is_junction and _are_category_variants(literal_children):
+                _collect_group(node)
             else:
-                small_url_pool.extend(new_urls)
+                for seg, child in node.children.items():
+                    process_node(child)
+        else:
+            _collect_group(node)
 
-    # ── Step 4: Check root-level pages not yet covered ──
-    for purl in urls:
-        if purl.canonical_url not in covered_urls:
-            small_url_pool.append(purl.canonical_url)
+    process_node(trie)
 
-    # Deduplicate small pool
-    small_url_pool = list(dict.fromkeys(u for u in small_url_pool if u not in covered_urls))
-
-    # ── Step 5: Catch-all group for small/leftover URLs ──
-    if small_url_pool:
-        grp = URLGroup(make_group_id(), small_url_pool, "/")
-        grp.group_id = grp.group_id  # keep as-is; name it catch_all later
-        groups.append(grp)
+    # Collect remaining uncovered URLs by depth
+    all_leaves = trie.collect_leaves()
+    remaining = [u for u in all_leaves if u not in assigned_urls]
+    if remaining:
+        by_depth = defaultdict(list)
+        for url_str in remaining:
+            u = url_lookup.get(url_str)
+            if u:
+                path = u.version_free_path or u.path
+                depth = len(split_path_segments(path))
+                by_depth[depth].append(url_str)
+        for depth, depth_urls in sorted(by_depth.items()):
+            if len(depth_urls) >= MIN_GROUP_SIZE:
+                group = URLGroup(
+                    group_id=f"grp_{len(groups) + 1:03d}",
+                    urls=depth_urls,
+                    path_prefix=f"depth_{depth}",
+                )
+                groups.append(group)
+                assigned_urls.update(depth_urls)
 
     return groups
 
-
-def _build_prefix(node: TrieNode) -> str:
+def derive_template(group, all_urls):
     """
-    Reconstruct the path prefix up to and including this node's segment.
-    Since TrieNode doesn't store parent references, we store the segment
-    path during traversal instead. We approximate by using segment value.
+    RULES:
+    - If ALL URLs have same value at position → use literal value
+    - If values differ → use <type> placeholder
+    - NEVER replace a known literal with <literal>
     """
-    # The node's segment is the last part of the prefix.
-    # We can't easily walk up, so we return the segment itself as a hint.
-    return f"/{node.segment}" if node.segment else "/"
+    from collections import Counter
 
-
-def derive_template(group: URLGroup, all_urls: list[ParsedURL]) -> TemplatePattern:
-    """
-    Given a URLGroup, derive a TemplatePattern.
-
-    Steps:
-    1. Get all ParsedURL objects that belong to this group
-    2. All URLs in a group should have the same number of path segments.
-       If not, split into depth-based subgroups.
-    3. For each segment position:
-       a. Collect all values at that position across the group
-       b. If all identical → static segment, use the literal value
-       c. If highly varied → variable segment, use <TYPE> placeholder
-    4. Build the pattern string
-    5. Build the fingerprint
-    6. Compute confidence
-    7. Return TemplatePattern
-    """
-    # Find ParsedURL objects for the group's URLs
     url_set = set(group.urls)
-    group_parsed = [u for u in all_urls if u.canonical_url in url_set]
-
-    # Fall back: if no parsed matches found, use raw URL strings for building
-    if not group_parsed:
-        # Build minimal pattern from URLs directly
+    group_urls = [u for u in all_urls if u.canonical_url in url_set]
+    if not group_urls:
         return TemplatePattern(
-            template_id="",
-            pattern="/<unknown>",
-            fingerprint="UNKNOWN",
-            member_count=len(group.urls),
-            example_urls=group.urls[:MAX_EXAMPLES_PER_TEMPLATE],
-            confidence=0.1,
+            template_id="", pattern=group.path_prefix,
+            fingerprint="", member_count=0, confidence=0.0,
         )
 
-    # Use version_free_path for grouping logic
-    def get_path(u: ParsedURL) -> str:
-        return u.version_free_path if u.version_free_path else u.path
+    all_seg_lists = []
+    for u in group_urls:
+        p = u.version_free_path or u.path
+        all_seg_lists.append(split_path_segments(p))
 
-    # Group by segment depth
-    depth_groups: dict[int, list[ParsedURL]] = {}
-    for u in group_parsed:
-        segs = [s for s in get_path(u).split("/") if s]
-        d = len(segs)
-        depth_groups.setdefault(d, []).append(u)
+    depths = [len(s) for s in all_seg_lists]
+    min_depth = min(depths)
+    max_depth = max(depths)
 
-    # Pick the largest depth group
-    best_depth = max(depth_groups, key=lambda d: len(depth_groups[d]))
-    main_group = depth_groups[best_depth]
-
-    # Compute position frequencies for the main group
-    pos_freqs = compute_position_frequencies(main_group)
-    pos_types = classify_positions(
-        pos_freqs,
-        static_threshold=0.80,
-        variable_threshold=0.10,
-    )
-
-    # Build pattern and fingerprint
     pattern_parts = []
     fingerprint_parts = []
 
-    # Get segment count from a representative URL
-    rep_segs = [s for s in get_path(main_group[0]).split("/") if s]
+    for pos in range(min_depth):
+        values = [sl[pos] for sl in all_seg_lists if len(sl) > pos]
+        unique_values = set(values)
+        total = len(values)
 
-    # Collect dominant types per position
-    for pos, seg_val in enumerate(rep_segs):
-        pos_type = pos_types.get(pos, "variable")
-
-        if pos_type == "static":
-            # Use the most frequent value
-            freq_at_pos = pos_freqs.get(pos, {})
-            dominant_val = max(freq_at_pos, key=lambda v: freq_at_pos[v], default=seg_val)
-            pattern_parts.append(dominant_val)
-            fingerprint_parts.append(dominant_val.upper())
-        else:
-            # Determine the most common segment type at this position
-            types_at_pos: dict[str, int] = {}
-            for u in main_group:
-                segs = [s for s in get_path(u).split("/") if s]
-                if pos < len(segs):
-                    from utils.url_parser import classify_segment
-                    seg_type = classify_segment(segs[pos])
-                    types_at_pos[seg_type.value] = types_at_pos.get(seg_type.value, 0) + 1
-
-            if types_at_pos:
-                dominant_type = max(types_at_pos, key=lambda t: types_at_pos[t])
+        if len(unique_values) == 1:
+            value = values[0]
+            pattern_parts.append(value)
+            fingerprint_parts.append(value.upper())
+        elif len(unique_values) <= 3:
+            most_common_val, most_common_count = Counter(values).most_common(1)[0]
+            freq = most_common_count / total
+            if freq >= 0.75:
+                pattern_parts.append(most_common_val)
+                fingerprint_parts.append(most_common_val.upper())
             else:
-                dominant_type = SegmentType.UNKNOWN.value
+                types = [classify_segment(v) for v in values]
+                most_common_type = Counter(types).most_common(1)[0][0]
+                pattern_parts.append(f"<{most_common_type.value}>")
+                fingerprint_parts.append(most_common_type.value)
+        else:
+            types = [classify_segment(v) for v in values]
+            type_counts = Counter(types)
+            most_common_type = type_counts.most_common(1)[0][0]
+            pattern_parts.append(f"<{most_common_type.value}>")
+            fingerprint_parts.append(most_common_type.value)
 
-            pattern_parts.append(f"<{dominant_type}>")
-            fingerprint_parts.append(dominant_type.upper())
+    if max_depth > min_depth:
+        deeper_patterns = []
+        for sl in all_seg_lists:
+            if len(sl) > min_depth:
+                deeper_patterns.append("/".join(sl[min_depth:]))
+        unique_deeper = set(deeper_patterns)
+        if len(unique_deeper) == 1:
+            pattern_parts.append(unique_deeper.pop())
+            fingerprint_parts.append("STATIC_DEEP")
+        else:
+            pattern_parts.append("...")
+            fingerprint_parts.append("DEEPER")
 
     pattern = "/" + "/".join(pattern_parts)
     fingerprint = "/".join(fingerprint_parts)
 
-    # Compute confidence: based on group size and type uniformity
-    size_factor = min(1.0, len(group.urls) / 20)
-    type_uniformity = sum(1 for p in pos_types.values() if p == "static") / max(len(pos_types), 1)
-    confidence = round(0.5 + 0.3 * size_factor + 0.2 * type_uniformity, 4)
-    confidence = min(confidence, 1.0)
+    count_score = min(len(group_urls) / 50.0, 1.0)
+    static_positions = sum(
+        1 for pos in range(min_depth)
+        if len(set(sl[pos] for sl in all_seg_lists if len(sl) > pos)) == 1
+    )
+    uniformity = static_positions / max(min_depth, 1)
+    has_prefix = bool(group.path_prefix and group.path_prefix != "/" and not group.path_prefix.startswith("/<"))
+    prefix_bonus = 0.15 if has_prefix else 0.0
+    confidence = min(count_score * 0.25 + uniformity * 0.5 + prefix_bonus + 0.15, 1.0)
+    confidence = max(confidence, 0.1)
 
-    # Collect versions covered
-    versions_covered = list({
-        u.version for u in group_parsed if u.version
-    })
+    versions = sorted(set(u.version for u in group_urls if u.version))
+    name = _infer_template_name(group, pattern)
+    examples = [u.canonical_url for u in group_urls[:MAX_EXAMPLES_PER_TEMPLATE]]
 
     return TemplatePattern(
-        template_id="",  # assigned later
-        pattern=pattern,
-        fingerprint=fingerprint,
-        member_count=len(group.urls),
-        versions_covered=versions_covered,
-        example_urls=group.urls[:MAX_EXAMPLES_PER_TEMPLATE],
-        confidence=confidence,
+        template_id="", name=name, pattern=pattern, fingerprint=fingerprint,
+        member_count=len(group_urls), versions_covered=versions,
+        scope="internal", example_urls=examples, confidence=round(confidence, 2),
     )
 
+def _infer_template_name(group, pattern):
+    prefix = group.path_prefix.lower()
+    pattern_lower = pattern.lower()
+    name_map = {
+        "modules/generated": "api_reference",
+        "user_guide": "user_guide",
+        "auto_examples": "examples",
+        "whats_new": "changelog",
+        "developers": "developer_docs",
+        "api": "api_reference",
+        "_downloads": "downloads",
+        "lite/lab": "interactive_lite",
+        "modules": "module_overview",
+    }
+    for key, name in name_map.items():
+        if key in prefix:
+            return name
+    if "generated" in pattern_lower:
+        return "api_reference"
+    segments = prefix.strip("/").split("/")
+    for seg in segments:
+        if seg and not seg.startswith("<") and not seg.startswith("depth_"):
+            return seg
+    return "catch_all"
 
-def merge_similar_templates(
-    templates: list[TemplatePattern],
-) -> list[TemplatePattern]:
-    """
-    After initial template derivation, check if any templates should be merged.
-
-    Merge criteria:
-    Two templates can be merged if:
-    1. They have the same number of segments
-    2. Their fingerprints differ in at most TEMPLATE_MERGE_DISTANCE positions
-    3. The differing positions are all variable (both are type names, not literals)
-    """
+def merge_similar_templates(templates):
+    """Merge ONLY if truly same content type. If ANY literal differs, DO NOT MERGE."""
     if len(templates) <= 1:
         return templates
 
     merged = list(templates)
     changed = True
-
     while changed:
         changed = False
         result = []
-        skip = set()
-
-        for i, tpl_a in enumerate(merged):
-            if i in skip:
+        used = set()
+        for i, t1 in enumerate(merged):
+            if i in used:
                 continue
-            merged_with = None
-
-            parts_a = tpl_a.fingerprint.split("/")
-
-            for j, tpl_b in enumerate(merged):
-                if j <= i or j in skip:
+            best_match_idx = None
+            best_distance = float('inf')
+            for j, t2 in enumerate(merged):
+                if j <= i or j in used:
                     continue
-                parts_b = tpl_b.fingerprint.split("/")
-
-                if len(parts_a) != len(parts_b):
-                    continue
-
-                # Count differing positions
-                diffs = [
-                    k for k, (pa, pb) in enumerate(zip(parts_a, parts_b))
-                    if pa != pb
-                ]
-
-                if len(diffs) > TEMPLATE_MERGE_DISTANCE:
-                    continue
-
-                # All diffs must be variable (uppercase type names, not literal values)
-                all_variable = all(
-                    parts_a[k] == parts_a[k].upper() and parts_a[k].replace("_", "").isalpha()
-                    and parts_b[k] == parts_b[k].upper() and parts_b[k].replace("_", "").isalpha()
-                    for k in diffs
-                )
-                if not all_variable:
-                    continue
-
-                # Merge: keep the bigger template, absorb the smaller
-                if tpl_a.member_count >= tpl_b.member_count:
-                    winner = tpl_a
-                    loser = tpl_b
-                else:
-                    winner = tpl_b
-                    loser = tpl_a
-
-                new_examples = list(dict.fromkeys(winner.example_urls + loser.example_urls))[:MAX_EXAMPLES_PER_TEMPLATE]
-                new_versions = list(set(winner.versions_covered + loser.versions_covered))
-                merged_tpl = winner.model_copy(update={
-                    "member_count": winner.member_count + loser.member_count,
-                    "example_urls": new_examples,
-                    "versions_covered": new_versions,
-                })
-                merged_with = merged_tpl
-                skip.add(j)
+                distance = _compute_merge_distance(t1, t2)
+                if distance is not None and distance <= TEMPLATE_MERGE_DISTANCE and distance < best_distance:
+                    best_match_idx = j
+                    best_distance = distance
+            if best_match_idx is not None:
+                t2 = merged[best_match_idx]
+                merged_template = _do_merge(t1, t2)
+                result.append(merged_template)
+                used.add(i)
+                used.add(best_match_idx)
                 changed = True
-                break
-
-            if merged_with:
-                result.append(merged_with)
             else:
-                result.append(tpl_a)
-
+                result.append(t1)
+                used.add(i)
         merged = result
-
     return merged
 
-
-def finalize_templates(
-    groups: list[URLGroup],
-    all_urls: list[ParsedURL],
-) -> list[TemplatePattern]:
+def _compute_merge_distance(t1, t2):
     """
-    Convert URLGroups → TemplatePatterns, then merge similar ones.
-
-    Steps:
-    1. For each group, call derive_template(group, all_urls)
-    2. Assign template_ids: tpl_001, tpl_002, tpl_003, ...
-    3. Call merge_similar_templates(templates)
-    4. Re-assign template_ids after merge (no gaps)
-    5. Sort by member_count descending (biggest template first)
-    6. Return final list
+    Returns None if cannot merge. Returns int if mergeable.
+    Fingerprint format: literal values UPPERCASE, type names lowercase.
     """
+    parts1 = t1.fingerprint.split("/")
+    parts2 = t2.fingerprint.split("/")
+    if len(parts1) != len(parts2):
+        return None
+    distance = 0
+    for p1, p2 in zip(parts1, parts2):
+        if p1 == p2:
+            continue
+        p1_is_literal = p1.isalpha() and p1 == p1.upper()
+        p2_is_literal = p2.isalpha() and p2 == p2.upper()
+        if p1_is_literal or p2_is_literal:
+            return None  # CANNOT merge if any literal differs
+        distance += 1
+    return distance
+
+def _do_merge(t1, t2):
+    if t1.member_count >= t2.member_count:
+        primary, secondary = t1, t2
+    else:
+        primary, secondary = t2, t1
+    merged_examples = list(set(primary.example_urls + secondary.example_urls))[:MAX_EXAMPLES_PER_TEMPLATE]
+    merged_versions = sorted(set(primary.versions_covered + secondary.versions_covered))
+    return TemplatePattern(
+        template_id=primary.template_id, name=primary.name,
+        pattern=primary.pattern, fingerprint=primary.fingerprint,
+        member_count=primary.member_count + secondary.member_count,
+        versions_covered=merged_versions, scope=primary.scope,
+        example_urls=merged_examples,
+        confidence=min(primary.confidence, secondary.confidence),
+    )
+
+def finalize_templates(groups, all_urls):
     templates = []
-    for i, group in enumerate(groups, start=1):
-        tpl = derive_template(group, all_urls)
-        tpl = tpl.model_copy(update={"template_id": f"tpl_{i:03d}"})
-        templates.append(tpl)
-
-    # Merge similar
+    for group in groups:
+        template = derive_template(group, all_urls)
+        if template.member_count > 0:
+            templates.append(template)
     templates = merge_similar_templates(templates)
-
-    # Sort by member_count descending
-    templates.sort(key=lambda t: t.member_count, reverse=True)
-
-    # Re-assign IDs
-    final = []
-    for i, tpl in enumerate(templates, start=1):
-        name = _infer_template_name(tpl.pattern)
-        final.append(tpl.model_copy(update={
-            "template_id": f"tpl_{i:03d}",
-            "name": name,
-        }))
-
-    return final
-
-
-def _infer_template_name(pattern: str) -> str:
-    """
-    Heuristically infer a human-readable name from the pattern string.
-    """
-    lower = pattern.lower()
-    if "generated" in lower or "api" in lower:
-        return "api_reference"
-    if "user_guide" in lower or "guide" in lower:
-        return "user_guide"
-    if "auto_example" in lower or "example" in lower:
-        return "examples"
-    if "tutorial" in lower:
-        return "tutorials"
-    if "changelog" in lower or "release" in lower:
-        return "changelog"
-    return "catch_all"
+    def sort_key(t):
+        parts = t.pattern.strip("/").split("/")
+        literal_count = sum(1 for p in parts if not p.startswith("<") and p != "...")
+        return (-literal_count, -len(parts), -t.member_count)
+    templates.sort(key=sort_key)
+    for i, template in enumerate(templates):
+        template.template_id = f"tpl_{i + 1:03d}"
+    return templates

@@ -1,0 +1,3562 @@
+{
+  "domain": "scikit-learn.org",
+  "total_processed": 50,
+  "total_healed": 0,
+  "failed": 0,
+  "results": {
+    "tpl_002": [
+      {
+        "url": "https://scikit-learn.org/stable/modules/generated/sklearn.config_context.html",
+        "status": "extracted",
+        "data": [
+          {
+            "page_title": "config_context #",
+            "function_signature": "sklearn. config_context ( * , assume_finite = None , working_memory = None , print_changed_only = None , display = None , pairwise_dist_chunk_size = None , enable_cython_pairwise_dist = None , array_api_dispatch = None , transform_output = None , enable_metadata_routing = None , skip_parameter_validation = None , sparse_interface = None ) [source] #",
+            "description": "Context manager to temporarily change the global scikit-learn configuration.",
+            "parameters": [
+              {
+                "name": "assume_finite",
+                "type_info": "bool, default=None",
+                "description": "If True, validation for finiteness will be skipped, saving time, but leading to potential crashes. If False, validation for finiteness will be performed, avoiding error. If None, the existing configuration won\u2019t change. Global default: False."
+              },
+              {
+                "name": "working_memory",
+                "type_info": "int, default=None",
+                "description": "If set, scikit-learn will attempt to limit the size of temporary arrays to this number of MiB (per job when parallelised), often saving both computation time and memory on expensive operations that can be performed in chunks. If None, the existing configuration won\u2019t change. Global default: 1024."
+              },
+              {
+                "name": "print_changed_only",
+                "type_info": "bool, default=None",
+                "description": "If True, only the parameters that were set to non-default values will be printed when printing an estimator. For example, print(SVC()) while True will only print \u2018SVC()\u2019, but would print \u2018SVC(C=1.0, cache_size=200, \u2026)\u2019 with all the non-changed parameters when False. If None, the existing configuration won\u2019t change. Global default: True."
+              },
+              {
+                "name": "display",
+                "type_info": "{\u2018text\u2019, \u2018diagram\u2019}, default=None",
+                "description": "If \u2018diagram\u2019, estimators will be displayed as a diagram in a Jupyter lab or notebook context. If \u2018text\u2019, estimators will be displayed as text. If None, the existing configuration won\u2019t change. Global default: \u2018diagram\u2019."
+              },
+              {
+                "name": "pairwise_dist_chunk_size",
+                "type_info": "int, default=None",
+                "description": "The number of row vectors per chunk for the accelerated pairwise- distances reduction backend. Global default: 256 (suitable for most of modern laptops\u2019 caches and architectures)."
+              },
+              {
+                "name": "enable_cython_pairwise_dist",
+                "type_info": "bool, default=None",
+                "description": "Use the accelerated pairwise-distances reduction backend when possible. Global default: True."
+              },
+              {
+                "name": "array_api_dispatch",
+                "type_info": "bool, default=None",
+                "description": "Use Array API dispatching when inputs follow the Array API standard. Global default: False."
+              },
+              {
+                "name": "transform_output",
+                "type_info": "str, default=None",
+                "description": "Configure output of transform and fit_transform ."
+              },
+              {
+                "name": "enable_metadata_routing",
+                "type_info": "bool, default=None",
+                "description": "Enable metadata routing. By default this feature is disabled."
+              },
+              {
+                "name": "skip_parameter_validation",
+                "type_info": "bool, default=None",
+                "description": "If True , disable the validation of the hyper-parameters\u2019 types and values in the fit method of estimators and for arguments passed to public helper functions. It can save time in some situations but can lead to low level crashes and exceptions with confusing error messages. Global default: False."
+              },
+              {
+                "name": "sparse_interface",
+                "type_info": "str, default=\u201dspmatrix\u201d",
+                "description": "The sparse interface used for every sparse object that scikit-learn produces, e.g., function returns, estimator attributes, estimator properties, etc."
+              }
+            ],
+            "code_examples": [
+              ">>> import sklearn >>> from sklearn.utils.validation import assert_all_finite >>> with sklearn . config_context ( assume_finite = True ): ... assert_all_finite ([ float ( 'nan' )]) >>> with sklearn . config_context ( assume_finite = True ): ... with sklearn . config_context ( assume_finite = False ): ... assert_all_finite ([ float ( 'nan' )]) Traceback (most recent call last): ... ValueError : Input contains NaN..."
+            ],
+            "related_functions": [
+              {
+                "name": "set_config",
+                "description": "Set global scikit-learn configuration."
+              },
+              {
+                "name": "get_config",
+                "description": "Retrieve current values of the global configuration."
+              }
+            ],
+            "input": {
+              "url": "https://scikit-learn.org/stable/modules/generated/sklearn.config_context.html"
+            }
+          }
+        ]
+      },
+      {
+        "url": "https://scikit-learn.org/stable/modules/generated/sklearn.set_config.html",
+        "status": "extracted",
+        "data": [
+          {
+            "page_title": "set_config #",
+            "function_signature": "sklearn. set_config ( assume_finite = None , working_memory = None , print_changed_only = None , display = None , pairwise_dist_chunk_size = None , enable_cython_pairwise_dist = None , array_api_dispatch = None , transform_output = None , enable_metadata_routing = None , skip_parameter_validation = None , sparse_interface = None ) [source] #",
+            "description": "Set global scikit-learn configuration.",
+            "parameters": [
+              {
+                "name": "assume_finite",
+                "type_info": "bool, default=None",
+                "description": "If True, validation for finiteness will be skipped, saving time, but leading to potential crashes. If False, validation for finiteness will be performed, avoiding error. Global default: False."
+              },
+              {
+                "name": "working_memory",
+                "type_info": "int, default=None",
+                "description": "If set, scikit-learn will attempt to limit the size of temporary arrays to this number of MiB (per job when parallelised), often saving both computation time and memory on expensive operations that can be performed in chunks. Global default: 1024."
+              },
+              {
+                "name": "print_changed_only",
+                "type_info": "bool, default=None",
+                "description": "If True, only the parameters that were set to non-default values will be printed when printing an estimator. For example, print(SVC()) while True will only print \u2018SVC()\u2019 while the default behaviour would be to print \u2018SVC(C=1.0, cache_size=200, \u2026)\u2019 with all the non-changed parameters. Global default: True."
+              },
+              {
+                "name": "display",
+                "type_info": "{\u2018text\u2019, \u2018diagram\u2019}, default=None",
+                "description": "If \u2018diagram\u2019, estimators will be displayed as a diagram in a Jupyter lab or notebook context. If \u2018text\u2019, estimators will be displayed as text. Global default: \u2018diagram\u2019."
+              },
+              {
+                "name": "pairwise_dist_chunk_size",
+                "type_info": "int, default=None",
+                "description": "The number of row vectors per chunk for the accelerated pairwise- distances reduction backend. Global default: 256 (suitable for most of modern laptops\u2019 caches and architectures)."
+              },
+              {
+                "name": "enable_cython_pairwise_dist",
+                "type_info": "bool, default=None",
+                "description": "Use the accelerated pairwise-distances reduction backend when possible. Global default: True."
+              },
+              {
+                "name": "array_api_dispatch",
+                "type_info": "bool, default=None",
+                "description": "Use Array API dispatching when inputs follow the Array API standard. Global default: False."
+              },
+              {
+                "name": "transform_output",
+                "type_info": "str, default=None",
+                "description": "Configure output of transform and fit_transform ."
+              },
+              {
+                "name": "enable_metadata_routing",
+                "type_info": "bool, default=None",
+                "description": "Enable metadata routing. By default this feature is disabled."
+              },
+              {
+                "name": "skip_parameter_validation",
+                "type_info": "bool, default=None",
+                "description": "If True , disable the validation of the hyper-parameters\u2019 types and values in the fit method of estimators and for arguments passed to public helper functions. It can save time in some situations but can lead to low level crashes and exceptions with confusing error messages. Global default: False."
+              },
+              {
+                "name": "sparse_interface",
+                "type_info": "str, default=\u201dspmatrix\u201d",
+                "description": "The sparse interface used for every sparse object that scikit-learn produces, e.g., function returns, estimator attributes, estimator properties, etc."
+              }
+            ],
+            "code_examples": [
+              ">>> from sklearn import set_config >>> set_config ( display = 'diagram' )"
+            ],
+            "related_functions": [
+              {
+                "name": "config_context",
+                "description": "Context manager for global scikit-learn configuration."
+              },
+              {
+                "name": "get_config",
+                "description": "Retrieve current values of the global configuration."
+              }
+            ],
+            "input": {
+              "url": "https://scikit-learn.org/stable/modules/generated/sklearn.set_config.html"
+            }
+          }
+        ]
+      },
+      {
+        "url": "https://scikit-learn.org/stable/modules/generated/sklearn.get_config.html",
+        "status": "extracted",
+        "data": [
+          {
+            "page_title": "get_config #",
+            "function_signature": "sklearn. get_config ( ) [source] #",
+            "description": "Retrieve the current scikit-learn configuration.",
+            "parameters": [
+              {
+                "name": "config",
+                "type_info": "dict",
+                "description": "Keys are parameter names that can be passed to set_config ."
+              }
+            ],
+            "code_examples": [
+              ">>> import sklearn >>> config = sklearn . get_config () >>> config . keys () dict_keys([...])"
+            ],
+            "related_functions": [
+              {
+                "name": "config_context",
+                "description": "Context manager for global scikit-learn configuration."
+              },
+              {
+                "name": "set_config",
+                "description": "Set global scikit-learn configuration."
+              }
+            ],
+            "input": {
+              "url": "https://scikit-learn.org/stable/modules/generated/sklearn.get_config.html"
+            }
+          }
+        ]
+      },
+      {
+        "url": "https://scikit-learn.org/stable/modules/generated/sklearn.show_versions.html",
+        "status": "extracted",
+        "data": [
+          {
+            "page_title": "show_versions #",
+            "function_signature": "sklearn. show_versions ( ) [source] #",
+            "description": "Print useful debugging information.",
+            "code_examples": [
+              ">>> from sklearn import show_versions >>> show_versions ()"
+            ],
+            "input": {
+              "url": "https://scikit-learn.org/stable/modules/generated/sklearn.show_versions.html"
+            }
+          }
+        ]
+      },
+      {
+        "url": "https://scikit-learn.org/stable/modules/generated/sklearn.base.BaseEstimator.html",
+        "status": "extracted",
+        "data": [
+          {
+            "page_title": "BaseEstimator #",
+            "parameters": [
+              {
+                "name": "routing",
+                "type_info": "MetadataRequest",
+                "description": "A MetadataRequest encapsulating routing information."
+              },
+              {
+                "name": "deep",
+                "type_info": "bool, default=True",
+                "description": "If True, will return the parameters for this estimator and contained subobjects that are estimators."
+              },
+              {
+                "name": "**params",
+                "type_info": "dict",
+                "description": "Estimator parameters."
+              }
+            ],
+            "code_examples": [
+              ">>> import numpy as np >>> from sklearn.base import BaseEstimator >>> class MyEstimator ( BaseEstimator ): ... def __init__ ( self , * , param = 1 ): ... self . param = param ... def fit ( self , X , y = None ): ... self . is_fitted_ = True ... return self ... def predict ( self , X ): ... return np . full ( shape = X . shape [ 0 ], fill_value = self . param ) >>> estimator = MyEstimator ( param = 2 ) >>> estimator . get_params () {'param': 2} >>> X = np . array ([[ 1 , 2 ], [ 2 , 3 ], [ 3 , 4 ]]) >>> y = np . array ([ 1 , 0 , 1 ]) >>> estimator . fit ( X , y ) . predict ( X ) array([2, 2, 2]) >>> estimator . set_params ( param = 3 ) . fit ( X , y ) . predict ( X ) array([3, 3, 3])"
+            ],
+            "input": {
+              "url": "https://scikit-learn.org/stable/modules/generated/sklearn.base.BaseEstimator.html"
+            }
+          }
+        ]
+      },
+      {
+        "url": "https://scikit-learn.org/stable/modules/generated/sklearn.base.BiclusterMixin.html",
+        "status": "extracted",
+        "data": [
+          {
+            "page_title": "BiclusterMixin #",
+            "parameters": [
+              {
+                "name": "i",
+                "type_info": "int",
+                "description": "The index of the cluster."
+              },
+              {
+                "name": "i",
+                "type_info": "int",
+                "description": "The index of the cluster."
+              },
+              {
+                "name": "i",
+                "type_info": "int",
+                "description": "The index of the cluster."
+              },
+              {
+                "name": "data",
+                "type_info": "array-like of shape (n_samples, n_features)",
+                "description": "The data."
+              }
+            ],
+            "code_examples": [
+              ">>> import numpy as np >>> from sklearn.base import BaseEstimator , BiclusterMixin >>> class DummyBiClustering ( BiclusterMixin , BaseEstimator ): ... def fit ( self , X , y = None ): ... self . rows_ = np . ones ( shape = ( 1 , X . shape [ 0 ]), dtype = bool ) ... self . columns_ = np . ones ( shape = ( 1 , X . shape [ 1 ]), dtype = bool ) ... return self >>> X = np . array ([[ 1 , 1 ], [ 2 , 1 ], [ 1 , 0 ], ... [ 4 , 7 ], [ 3 , 5 ], [ 3 , 6 ]]) >>> bicluster = DummyBiClustering () . fit ( X ) >>> hasattr ( bicluster , \"biclusters_\" ) True >>> bicluster . get_indices ( 0 ) (array([0, 1, 2, 3, 4, 5]), array([0, 1]))"
+            ],
+            "input": {
+              "url": "https://scikit-learn.org/stable/modules/generated/sklearn.base.BiclusterMixin.html"
+            }
+          }
+        ]
+      },
+      {
+        "url": "https://scikit-learn.org/stable/modules/generated/sklearn.base.ClassNamePrefixFeaturesOutMixin.html",
+        "status": "extracted",
+        "data": [
+          {
+            "page_title": "ClassNamePrefixFeaturesOutMixin #",
+            "parameters": [
+              {
+                "name": "input_features",
+                "type_info": "array-like of str or None, default=None",
+                "description": "Only used to validate feature names with the names seen in fit ."
+              }
+            ],
+            "code_examples": [
+              ">>> import numpy as np >>> from sklearn.base import ClassNamePrefixFeaturesOutMixin , BaseEstimator >>> class MyEstimator ( ClassNamePrefixFeaturesOutMixin , BaseEstimator ): ... def fit ( self , X , y = None ): ... self . _n_features_out = X . shape [ 1 ] ... return self >>> X = np . array ([[ 1 , 2 ], [ 3 , 4 ]]) >>> MyEstimator () . fit ( X ) . get_feature_names_out () array(['myestimator0', 'myestimator1'], dtype=object)"
+            ],
+            "input": {
+              "url": "https://scikit-learn.org/stable/modules/generated/sklearn.base.ClassNamePrefixFeaturesOutMixin.html"
+            }
+          }
+        ]
+      },
+      {
+        "url": "https://scikit-learn.org/stable/modules/generated/sklearn.base.ClassifierMixin.html",
+        "status": "extracted",
+        "data": [
+          {
+            "page_title": "ClassifierMixin #",
+            "parameters": [
+              {
+                "name": "X",
+                "type_info": "array-like of shape (n_samples, n_features)",
+                "description": "Test samples."
+              },
+              {
+                "name": "y",
+                "type_info": "array-like of shape (n_samples,) or (n_samples, n_outputs)",
+                "description": "True labels for X ."
+              },
+              {
+                "name": "sample_weight",
+                "type_info": "array-like of shape (n_samples,), default=None",
+                "description": "Sample weights."
+              }
+            ],
+            "code_examples": [
+              ">>> import numpy as np >>> from sklearn.base import BaseEstimator , ClassifierMixin >>> # Mixin classes should always be on the left-hand side for a correct MRO >>> class MyEstimator ( ClassifierMixin , BaseEstimator ): ... def __init__ ( self , * , param = 1 ): ... self . param = param ... def fit ( self , X , y = None ): ... self . is_fitted_ = True ... return self ... def predict ( self , X ): ... return np . full ( shape = X . shape [ 0 ], fill_value = self . param ) >>> estimator = MyEstimator ( param = 1 ) >>> X = np . array ([[ 1 , 2 ], [ 2 , 3 ], [ 3 , 4 ]]) >>> y = np . array ([ 1 , 0 , 1 ]) >>> estimator . fit ( X , y ) . predict ( X ) array([1, 1, 1]) >>> estimator . score ( X , y ) 0.66..."
+            ],
+            "input": {
+              "url": "https://scikit-learn.org/stable/modules/generated/sklearn.base.ClassifierMixin.html"
+            }
+          }
+        ]
+      },
+      {
+        "url": "https://scikit-learn.org/stable/modules/generated/sklearn.base.ClusterMixin.html",
+        "status": "extracted",
+        "data": [
+          {
+            "page_title": "ClusterMixin #",
+            "parameters": [
+              {
+                "name": "X",
+                "type_info": "array-like of shape (n_samples, n_features)",
+                "description": "Input data."
+              },
+              {
+                "name": "y",
+                "type_info": "Ignored",
+                "description": "Not used, present for API consistency by convention."
+              },
+              {
+                "name": "**kwargs",
+                "type_info": "dict",
+                "description": "Arguments to be passed to fit ."
+              }
+            ],
+            "code_examples": [
+              ">>> import numpy as np >>> from sklearn.base import BaseEstimator , ClusterMixin >>> class MyClusterer ( ClusterMixin , BaseEstimator ): ... def fit ( self , X , y = None ): ... self . labels_ = np . ones ( shape = ( len ( X ),), dtype = np . int64 ) ... return self >>> X = [[ 1 , 2 ], [ 2 , 3 ], [ 3 , 4 ]] >>> MyClusterer () . fit_predict ( X ) array([1, 1, 1])"
+            ],
+            "input": {
+              "url": "https://scikit-learn.org/stable/modules/generated/sklearn.base.ClusterMixin.html"
+            }
+          }
+        ]
+      },
+      {
+        "url": "https://scikit-learn.org/stable/modules/generated/sklearn.base.DensityMixin.html",
+        "status": "extracted",
+        "data": [
+          {
+            "page_title": "DensityMixin #",
+            "parameters": [
+              {
+                "name": "X",
+                "type_info": "array-like of shape (n_samples, n_features)",
+                "description": "Test samples."
+              },
+              {
+                "name": "y",
+                "type_info": "Ignored",
+                "description": "Not used, present for API consistency by convention."
+              }
+            ],
+            "code_examples": [
+              ">>> from sklearn.base import DensityMixin >>> class MyEstimator ( DensityMixin ): ... def fit ( self , X , y = None ): ... self . is_fitted_ = True ... return self >>> estimator = MyEstimator () >>> hasattr ( estimator , \"score\" ) True"
+            ],
+            "input": {
+              "url": "https://scikit-learn.org/stable/modules/generated/sklearn.base.DensityMixin.html"
+            }
+          }
+        ]
+      },
+      {
+        "url": "https://scikit-learn.org/stable/modules/generated/sklearn.base.MetaEstimatorMixin.html",
+        "status": "extracted",
+        "data": [
+          {
+            "page_title": "MetaEstimatorMixin #",
+            "code_examples": [
+              ">>> from sklearn.base import MetaEstimatorMixin >>> from sklearn.datasets import load_iris >>> from sklearn.linear_model import LogisticRegression >>> class MyEstimator ( MetaEstimatorMixin ): ... def __init__ ( self , * , estimator = None ): ... self . estimator = estimator ... def fit ( self , X , y = None ): ... if self . estimator is None : ... self . estimator_ = LogisticRegression () ... else : ... self . estimator_ = self . estimator ... return self >>> X , y = load_iris ( return_X_y = True ) >>> estimator = MyEstimator () . fit ( X , y ) >>> estimator . estimator_ LogisticRegression()"
+            ],
+            "input": {
+              "url": "https://scikit-learn.org/stable/modules/generated/sklearn.base.MetaEstimatorMixin.html"
+            }
+          }
+        ]
+      },
+      {
+        "url": "https://scikit-learn.org/stable/modules/generated/sklearn.base.OneToOneFeatureMixin.html",
+        "status": "extracted",
+        "data": [
+          {
+            "page_title": "OneToOneFeatureMixin #",
+            "parameters": [
+              {
+                "name": "input_features",
+                "type_info": "array-like of str or None, default=None",
+                "description": "Input features."
+              }
+            ],
+            "code_examples": [
+              ">>> import numpy as np >>> from sklearn.base import OneToOneFeatureMixin , BaseEstimator >>> class MyEstimator ( OneToOneFeatureMixin , BaseEstimator ): ... def fit ( self , X , y = None ): ... self . n_features_in_ = X . shape [ 1 ] ... return self >>> X = np . array ([[ 1 , 2 ], [ 3 , 4 ]]) >>> MyEstimator () . fit ( X ) . get_feature_names_out () array(['x0', 'x1'], dtype=object)"
+            ],
+            "input": {
+              "url": "https://scikit-learn.org/stable/modules/generated/sklearn.base.OneToOneFeatureMixin.html"
+            }
+          }
+        ]
+      },
+      {
+        "url": "https://scikit-learn.org/stable/modules/generated/sklearn.base.RegressorMixin.html",
+        "status": "extracted",
+        "data": [
+          {
+            "page_title": "RegressorMixin #",
+            "parameters": [
+              {
+                "name": "X",
+                "type_info": "array-like of shape (n_samples, n_features)",
+                "description": "Test samples. For some estimators this may be a precomputed kernel matrix or a list of generic objects instead with shape (n_samples, n_samples_fitted) , where n_samples_fitted is the number of samples used in the fitting for the estimator."
+              },
+              {
+                "name": "y",
+                "type_info": "array-like of shape (n_samples,) or (n_samples, n_outputs)",
+                "description": "True values for X ."
+              },
+              {
+                "name": "sample_weight",
+                "type_info": "array-like of shape (n_samples,), default=None",
+                "description": "Sample weights."
+              }
+            ],
+            "code_examples": [
+              ">>> import numpy as np >>> from sklearn.base import BaseEstimator , RegressorMixin >>> # Mixin classes should always be on the left-hand side for a correct MRO >>> class MyEstimator ( RegressorMixin , BaseEstimator ): ... def __init__ ( self , * , param = 1 ): ... self . param = param ... def fit ( self , X , y = None ): ... self . is_fitted_ = True ... return self ... def predict ( self , X ): ... return np . full ( shape = X . shape [ 0 ], fill_value = self . param ) >>> estimator = MyEstimator ( param = 0 ) >>> X = np . array ([[ 1 , 2 ], [ 2 , 3 ], [ 3 , 4 ]]) >>> y = np . array ([ - 1 , 0 , 1 ]) >>> estimator . fit ( X , y ) . predict ( X ) array([0, 0, 0]) >>> estimator . score ( X , y ) 0.0"
+            ],
+            "input": {
+              "url": "https://scikit-learn.org/stable/modules/generated/sklearn.base.RegressorMixin.html"
+            }
+          }
+        ]
+      },
+      {
+        "url": "https://scikit-learn.org/stable/modules/generated/sklearn.base.OutlierMixin.html",
+        "status": "extracted",
+        "data": [
+          {
+            "page_title": "OutlierMixin #",
+            "parameters": [
+              {
+                "name": "X",
+                "type_info": "{array-like, sparse matrix} of shape (n_samples, n_features)",
+                "description": "The input samples."
+              },
+              {
+                "name": "y",
+                "type_info": "Ignored",
+                "description": "Not used, present for API consistency by convention."
+              },
+              {
+                "name": "**kwargs",
+                "type_info": "dict",
+                "description": "Arguments to be passed to fit ."
+              }
+            ],
+            "code_examples": [
+              ">>> import numpy as np >>> from sklearn.base import BaseEstimator , OutlierMixin >>> class MyEstimator ( OutlierMixin ): ... def fit ( self , X , y = None ): ... self . is_fitted_ = True ... return self ... def predict ( self , X ): ... return np . ones ( shape = len ( X )) >>> estimator = MyEstimator () >>> X = np . array ([[ 1 , 2 ], [ 2 , 3 ], [ 3 , 4 ]]) >>> estimator . fit_predict ( X ) array([1., 1., 1.])"
+            ],
+            "input": {
+              "url": "https://scikit-learn.org/stable/modules/generated/sklearn.base.OutlierMixin.html"
+            }
+          }
+        ]
+      },
+      {
+        "url": "https://scikit-learn.org/stable/modules/generated/sklearn.base.TransformerMixin.html",
+        "status": "extracted",
+        "data": [
+          {
+            "page_title": "TransformerMixin #",
+            "parameters": [
+              {
+                "name": "X",
+                "type_info": "array-like of shape (n_samples, n_features)",
+                "description": "Input samples."
+              },
+              {
+                "name": "y",
+                "type_info": "array-like of shape (n_samples,) or (n_samples, n_outputs), default=None",
+                "description": "Target values (None for unsupervised transformations)."
+              },
+              {
+                "name": "**fit_params",
+                "type_info": "dict",
+                "description": "Additional fit parameters. Pass only if the estimator accepts additional params in its fit method."
+              },
+              {
+                "name": "transform",
+                "type_info": "{\u201cdefault\u201d, \u201cpandas\u201d, \u201cpolars\u201d}, default=None",
+                "description": "Configure output of transform and fit_transform ."
+              }
+            ],
+            "code_examples": [
+              ">>> import numpy as np >>> from sklearn.base import BaseEstimator , TransformerMixin >>> class MyTransformer ( TransformerMixin , BaseEstimator ): ... def __init__ ( self , * , param = 1 ): ... self . param = param ... def fit ( self , X , y = None ): ... return self ... def transform ( self , X ): ... return np . full ( shape = len ( X ), fill_value = self . param ) >>> transformer = MyTransformer () >>> X = [[ 1 , 2 ], [ 2 , 3 ], [ 3 , 4 ]] >>> transformer . fit_transform ( X ) array([1, 1, 1])"
+            ],
+            "input": {
+              "url": "https://scikit-learn.org/stable/modules/generated/sklearn.base.TransformerMixin.html"
+            }
+          }
+        ]
+      },
+      {
+        "url": "https://scikit-learn.org/stable/modules/generated/sklearn.base.clone.html",
+        "status": "extracted",
+        "data": [
+          {
+            "page_title": "clone #",
+            "function_signature": "sklearn.base. clone ( estimator , * , safe = True ) [source] #",
+            "description": "Construct a new unfitted estimator with the same parameters.",
+            "parameters": [
+              {
+                "name": "estimator",
+                "type_info": "{list, tuple, set} of estimator instance or a single estimator instance",
+                "description": "The estimator or group of estimators to be cloned."
+              },
+              {
+                "name": "safe",
+                "type_info": "bool, default=True",
+                "description": "If safe is False, clone will fall back to a deep copy on objects that are not estimators. Ignored if estimator.__sklearn_clone__ exists."
+              }
+            ],
+            "code_examples": [
+              ">>> from sklearn.base import clone >>> from sklearn.linear_model import LogisticRegression >>> X = [[ - 1 , 0 ], [ 0 , 1 ], [ 0 , - 1 ], [ 1 , 0 ]] >>> y = [ 0 , 0 , 1 , 1 ] >>> classifier = LogisticRegression () . fit ( X , y ) >>> cloned_classifier = clone ( classifier ) >>> hasattr ( classifier , \"classes_\" ) True >>> hasattr ( cloned_classifier , \"classes_\" ) False >>> classifier is cloned_classifier False"
+            ],
+            "input": {
+              "url": "https://scikit-learn.org/stable/modules/generated/sklearn.base.clone.html"
+            }
+          }
+        ]
+      },
+      {
+        "url": "https://scikit-learn.org/stable/modules/generated/sklearn.base.is_classifier.html",
+        "status": "extracted",
+        "data": [
+          {
+            "page_title": "is_classifier #",
+            "function_signature": "sklearn.base. is_classifier ( estimator ) [source] #",
+            "description": "Return True if the given estimator is (probably) a classifier.",
+            "parameters": [
+              {
+                "name": "estimator",
+                "type_info": "estimator instance",
+                "description": "Estimator object to test."
+              }
+            ],
+            "code_examples": [
+              ">>> from sklearn.base import is_classifier >>> from sklearn.cluster import KMeans >>> from sklearn.svm import SVC , SVR >>> classifier = SVC () >>> regressor = SVR () >>> kmeans = KMeans () >>> is_classifier ( classifier ) True >>> is_classifier ( regressor ) False >>> is_classifier ( kmeans ) False"
+            ],
+            "input": {
+              "url": "https://scikit-learn.org/stable/modules/generated/sklearn.base.is_classifier.html"
+            }
+          }
+        ]
+      },
+      {
+        "url": "https://scikit-learn.org/stable/modules/generated/sklearn.base.is_clusterer.html",
+        "status": "extracted",
+        "data": [
+          {
+            "page_title": "is_clusterer #",
+            "function_signature": "sklearn.base. is_clusterer ( estimator ) [source] #",
+            "description": "Return True if the given estimator is (probably) a clusterer.",
+            "parameters": [
+              {
+                "name": "estimator",
+                "type_info": "estimator instance",
+                "description": "Estimator object to test."
+              }
+            ],
+            "code_examples": [
+              ">>> from sklearn.base import is_clusterer >>> from sklearn.cluster import KMeans >>> from sklearn.svm import SVC , SVR >>> classifier = SVC () >>> regressor = SVR () >>> kmeans = KMeans () >>> is_clusterer ( classifier ) False >>> is_clusterer ( regressor ) False >>> is_clusterer ( kmeans ) True"
+            ],
+            "input": {
+              "url": "https://scikit-learn.org/stable/modules/generated/sklearn.base.is_clusterer.html"
+            }
+          }
+        ]
+      },
+      {
+        "url": "https://scikit-learn.org/stable/modules/generated/sklearn.base.is_regressor.html",
+        "status": "extracted",
+        "data": [
+          {
+            "page_title": "is_regressor #",
+            "function_signature": "sklearn.base. is_regressor ( estimator ) [source] #",
+            "description": "Return True if the given estimator is (probably) a regressor.",
+            "parameters": [
+              {
+                "name": "estimator",
+                "type_info": "estimator instance",
+                "description": "Estimator object to test."
+              }
+            ],
+            "code_examples": [
+              ">>> from sklearn.base import is_regressor >>> from sklearn.cluster import KMeans >>> from sklearn.svm import SVC , SVR >>> classifier = SVC () >>> regressor = SVR () >>> kmeans = KMeans () >>> is_regressor ( classifier ) False >>> is_regressor ( regressor ) True >>> is_regressor ( kmeans ) False"
+            ],
+            "input": {
+              "url": "https://scikit-learn.org/stable/modules/generated/sklearn.base.is_regressor.html"
+            }
+          }
+        ]
+      },
+      {
+        "url": "https://scikit-learn.org/stable/modules/generated/sklearn.base.is_outlier_detector.html",
+        "status": "extracted",
+        "data": [
+          {
+            "page_title": "is_outlier_detector #",
+            "function_signature": "sklearn.base. is_outlier_detector ( estimator ) [source] #",
+            "description": "Return True if the given estimator is (probably) an outlier detector.",
+            "parameters": [
+              {
+                "name": "estimator",
+                "type_info": "estimator instance",
+                "description": "Estimator object to test."
+              }
+            ],
+            "input": {
+              "url": "https://scikit-learn.org/stable/modules/generated/sklearn.base.is_outlier_detector.html"
+            }
+          }
+        ]
+      },
+      {
+        "url": "https://scikit-learn.org/stable/modules/generated/sklearn.calibration.CalibratedClassifierCV.html",
+        "status": "extracted",
+        "data": [
+          {
+            "page_title": "CalibratedClassifierCV #",
+            "parameters": [
+              {
+                "name": "estimator",
+                "type_info": "estimator instance, default=None",
+                "description": "The classifier whose output need to be calibrated to provide more accurate predict_proba outputs. The default classifier is a LinearSVC ."
+              },
+              {
+                "name": "method",
+                "type_info": "{\u2018sigmoid\u2019, \u2018isotonic\u2019, \u2018temperature\u2019}, default=\u2019sigmoid\u2019",
+                "description": "The method to use for calibration. Can be:"
+              },
+              {
+                "name": "cv",
+                "type_info": "int, cross-validation generator, or iterable, default=None",
+                "description": "Determines the cross-validation splitting strategy. Possible inputs for cv are:"
+              },
+              {
+                "name": "n_jobs",
+                "type_info": "int, default=None",
+                "description": "Number of jobs to run in parallel. None means 1 unless in a joblib.parallel_backend context. -1 means using all processors."
+              },
+              {
+                "name": "ensemble",
+                "type_info": "bool, or \u201cauto\u201d, default=\u201dauto\u201d",
+                "description": "Determines how the calibrator is fitted."
+              },
+              {
+                "name": "X",
+                "type_info": "array-like of shape (n_samples, n_features)",
+                "description": "Training data."
+              },
+              {
+                "name": "y",
+                "type_info": "array-like of shape (n_samples,)",
+                "description": "Target values."
+              },
+              {
+                "name": "sample_weight",
+                "type_info": "array-like of shape (n_samples,), default=None",
+                "description": "Sample weights. If None, then samples are equally weighted."
+              },
+              {
+                "name": "**fit_params",
+                "type_info": "dict",
+                "description": "Parameters to pass to the fit method of the underlying classifier."
+              },
+              {
+                "name": "routing",
+                "type_info": "MetadataRouter",
+                "description": "A MetadataRouter encapsulating routing information."
+              },
+              {
+                "name": "deep",
+                "type_info": "bool, default=True",
+                "description": "If True, will return the parameters for this estimator and contained subobjects that are estimators."
+              },
+              {
+                "name": "X",
+                "type_info": "array-like of shape (n_samples, n_features)",
+                "description": "The samples, as accepted by estimator.predict ."
+              },
+              {
+                "name": "X",
+                "type_info": "array-like of shape (n_samples, n_features)",
+                "description": "The samples, as accepted by estimator.predict_proba ."
+              },
+              {
+                "name": "X",
+                "type_info": "array-like of shape (n_samples, n_features)",
+                "description": "Test samples."
+              },
+              {
+                "name": "y",
+                "type_info": "array-like of shape (n_samples,) or (n_samples, n_outputs)",
+                "description": "True labels for X ."
+              },
+              {
+                "name": "sample_weight",
+                "type_info": "array-like of shape (n_samples,), default=None",
+                "description": "Sample weights."
+              },
+              {
+                "name": "sample_weight",
+                "type_info": "str, True, False, or None, default=sklearn.utils.metadata_routing.UNCHANGED",
+                "description": "Metadata routing for sample_weight parameter in fit ."
+              },
+              {
+                "name": "**params",
+                "type_info": "dict",
+                "description": "Estimator parameters."
+              },
+              {
+                "name": "sample_weight",
+                "type_info": "str, True, False, or None, default=sklearn.utils.metadata_routing.UNCHANGED",
+                "description": "Metadata routing for sample_weight parameter in score ."
+              }
+            ],
+            "code_examples": [
+              ">>> from sklearn.datasets import make_classification >>> from sklearn.naive_bayes import GaussianNB >>> from sklearn.calibration import CalibratedClassifierCV >>> X , y = make_classification ( n_samples = 100 , n_features = 2 , ... n_redundant = 0 , random_state = 42 ) >>> base_clf = GaussianNB () >>> calibrated_clf = CalibratedClassifierCV ( base_clf , cv = 3 ) >>> calibrated_clf . fit ( X , y ) CalibratedClassifierCV(...) >>> len ( calibrated_clf . calibrated_classifiers_ ) 3 >>> calibrated_clf . predict_proba ( X )[: 5 , :] array([[0.110, 0.889], [0.072, 0.927], [0.928, 0.072], [0.928, 0.072], [0.072, 0.928]]) >>> from sklearn.model_selection import train_test_split >>> X , y = make_classification ( n_samples = 100 , n_features = 2 , ... n_redundant = 0 , random_state = 42 ) >>> X_train , X_calib , y_train , y_calib = train_test_split ( ... X , y , random_state = 42 ... ) >>> base_clf = GaussianNB () >>> base_clf . fit ( X_train , y_train ) GaussianNB() >>> from sklearn.frozen import FrozenEstimator >>> calibrated_clf = CalibratedClassifierCV ( FrozenEstimator ( base_clf )) >>> calibrated_clf . fit ( X_calib , y_calib ) CalibratedClassifierCV(...) >>> len ( calibrated_clf . calibrated_classifiers_ ) 1 >>> calibrated_clf . predict_proba ([[ - 0.5 , 0.5 ]]) array([[0.936, 0.063]])"
+            ],
+            "related_functions": [
+              {
+                "name": "calibration_curve",
+                "description": "Compute true and predicted probabilities for a calibration curve."
+              }
+            ],
+            "input": {
+              "url": "https://scikit-learn.org/stable/modules/generated/sklearn.calibration.CalibratedClassifierCV.html"
+            }
+          }
+        ]
+      },
+      {
+        "url": "https://scikit-learn.org/stable/modules/generated/sklearn.calibration.calibration_curve.html",
+        "status": "extracted",
+        "data": [
+          {
+            "page_title": "calibration_curve #",
+            "function_signature": "sklearn.calibration. calibration_curve ( y_true , y_prob , * , pos_label = None , n_bins = 5 , strategy = 'uniform' ) [source] #",
+            "description": "Compute true and predicted probabilities for a calibration curve.",
+            "parameters": [
+              {
+                "name": "y_true",
+                "type_info": "array-like of shape (n_samples,)",
+                "description": "True targets."
+              },
+              {
+                "name": "y_prob",
+                "type_info": "array-like of shape (n_samples,)",
+                "description": "Probabilities of the positive class."
+              },
+              {
+                "name": "pos_label",
+                "type_info": "int, float, bool or str, default=None",
+                "description": "The label of the positive class."
+              },
+              {
+                "name": "n_bins",
+                "type_info": "int, default=5",
+                "description": "Number of bins to discretize the [0, 1] interval. A bigger number requires more data. Bins with no samples (i.e. without corresponding values in y_prob ) will not be returned, thus the returned arrays may have less than n_bins values."
+              },
+              {
+                "name": "strategy",
+                "type_info": "{\u2018uniform\u2019, \u2018quantile\u2019}, default=\u2019uniform\u2019",
+                "description": "Strategy used to define the widths of the bins."
+              }
+            ],
+            "code_examples": [
+              ">>> import numpy as np >>> from sklearn.calibration import calibration_curve >>> y_true = np . array ([ 0 , 0 , 0 , 0 , 1 , 1 , 1 , 1 , 1 ]) >>> y_pred = np . array ([ 0.1 , 0.2 , 0.3 , 0.4 , 0.65 , 0.7 , 0.8 , 0.9 , 1. ]) >>> prob_true , prob_pred = calibration_curve ( y_true , y_pred , n_bins = 3 ) >>> prob_true array([0. , 0.5, 1. ]) >>> prob_pred array([0.2 , 0.525, 0.85 ])"
+            ],
+            "related_functions": [
+              {
+                "name": "CalibrationDisplay.from_predictions",
+                "description": "Plot calibration curve using true and predicted labels."
+              },
+              {
+                "name": "CalibrationDisplay.from_estimator",
+                "description": "Plot calibration curve using an estimator and data."
+              }
+            ],
+            "input": {
+              "url": "https://scikit-learn.org/stable/modules/generated/sklearn.calibration.calibration_curve.html"
+            }
+          }
+        ]
+      },
+      {
+        "url": "https://scikit-learn.org/stable/modules/generated/sklearn.calibration.CalibrationDisplay.html",
+        "status": "extracted",
+        "data": [
+          {
+            "page_title": "CalibrationDisplay #",
+            "parameters": [
+              {
+                "name": "prob_true",
+                "type_info": "ndarray of shape (n_bins,)",
+                "description": "The proportion of samples whose class is the positive class (fraction of positives), in each bin."
+              },
+              {
+                "name": "prob_pred",
+                "type_info": "ndarray of shape (n_bins,)",
+                "description": "The mean predicted probability in each bin."
+              },
+              {
+                "name": "y_prob",
+                "type_info": "ndarray of shape (n_samples,)",
+                "description": "Probability estimates for the positive class, for each sample."
+              },
+              {
+                "name": "estimator_name",
+                "type_info": "str, default=None",
+                "description": "Name of estimator. If None, the estimator name is not shown."
+              },
+              {
+                "name": "pos_label",
+                "type_info": "int, float, bool or str, default=None",
+                "description": "The positive class when calibration curve computed. If not None , this value is displayed in the x- and y-axes labels."
+              },
+              {
+                "name": "estimator",
+                "type_info": "estimator instance",
+                "description": "Fitted classifier or a fitted Pipeline in which the last estimator is a classifier. The classifier must have a predict_proba method."
+              },
+              {
+                "name": "X",
+                "type_info": "{array-like, sparse matrix} of shape (n_samples, n_features)",
+                "description": "Input values."
+              },
+              {
+                "name": "y",
+                "type_info": "array-like of shape (n_samples,)",
+                "description": "Binary target values."
+              },
+              {
+                "name": "n_bins",
+                "type_info": "int, default=5",
+                "description": "Number of bins to discretize the [0, 1] interval into when calculating the calibration curve. A bigger number requires more data."
+              },
+              {
+                "name": "strategy",
+                "type_info": "{\u2018uniform\u2019, \u2018quantile\u2019}, default=\u2019uniform\u2019",
+                "description": "Strategy used to define the widths of the bins."
+              },
+              {
+                "name": "pos_label",
+                "type_info": "int, float, bool or str, default=None",
+                "description": "The positive class when computing the calibration curve. By default, estimators.classes_[1] is considered as the positive class."
+              },
+              {
+                "name": "name",
+                "type_info": "str, default=None",
+                "description": "Name for labeling curve. If None , the name of the estimator is used."
+              },
+              {
+                "name": "ax",
+                "type_info": "matplotlib axes, default=None",
+                "description": "Axes object to plot on. If None , a new figure and axes is created."
+              },
+              {
+                "name": "ref_line",
+                "type_info": "bool, default=True",
+                "description": "If True , plots a reference line representing a perfectly calibrated classifier."
+              },
+              {
+                "name": "**kwargs",
+                "type_info": "dict",
+                "description": "Keyword arguments to be passed to matplotlib.pyplot.plot ."
+              },
+              {
+                "name": "y_true",
+                "type_info": "array-like of shape (n_samples,)",
+                "description": "True labels."
+              },
+              {
+                "name": "y_prob",
+                "type_info": "array-like of shape (n_samples,)",
+                "description": "The predicted probabilities of the positive class."
+              },
+              {
+                "name": "n_bins",
+                "type_info": "int, default=5",
+                "description": "Number of bins to discretize the [0, 1] interval into when calculating the calibration curve. A bigger number requires more data."
+              },
+              {
+                "name": "strategy",
+                "type_info": "{\u2018uniform\u2019, \u2018quantile\u2019}, default=\u2019uniform\u2019",
+                "description": "Strategy used to define the widths of the bins."
+              },
+              {
+                "name": "pos_label",
+                "type_info": "int, float, bool or str, default=None",
+                "description": "The positive class when computing the calibration curve. When pos_label=None , if y_true is in {-1, 1} or {0, 1}, pos_label is set to 1, otherwise an error will be raised."
+              },
+              {
+                "name": "name",
+                "type_info": "str, default=None",
+                "description": "Name for labeling curve."
+              },
+              {
+                "name": "ax",
+                "type_info": "matplotlib axes, default=None",
+                "description": "Axes object to plot on. If None , a new figure and axes is created."
+              },
+              {
+                "name": "ref_line",
+                "type_info": "bool, default=True",
+                "description": "If True , plots a reference line representing a perfectly calibrated classifier."
+              },
+              {
+                "name": "**kwargs",
+                "type_info": "dict",
+                "description": "Keyword arguments to be passed to matplotlib.pyplot.plot ."
+              },
+              {
+                "name": "ax",
+                "type_info": "Matplotlib Axes, default=None",
+                "description": "Axes object to plot on. If None , a new figure and axes is created."
+              },
+              {
+                "name": "name",
+                "type_info": "str, default=None",
+                "description": "Name for labeling curve. If None , use estimator_name if not None , otherwise no labeling is shown."
+              },
+              {
+                "name": "ref_line",
+                "type_info": "bool, default=True",
+                "description": "If True , plots a reference line representing a perfectly calibrated classifier."
+              },
+              {
+                "name": "**kwargs",
+                "type_info": "dict",
+                "description": "Keyword arguments to be passed to matplotlib.pyplot.plot ."
+              }
+            ],
+            "code_examples": [
+              ">>> from sklearn.datasets import make_classification >>> from sklearn.model_selection import train_test_split >>> from sklearn.linear_model import LogisticRegression >>> from sklearn.calibration import calibration_curve , CalibrationDisplay >>> X , y = make_classification ( random_state = 0 ) >>> X_train , X_test , y_train , y_test = train_test_split ( ... X , y , random_state = 0 ) >>> clf = LogisticRegression ( random_state = 0 ) >>> clf . fit ( X_train , y_train ) LogisticRegression(random_state=0) >>> y_prob = clf . predict_proba ( X_test )[:, 1 ] >>> prob_true , prob_pred = calibration_curve ( y_test , y_prob , n_bins = 10 ) >>> disp = CalibrationDisplay ( prob_true , prob_pred , y_prob ) >>> disp . plot () <...>",
+              ">>> import matplotlib.pyplot as plt >>> from sklearn.datasets import make_classification >>> from sklearn.model_selection import train_test_split >>> from sklearn.linear_model import LogisticRegression >>> from sklearn.calibration import CalibrationDisplay >>> X , y = make_classification ( random_state = 0 ) >>> X_train , X_test , y_train , y_test = train_test_split ( ... X , y , random_state = 0 ) >>> clf = LogisticRegression ( random_state = 0 ) >>> clf . fit ( X_train , y_train ) LogisticRegression(random_state=0) >>> disp = CalibrationDisplay . from_estimator ( clf , X_test , y_test ) >>> plt . show ()",
+              ">>> import matplotlib.pyplot as plt >>> from sklearn.datasets import make_classification >>> from sklearn.model_selection import train_test_split >>> from sklearn.linear_model import LogisticRegression >>> from sklearn.calibration import CalibrationDisplay >>> X , y = make_classification ( random_state = 0 ) >>> X_train , X_test , y_train , y_test = train_test_split ( ... X , y , random_state = 0 ) >>> clf = LogisticRegression ( random_state = 0 ) >>> clf . fit ( X_train , y_train ) LogisticRegression(random_state=0) >>> y_prob = clf . predict_proba ( X_test )[:, 1 ] >>> disp = CalibrationDisplay . from_predictions ( y_test , y_prob ) >>> plt . show ()"
+            ],
+            "related_functions": [
+              {
+                "name": "calibration_curve",
+                "description": "Compute true and predicted probabilities for a calibration curve."
+              },
+              {
+                "name": "CalibrationDisplay.from_predictions",
+                "description": "Plot calibration curve using true and predicted labels."
+              },
+              {
+                "name": "CalibrationDisplay.from_estimator",
+                "description": "Plot calibration curve using an estimator and data."
+              },
+              {
+                "name": "CalibrationDisplay.from_predictions",
+                "description": "Plot calibration curve using true and predicted labels."
+              },
+              {
+                "name": "CalibrationDisplay.from_estimator",
+                "description": "Plot calibration curve using an estimator and data."
+              }
+            ],
+            "input": {
+              "url": "https://scikit-learn.org/stable/modules/generated/sklearn.calibration.CalibrationDisplay.html"
+            }
+          }
+        ]
+      },
+      {
+        "url": "https://scikit-learn.org/stable/modules/generated/sklearn.callback.AutoPropagatedCallback.html",
+        "status": "extracted",
+        "data": [
+          {
+            "page_title": "AutoPropagatedCallback #",
+            "parameters": [
+              {
+                "name": "estimator",
+                "type_info": "estimator instance",
+                "description": "The estimator calling this callback hook."
+              },
+              {
+                "name": "context",
+                "type_info": "sklearn.callback.CallbackContext instance",
+                "description": "Context of the corresponding task. This is usually the root context of the estimator but it can be an intermediate context if the estimator is a sub-estimator of a meta-estimator."
+              },
+              {
+                "name": "estimator",
+                "type_info": "estimator instance",
+                "description": "The estimator calling this callback hook."
+              },
+              {
+                "name": "context",
+                "type_info": "sklearn.callback.CallbackContext instance",
+                "description": "Context of the corresponding task. This is usually the root context of the estimator but it can be an intermediate context if the estimator is a sub-estimator of a meta-estimator."
+              }
+            ],
+            "input": {
+              "url": "https://scikit-learn.org/stable/modules/generated/sklearn.callback.AutoPropagatedCallback.html"
+            }
+          }
+        ]
+      },
+      {
+        "url": "https://scikit-learn.org/stable/modules/generated/sklearn.callback.CallbackContext.html",
+        "status": "extracted",
+        "data": [
+          {
+            "page_title": "CallbackContext #",
+            "parameters": [
+              {
+                "name": "task_name",
+                "type_info": "str",
+                "description": "The name of the task this context is responsible for."
+              },
+              {
+                "name": "task_id",
+                "type_info": "int",
+                "description": "The identifier of the task this context is responsible for. It uniquely identifies the task among its siblings."
+              },
+              {
+                "name": "max_subtasks",
+                "type_info": "int or None",
+                "description": "The maximum number of children tasks for this task. 0 means it\u2019s a leaf. None means the maximum number of subtasks is not known in advance."
+              },
+              {
+                "name": "sequential_subtasks",
+                "type_info": "bool",
+                "description": "Whether this context\u2019s subtasks are sequential. When True, children contexts\u2019 have consecutive integer task_ids starting from 0."
+              },
+              {
+                "name": "estimator_name",
+                "type_info": "str",
+                "description": "The name of the estimator that holds this context."
+              },
+              {
+                "name": "parent",
+                "type_info": "CallbackContext or None",
+                "description": "The parent context of this context. None if this context is the root."
+              },
+              {
+                "name": "root_uuid",
+                "type_info": "uuid.UUID instance",
+                "description": "The UUID of the root context. All contexts in the same task tree have the same root UUID that is used to identify the task tree itself."
+              },
+              {
+                "name": "init_time",
+                "type_info": "datetime.datetime",
+                "description": "The time when the context was initialised, in the UTC timezone."
+              },
+              {
+                "name": "source_estimator_name",
+                "type_info": "str or None",
+                "description": "The name of the estimator that holds the parent task this task was merged with. None if it was not merged with another context."
+              },
+              {
+                "name": "source_task_name",
+                "type_info": "str or None",
+                "description": "The task name of the parent task this task was merged with. None if it was not merged with another context."
+              },
+              {
+                "name": "estimator",
+                "type_info": "estimator instance",
+                "description": "The estimator calling the callback hook."
+              },
+              {
+                "name": "X",
+                "type_info": "array-like or None, default=None",
+                "description": "The training data of the current task."
+              },
+              {
+                "name": "y",
+                "type_info": "array-like or None, default=None",
+                "description": "The training targets of the current task."
+              },
+              {
+                "name": "metadata",
+                "type_info": "dict or None, default=None",
+                "description": "A dictionary containing training metadata for the current task."
+              },
+              {
+                "name": "reconstruction_attributes",
+                "type_info": "dict or None, default=None",
+                "description": "A dictionary of the sufficient fitted attributes needed to construct a fitted_estimator from the current state of the estimator, i.e. an estimator instance ready to predict, transform, etc \u2026 as if the fit had stopped at the beginning of this task. The fitted_estimator is the object that will be passed to the callbacks, if required."
+              },
+              {
+                "name": "estimator",
+                "type_info": "estimator instance",
+                "description": "The estimator calling the callback hook."
+              },
+              {
+                "name": "X",
+                "type_info": "array-like or None, default=None",
+                "description": "The training data of the current task."
+              },
+              {
+                "name": "y",
+                "type_info": "array-like or None, default=None",
+                "description": "The training targets of the current task."
+              },
+              {
+                "name": "metadata",
+                "type_info": "dict or None, default=None",
+                "description": "A dictionary containing training metadata of the current task."
+              },
+              {
+                "name": "reconstruction_attributes",
+                "type_info": "dict or None, default=None",
+                "description": "A dictionary of the sufficient fitted attributes needed to construct a fitted_estimator from the current state of the estimator, i.e. an estimator instance ready to predict, transform, etc \u2026 as if the fit had stopped at the end of this task. The fitted_estimator is the object that will be passed to the callbacks, if required."
+              },
+              {
+                "name": "sub_estimator",
+                "type_info": "estimator instance",
+                "description": "The estimator to propagate the callbacks and context to."
+              },
+              {
+                "name": "task_name",
+                "type_info": "str, default=\u201d\u201d",
+                "description": "The name of the subtask."
+              },
+              {
+                "name": "task_id",
+                "type_info": "int or None, default=None",
+                "description": "An identifier of the subtask. It must be distinct from the task_ids of its siblings. If None, task_id is automatically set to the next available integer task_id."
+              },
+              {
+                "name": "max_subtasks",
+                "type_info": "int or None, default=0",
+                "description": "The maximum number of tasks that can be children of the subtask. 0 means it\u2019s a leaf. None means the maximum number of subtasks is not known in advance."
+              },
+              {
+                "name": "sequential_subtasks",
+                "type_info": "bool, default=True",
+                "description": "Whether the new context\u2019s subtasks are sequential. If True, children contexts of the new context, created via subcontext , will have automatically assigned consecutive integer task_ids starting from 0."
+              }
+            ],
+            "input": {
+              "url": "https://scikit-learn.org/stable/modules/generated/sklearn.callback.CallbackContext.html"
+            }
+          }
+        ]
+      },
+      {
+        "url": "https://scikit-learn.org/stable/modules/generated/sklearn.callback.CallbackSupportMixin.html",
+        "status": "extracted",
+        "data": [
+          {
+            "page_title": "CallbackSupportMixin #",
+            "parameters": [
+              {
+                "name": "task_name",
+                "type_info": "str, default=\u201dfit\u201d",
+                "description": "The name of the root task."
+              },
+              {
+                "name": "task_id",
+                "type_info": "int, default=0",
+                "description": "Identifier for the root task."
+              },
+              {
+                "name": "max_subtasks",
+                "type_info": "int or None, default=0",
+                "description": "The maximum number of subtasks that can be children of the root task. None means the maximum number of subtasks is not known in advance. 0 means it\u2019s a leaf."
+              },
+              {
+                "name": "sequential_subtasks",
+                "type_info": "bool, default=True",
+                "description": "Whether the root context has sequential subtasks. If True, children contexts of the root context, created via subcontext , will have automatically assigned consecutive integer task_ids starting from 0."
+              },
+              {
+                "name": "*callbacks",
+                "type_info": "callback instances",
+                "description": "The callbacks to set."
+              }
+            ],
+            "input": {
+              "url": "https://scikit-learn.org/stable/modules/generated/sklearn.callback.CallbackSupportMixin.html"
+            }
+          }
+        ]
+      },
+      {
+        "url": "https://scikit-learn.org/stable/modules/generated/sklearn.callback.ProgressBar.html",
+        "status": "extracted",
+        "data": [
+          {
+            "page_title": "ProgressBar #",
+            "parameters": [
+              {
+                "name": "max_propagation_depth",
+                "type_info": "int, default=1",
+                "description": "The maximum depth of nested levels of estimators to display progress bars for. 0 means that the progress of only the outermost estimator is displayed. If set to None, all levels are displayed."
+              }
+            ],
+            "input": {
+              "url": "https://scikit-learn.org/stable/modules/generated/sklearn.callback.ProgressBar.html"
+            }
+          }
+        ]
+      },
+      {
+        "url": "https://scikit-learn.org/stable/modules/generated/sklearn.callback.FitCallback.html",
+        "status": "extracted",
+        "data": [
+          {
+            "page_title": "FitCallback #",
+            "parameters": [
+              {
+                "name": "estimator",
+                "type_info": "estimator instance",
+                "description": "The estimator calling this callback hook."
+              },
+              {
+                "name": "context",
+                "type_info": "sklearn.callback.CallbackContext instance",
+                "description": "Context of the corresponding task."
+              },
+              {
+                "name": "X",
+                "type_info": "array-like",
+                "description": "The training data at this task."
+              },
+              {
+                "name": "y",
+                "type_info": "array-like",
+                "description": "The training target values at this task."
+              },
+              {
+                "name": "metadata",
+                "type_info": "dict",
+                "description": "Training metadata at this task, e.g. sample weights."
+              },
+              {
+                "name": "fitted_estimator",
+                "type_info": "estimator instance",
+                "description": "A new instance of the estimator that is ready to predict, transform, etc \u2026 as if fit had stopped at the beginning of this task."
+              },
+              {
+                "name": "estimator",
+                "type_info": "estimator instance",
+                "description": "The estimator calling this callback hook."
+              },
+              {
+                "name": "context",
+                "type_info": "sklearn.callback.CallbackContext instance",
+                "description": "Context of the corresponding task."
+              },
+              {
+                "name": "X",
+                "type_info": "array-like",
+                "description": "The training data at this task."
+              },
+              {
+                "name": "y",
+                "type_info": "array-like",
+                "description": "The training target values at this task."
+              },
+              {
+                "name": "metadata",
+                "type_info": "dict",
+                "description": "Training metadata at this task, e.g. sample weights."
+              },
+              {
+                "name": "fitted_estimator",
+                "type_info": "estimator instance",
+                "description": "A new instance of the estimator that is ready to predict, transform, etc \u2026 as if fit had stopped at the end of this task."
+              },
+              {
+                "name": "estimator",
+                "type_info": "estimator instance",
+                "description": "The estimator calling this callback hook."
+              },
+              {
+                "name": "context",
+                "type_info": "sklearn.callback.CallbackContext instance",
+                "description": "Context of the corresponding task. This is usually the root context of the estimator but it can be an intermediate context if the estimator is a sub-estimator of a meta-estimator."
+              },
+              {
+                "name": "estimator",
+                "type_info": "estimator instance",
+                "description": "The estimator calling this callback hook."
+              },
+              {
+                "name": "context",
+                "type_info": "sklearn.callback.CallbackContext instance",
+                "description": "Context of the corresponding task. This is usually the root context of the estimator but it can be an intermediate context if the estimator is a sub-estimator of a meta-estimator."
+              }
+            ],
+            "input": {
+              "url": "https://scikit-learn.org/stable/modules/generated/sklearn.callback.FitCallback.html"
+            }
+          }
+        ]
+      },
+      {
+        "url": "https://scikit-learn.org/stable/modules/generated/sklearn.callback.ScoringMonitorLog.html",
+        "status": "extracted",
+        "data": [
+          {
+            "page_title": "ScoringMonitorLog #",
+            "parameters": [
+              {
+                "name": "run_id",
+                "type_info": "uuid.UUID",
+                "description": "The unique identifier for the run."
+              },
+              {
+                "name": "estimator_name",
+                "type_info": "str",
+                "description": "The name of the estimator for the run."
+              },
+              {
+                "name": "timestamp",
+                "type_info": "datetime.datetime",
+                "description": "The timestamp of the start of the run."
+              },
+              {
+                "name": "data",
+                "type_info": "list[dict]",
+                "description": "The recorded scores for the run."
+              },
+              {
+                "name": "data_as_pandas",
+                "type_info": "pandas.DataFrame",
+                "description": "The recorded scores for the run as a Pandas DataFrame."
+              }
+            ],
+            "input": {
+              "url": "https://scikit-learn.org/stable/modules/generated/sklearn.callback.ScoringMonitorLog.html"
+            }
+          }
+        ]
+      },
+      {
+        "url": "https://scikit-learn.org/stable/modules/generated/sklearn.callback.ScoringMonitor.html",
+        "status": "extracted",
+        "data": [
+          {
+            "page_title": "ScoringMonitor #",
+            "parameters": [
+              {
+                "name": "scoring",
+                "type_info": "str, callable, list, tuple, dict or None",
+                "description": "The scoring method to use to monitor the model."
+              },
+              {
+                "name": "select",
+                "type_info": "{\u201call\u201d, \u201cmost_recent\u201d}, default=\u201dmost_recent\u201d",
+                "description": "Which log run to return:"
+              },
+              {
+                "name": "include_lineage",
+                "type_info": "bool, default=False",
+                "description": "Whether to include lineage information of the tasks in the log."
+              }
+            ],
+            "input": {
+              "url": "https://scikit-learn.org/stable/modules/generated/sklearn.callback.ScoringMonitor.html"
+            }
+          }
+        ]
+      },
+      {
+        "url": "https://scikit-learn.org/stable/modules/generated/sklearn.callback.with_callbacks.html",
+        "status": "extracted",
+        "data": [
+          {
+            "page_title": "with_callbacks #",
+            "function_signature": "sklearn.callback. with_callbacks ( method ) [source] #",
+            "description": "Decorator to run the method within a callback context manager.",
+            "parameters": [
+              {
+                "name": "method",
+                "type_info": "method",
+                "description": "The method to decorate."
+              }
+            ],
+            "input": {
+              "url": "https://scikit-learn.org/stable/modules/generated/sklearn.callback.with_callbacks.html"
+            }
+          }
+        ]
+      },
+      {
+        "url": "https://scikit-learn.org/stable/modules/generated/sklearn.cluster.AffinityPropagation.html",
+        "status": "extracted",
+        "data": [
+          {
+            "page_title": "AffinityPropagation #",
+            "parameters": [
+              {
+                "name": "damping",
+                "type_info": "float, default=0.5",
+                "description": "Damping factor in the range [0.5, 1.0) is the extent to which the current value is maintained relative to incoming values (weighted 1 - damping). This in order to avoid numerical oscillations when updating these values (messages)."
+              },
+              {
+                "name": "max_iter",
+                "type_info": "int, default=200",
+                "description": "Maximum number of iterations."
+              },
+              {
+                "name": "convergence_iter",
+                "type_info": "int, default=15",
+                "description": "Number of iterations with no change in the number of estimated clusters that stops the convergence."
+              },
+              {
+                "name": "copy",
+                "type_info": "bool, default=True",
+                "description": "Make a copy of input data."
+              },
+              {
+                "name": "preference",
+                "type_info": "array-like of shape (n_samples,) or float, default=None",
+                "description": "Preferences for each point - points with larger values of preferences are more likely to be chosen as exemplars. The number of exemplars, ie of clusters, is influenced by the input preferences value. If the preferences are not passed as arguments, they will be set to the median of the input similarities."
+              },
+              {
+                "name": "affinity",
+                "type_info": "{\u2018euclidean\u2019, \u2018precomputed\u2019}, default=\u2019euclidean\u2019",
+                "description": "Which affinity to use. At the moment \u2018precomputed\u2019 and euclidean are supported. \u2018euclidean\u2019 uses the negative squared euclidean distance between points."
+              },
+              {
+                "name": "verbose",
+                "type_info": "bool, default=False",
+                "description": "Whether to be verbose."
+              },
+              {
+                "name": "random_state",
+                "type_info": "int, RandomState instance or None, default=None",
+                "description": "Pseudo-random number generator to control the starting state. Use an int for reproducible results across function calls. See the Glossary ."
+              },
+              {
+                "name": "X",
+                "type_info": "{array-like, sparse matrix} of shape (n_samples, n_features), or array-like of shape (n_samples, n_samples)",
+                "description": "Training instances to cluster, or similarities / affinities between instances if affinity='precomputed' . If a sparse feature matrix is provided, it will be converted into a sparse csr_matrix ."
+              },
+              {
+                "name": "y",
+                "type_info": "Ignored",
+                "description": "Not used, present here for API consistency by convention."
+              },
+              {
+                "name": "X",
+                "type_info": "{array-like, sparse matrix} of shape (n_samples, n_features), or array-like of shape (n_samples, n_samples)",
+                "description": "Training instances to cluster, or similarities / affinities between instances if affinity='precomputed' . If a sparse feature matrix is provided, it will be converted into a sparse csr_matrix ."
+              },
+              {
+                "name": "y",
+                "type_info": "Ignored",
+                "description": "Not used, present here for API consistency by convention."
+              },
+              {
+                "name": "routing",
+                "type_info": "MetadataRequest",
+                "description": "A MetadataRequest encapsulating routing information."
+              },
+              {
+                "name": "deep",
+                "type_info": "bool, default=True",
+                "description": "If True, will return the parameters for this estimator and contained subobjects that are estimators."
+              },
+              {
+                "name": "X",
+                "type_info": "{array-like, sparse matrix} of shape (n_samples, n_features)",
+                "description": "New data to predict. If a sparse matrix is provided, it will be converted into a sparse csr_matrix ."
+              },
+              {
+                "name": "**params",
+                "type_info": "dict",
+                "description": "Estimator parameters."
+              }
+            ],
+            "code_examples": [
+              ">>> from sklearn.cluster import AffinityPropagation >>> import numpy as np >>> X = np . array ([[ 1 , 2 ], [ 1 , 4 ], [ 1 , 0 ], ... [ 4 , 2 ], [ 4 , 4 ], [ 4 , 0 ]]) >>> clustering = AffinityPropagation ( random_state = 5 ) . fit ( X ) >>> clustering AffinityPropagation(random_state=5) >>> clustering . labels_ array([0, 0, 0, 1, 1, 1]) >>> clustering . predict ([[ 0 , 0 ], [ 4 , 4 ]]) array([0, 1]) >>> clustering . cluster_centers_ array([[1, 2], [4, 2]])"
+            ],
+            "related_functions": [
+              {
+                "name": "AgglomerativeClustering",
+                "description": "Recursively merges the pair of clusters that minimally increases a given linkage distance."
+              },
+              {
+                "name": "FeatureAgglomeration",
+                "description": "Similar to AgglomerativeClustering, but recursively merges features instead of samples."
+              },
+              {
+                "name": "KMeans",
+                "description": "K-Means clustering."
+              },
+              {
+                "name": "MiniBatchKMeans",
+                "description": "Mini-Batch K-Means clustering."
+              },
+              {
+                "name": "MeanShift",
+                "description": "Mean shift clustering using a flat kernel."
+              },
+              {
+                "name": "SpectralClustering",
+                "description": "Apply clustering to a projection of the normalized Laplacian."
+              }
+            ],
+            "input": {
+              "url": "https://scikit-learn.org/stable/modules/generated/sklearn.cluster.AffinityPropagation.html"
+            }
+          }
+        ]
+      },
+      {
+        "url": "https://scikit-learn.org/stable/modules/generated/sklearn.cluster.Birch.html",
+        "status": "extracted",
+        "data": [
+          {
+            "page_title": "Birch #",
+            "parameters": [
+              {
+                "name": "threshold",
+                "type_info": "float, default=0.5",
+                "description": "The radius of the subcluster obtained by merging a new sample and the closest subcluster should be lesser than the threshold. Otherwise a new subcluster is started. Setting this value to be very low promotes splitting and vice-versa."
+              },
+              {
+                "name": "branching_factor",
+                "type_info": "int, default=50",
+                "description": "Maximum number of CF subclusters in each node. If a new samples enters such that the number of subclusters exceed the branching_factor then that node is split into two nodes with the subclusters redistributed in each. The parent subcluster of that node is removed and two new subclusters are added as parents of the 2 split nodes."
+              },
+              {
+                "name": "n_clusters",
+                "type_info": "int, instance of sklearn.cluster model or None, default=3",
+                "description": "Number of clusters after the final clustering step, which treats the subclusters from the leaves as new samples."
+              },
+              {
+                "name": "compute_labels",
+                "type_info": "bool, default=True",
+                "description": "Whether or not to compute labels for each fit."
+              },
+              {
+                "name": "X",
+                "type_info": "{array-like, sparse matrix} of shape (n_samples, n_features)",
+                "description": "Input data."
+              },
+              {
+                "name": "y",
+                "type_info": "Ignored",
+                "description": "Not used, present here for API consistency by convention."
+              },
+              {
+                "name": "X",
+                "type_info": "array-like of shape (n_samples, n_features)",
+                "description": "Input data."
+              },
+              {
+                "name": "y",
+                "type_info": "Ignored",
+                "description": "Not used, present for API consistency by convention."
+              },
+              {
+                "name": "**kwargs",
+                "type_info": "dict",
+                "description": "Arguments to be passed to fit ."
+              },
+              {
+                "name": "X",
+                "type_info": "array-like of shape (n_samples, n_features)",
+                "description": "Input samples."
+              },
+              {
+                "name": "y",
+                "type_info": "array-like of shape (n_samples,) or (n_samples, n_outputs), default=None",
+                "description": "Target values (None for unsupervised transformations)."
+              },
+              {
+                "name": "**fit_params",
+                "type_info": "dict",
+                "description": "Additional fit parameters. Pass only if the estimator accepts additional params in its fit method."
+              },
+              {
+                "name": "input_features",
+                "type_info": "array-like of str or None, default=None",
+                "description": "Only used to validate feature names with the names seen in fit ."
+              },
+              {
+                "name": "routing",
+                "type_info": "MetadataRequest",
+                "description": "A MetadataRequest encapsulating routing information."
+              },
+              {
+                "name": "deep",
+                "type_info": "bool, default=True",
+                "description": "If True, will return the parameters for this estimator and contained subobjects that are estimators."
+              },
+              {
+                "name": "X",
+                "type_info": "{array-like, sparse matrix} of shape (n_samples, n_features), default=None",
+                "description": "Input data. If X is not provided, only the global clustering step is done."
+              },
+              {
+                "name": "y",
+                "type_info": "Ignored",
+                "description": "Not used, present here for API consistency by convention."
+              },
+              {
+                "name": "X",
+                "type_info": "{array-like, sparse matrix} of shape (n_samples, n_features)",
+                "description": "Input data."
+              },
+              {
+                "name": "transform",
+                "type_info": "{\u201cdefault\u201d, \u201cpandas\u201d, \u201cpolars\u201d}, default=None",
+                "description": "Configure output of transform and fit_transform ."
+              },
+              {
+                "name": "**params",
+                "type_info": "dict",
+                "description": "Estimator parameters."
+              },
+              {
+                "name": "X",
+                "type_info": "{array-like, sparse matrix} of shape (n_samples, n_features)",
+                "description": "Input data."
+              }
+            ],
+            "code_examples": [
+              ">>> from sklearn.cluster import Birch >>> X = [[ 0 , 1 ], [ 0.3 , 1 ], [ - 0.3 , 1 ], [ 0 , - 1 ], [ 0.3 , - 1 ], [ - 0.3 , - 1 ]] >>> brc = Birch ( n_clusters = None ) >>> brc . fit ( X ) Birch(n_clusters=None) >>> brc . predict ( X ) array([0, 0, 0, 1, 1, 1])"
+            ],
+            "related_functions": [
+              {
+                "name": "MiniBatchKMeans",
+                "description": "Alternative implementation that does incremental updates of the centers\u2019 positions using mini-batches."
+              }
+            ],
+            "input": {
+              "url": "https://scikit-learn.org/stable/modules/generated/sklearn.cluster.Birch.html"
+            }
+          }
+        ]
+      },
+      {
+        "url": "https://scikit-learn.org/stable/modules/generated/sklearn.cluster.AgglomerativeClustering.html",
+        "status": "extracted",
+        "data": [
+          {
+            "page_title": "AgglomerativeClustering #",
+            "parameters": [
+              {
+                "name": "n_clusters",
+                "type_info": "int or None, default=2",
+                "description": "The number of clusters to find. It must be None if distance_threshold is not None ."
+              },
+              {
+                "name": "metric",
+                "type_info": "str or callable, default=\u201deuclidean\u201d",
+                "description": "Metric used to compute the linkage. Can be \u201ceuclidean\u201d, \u201cl1\u201d, \u201cl2\u201d, \u201cmanhattan\u201d, \u201ccosine\u201d, or \u201cprecomputed\u201d. If linkage is \u201cward\u201d, only \u201ceuclidean\u201d and \u201cl2\u201d are accepted. If \u201cprecomputed\u201d, a distance matrix is needed as input for the fit method. If connectivity is None, linkage is \u201csingle\u201d and affinity is not \u201cprecomputed\u201d any valid pairwise distance metric can be assigned."
+              },
+              {
+                "name": "memory",
+                "type_info": "str or object with the joblib.Memory interface, default=None",
+                "description": "Used to cache the output of the computation of the tree. By default, no caching is done. If a string is given, it is the path to the caching directory."
+              },
+              {
+                "name": "connectivity",
+                "type_info": "array-like, sparse matrix, or callable, default=None",
+                "description": "Connectivity matrix. Defines for each sample the neighboring samples following a given structure of the data. This can be a connectivity matrix itself or a callable that transforms the data into a connectivity matrix, such as derived from kneighbors_graph . Default is None , i.e, the hierarchical clustering algorithm is unstructured."
+              },
+              {
+                "name": "compute_full_tree",
+                "type_info": "\u2018auto\u2019 or bool, default=\u2019auto\u2019",
+                "description": "Stop early the construction of the tree at n_clusters . This is useful to decrease computation time if the number of clusters is not small compared to the number of samples. This option is useful only when specifying a connectivity matrix. Note also that when varying the number of clusters and using caching, it may be advantageous to compute the full tree. It must be True if distance_threshold is not None . By default compute_full_tree is \u201cauto\u201d, which is equivalent to True when distance_threshold is not None or that n_clusters is inferior to the maximum between 100 or 0.02 * n_samples . Otherwise, \u201cauto\u201d is equivalent to False ."
+              },
+              {
+                "name": "linkage",
+                "type_info": "{\u2018ward\u2019, \u2018complete\u2019, \u2018average\u2019, \u2018single\u2019}, default=\u2019ward\u2019",
+                "description": "Which linkage criterion to use. The linkage criterion determines which distance to use between sets of observation. The algorithm will merge the pairs of cluster that minimize this criterion."
+              },
+              {
+                "name": "distance_threshold",
+                "type_info": "float, default=None",
+                "description": "The linkage distance threshold at or above which clusters will not be merged. If not None , n_clusters must be None and compute_full_tree must be True ."
+              },
+              {
+                "name": "compute_distances",
+                "type_info": "bool, default=False",
+                "description": "Computes distances between clusters even if distance_threshold is not used. This can be used to make dendrogram visualization, but introduces a computational and memory overhead."
+              },
+              {
+                "name": "X",
+                "type_info": "array-like, shape (n_samples, n_features) or (n_samples, n_samples)",
+                "description": "Training instances to cluster, or distances between instances if metric='precomputed' ."
+              },
+              {
+                "name": "y",
+                "type_info": "Ignored",
+                "description": "Not used, present here for API consistency by convention."
+              },
+              {
+                "name": "X",
+                "type_info": "array-like of shape (n_samples, n_features) or (n_samples, n_samples)",
+                "description": "Training instances to cluster, or distances between instances if affinity='precomputed' ."
+              },
+              {
+                "name": "y",
+                "type_info": "Ignored",
+                "description": "Not used, present here for API consistency by convention."
+              },
+              {
+                "name": "routing",
+                "type_info": "MetadataRequest",
+                "description": "A MetadataRequest encapsulating routing information."
+              },
+              {
+                "name": "deep",
+                "type_info": "bool, default=True",
+                "description": "If True, will return the parameters for this estimator and contained subobjects that are estimators."
+              },
+              {
+                "name": "**params",
+                "type_info": "dict",
+                "description": "Estimator parameters."
+              }
+            ],
+            "code_examples": [
+              ">>> from sklearn.cluster import AgglomerativeClustering >>> import numpy as np >>> X = np . array ([[ 1 , 2 ], [ 1 , 4 ], [ 1 , 0 ], ... [ 4 , 2 ], [ 4 , 4 ], [ 4 , 0 ]]) >>> clustering = AgglomerativeClustering () . fit ( X ) >>> clustering AgglomerativeClustering() >>> clustering . labels_ array([1, 1, 1, 0, 0, 0])"
+            ],
+            "related_functions": [
+              {
+                "name": "FeatureAgglomeration",
+                "description": "Agglomerative clustering but for features instead of samples."
+              },
+              {
+                "name": "ward_tree",
+                "description": "Hierarchical clustering with ward linkage."
+              }
+            ],
+            "input": {
+              "url": "https://scikit-learn.org/stable/modules/generated/sklearn.cluster.AgglomerativeClustering.html"
+            }
+          }
+        ]
+      },
+      {
+        "url": "https://scikit-learn.org/stable/modules/generated/sklearn.cluster.BisectingKMeans.html",
+        "status": "extracted",
+        "data": [
+          {
+            "page_title": "BisectingKMeans #",
+            "parameters": [
+              {
+                "name": "n_clusters",
+                "type_info": "int, default=8",
+                "description": "The number of clusters to form as well as the number of centroids to generate."
+              },
+              {
+                "name": "init",
+                "type_info": "{\u2018k-means++\u2019, \u2018random\u2019} or callable, default=\u2019random\u2019",
+                "description": "Method for initialization for each bisection."
+              },
+              {
+                "name": "n_init",
+                "type_info": "int, default=1",
+                "description": "Number of time the inner k-means algorithm will be run with different centroid seeds in each bisection. That will result producing for each bisection best output of n_init consecutive runs in terms of inertia."
+              },
+              {
+                "name": "random_state",
+                "type_info": "int, RandomState instance or None, default=None",
+                "description": "Determines random number generation for centroid initialization in inner K-Means. Use an int to make the randomness deterministic. See Glossary ."
+              },
+              {
+                "name": "max_iter",
+                "type_info": "int, default=300",
+                "description": "Maximum number of iterations of the inner k-means algorithm at each bisection."
+              },
+              {
+                "name": "verbose",
+                "type_info": "int, default=0",
+                "description": "Verbosity mode."
+              },
+              {
+                "name": "tol",
+                "type_info": "float, default=1e-4",
+                "description": "Relative tolerance with regards to Frobenius norm of the difference in the cluster centers of two consecutive iterations to declare convergence. Used in inner k-means algorithm at each bisection to pick best possible clusters."
+              },
+              {
+                "name": "copy_x",
+                "type_info": "bool, default=True",
+                "description": "When pre-computing distances it is more numerically accurate to center the data first. If copy_x is True (default), then the original data is not modified. If False, the original data is modified, and put back before the function returns, but small numerical differences may be introduced by subtracting and then adding the data mean. Note that if the original data is not C-contiguous, a copy will be made even if copy_x is False. If the original data is sparse, but not in CSR format, a copy will be made even if copy_x is False."
+              },
+              {
+                "name": "algorithm",
+                "type_info": "{\u201clloyd\u201d, \u201celkan\u201d}, default=\u201dlloyd\u201d",
+                "description": "Inner K-means algorithm used in bisection. The classical EM-style algorithm is \"lloyd\" . The \"elkan\" variation can be more efficient on some datasets with well-defined clusters, by using the triangle inequality. However it\u2019s more memory intensive due to the allocation of an extra array of shape (n_samples, n_clusters) ."
+              },
+              {
+                "name": "bisecting_strategy",
+                "type_info": "{\u201cbiggest_inertia\u201d, \u201clargest_cluster\u201d}, default=\u201dbiggest_inertia\u201d",
+                "description": "Defines how bisection should be performed:"
+              },
+              {
+                "name": "X",
+                "type_info": "{array-like, sparse matrix} of shape (n_samples, n_features)",
+                "description": "Training instances to cluster."
+              },
+              {
+                "name": "y",
+                "type_info": "Ignored",
+                "description": "Not used, present here for API consistency by convention."
+              },
+              {
+                "name": "sample_weight",
+                "type_info": "array-like of shape (n_samples,), default=None",
+                "description": "The weights for each observation in X. If None, all observations are assigned equal weight. sample_weight is not used during initialization if init is a callable."
+              },
+              {
+                "name": "X",
+                "type_info": "{array-like, sparse matrix} of shape (n_samples, n_features)",
+                "description": "New data to transform."
+              },
+              {
+                "name": "y",
+                "type_info": "Ignored",
+                "description": "Not used, present here for API consistency by convention."
+              },
+              {
+                "name": "sample_weight",
+                "type_info": "array-like of shape (n_samples,), default=None",
+                "description": "The weights for each observation in X. If None, all observations are assigned equal weight."
+              },
+              {
+                "name": "X",
+                "type_info": "{array-like, sparse matrix} of shape (n_samples, n_features)",
+                "description": "New data to transform."
+              },
+              {
+                "name": "y",
+                "type_info": "Ignored",
+                "description": "Not used, present here for API consistency by convention."
+              },
+              {
+                "name": "sample_weight",
+                "type_info": "array-like of shape (n_samples,), default=None",
+                "description": "The weights for each observation in X. If None, all observations are assigned equal weight."
+              },
+              {
+                "name": "input_features",
+                "type_info": "array-like of str or None, default=None",
+                "description": "Only used to validate feature names with the names seen in fit ."
+              },
+              {
+                "name": "routing",
+                "type_info": "MetadataRequest",
+                "description": "A MetadataRequest encapsulating routing information."
+              },
+              {
+                "name": "deep",
+                "type_info": "bool, default=True",
+                "description": "If True, will return the parameters for this estimator and contained subobjects that are estimators."
+              },
+              {
+                "name": "X",
+                "type_info": "{array-like, sparse matrix} of shape (n_samples, n_features)",
+                "description": "New data to predict."
+              },
+              {
+                "name": "X",
+                "type_info": "{array-like, sparse matrix} of shape (n_samples, n_features)",
+                "description": "New data."
+              },
+              {
+                "name": "y",
+                "type_info": "Ignored",
+                "description": "Not used, present here for API consistency by convention."
+              },
+              {
+                "name": "sample_weight",
+                "type_info": "array-like of shape (n_samples,), default=None",
+                "description": "The weights for each observation in X. If None, all observations are assigned equal weight."
+              },
+              {
+                "name": "sample_weight",
+                "type_info": "str, True, False, or None, default=sklearn.utils.metadata_routing.UNCHANGED",
+                "description": "Metadata routing for sample_weight parameter in fit ."
+              },
+              {
+                "name": "transform",
+                "type_info": "{\u201cdefault\u201d, \u201cpandas\u201d, \u201cpolars\u201d}, default=None",
+                "description": "Configure output of transform and fit_transform ."
+              },
+              {
+                "name": "**params",
+                "type_info": "dict",
+                "description": "Estimator parameters."
+              },
+              {
+                "name": "sample_weight",
+                "type_info": "str, True, False, or None, default=sklearn.utils.metadata_routing.UNCHANGED",
+                "description": "Metadata routing for sample_weight parameter in score ."
+              },
+              {
+                "name": "X",
+                "type_info": "{array-like, sparse matrix} of shape (n_samples, n_features)",
+                "description": "New data to transform."
+              }
+            ],
+            "code_examples": [
+              ">>> from sklearn.cluster import BisectingKMeans >>> import numpy as np >>> X = np . array ([[ 1 , 1 ], [ 10 , 1 ], [ 3 , 1 ], ... [ 10 , 0 ], [ 2 , 1 ], [ 10 , 2 ], ... [ 10 , 8 ], [ 10 , 9 ], [ 10 , 10 ]]) >>> bisect_means = BisectingKMeans ( n_clusters = 3 , random_state = 0 ) . fit ( X ) >>> bisect_means . labels_ array([0, 2, 0, 2, 0, 2, 1, 1, 1], dtype=int32) >>> bisect_means . predict ([[ 0 , 0 ], [ 12 , 3 ]]) array([0, 2], dtype=int32) >>> bisect_means . cluster_centers_ array([[ 2., 1.], [10., 9.], [10., 1.]])"
+            ],
+            "related_functions": [
+              {
+                "name": "KMeans",
+                "description": "Original implementation of K-Means algorithm."
+              }
+            ],
+            "input": {
+              "url": "https://scikit-learn.org/stable/modules/generated/sklearn.cluster.BisectingKMeans.html"
+            }
+          }
+        ]
+      },
+      {
+        "url": "https://scikit-learn.org/stable/modules/generated/sklearn.cluster.FeatureAgglomeration.html",
+        "status": "extracted",
+        "data": [
+          {
+            "page_title": "FeatureAgglomeration #",
+            "parameters": [
+              {
+                "name": "n_clusters",
+                "type_info": "int or None, default=2",
+                "description": "The number of clusters to find. It must be None if distance_threshold is not None ."
+              },
+              {
+                "name": "metric",
+                "type_info": "str or callable, default=\u201deuclidean\u201d",
+                "description": "Metric used to compute the linkage. Can be \u201ceuclidean\u201d, \u201cl1\u201d, \u201cl2\u201d, \u201cmanhattan\u201d, \u201ccosine\u201d, or \u201cprecomputed\u201d. If linkage is \u201cward\u201d, only \u201ceuclidean\u201d and \u201cl2\u201d are accepted. If \u201cprecomputed\u201d, a distance matrix is needed as input for the fit method."
+              },
+              {
+                "name": "memory",
+                "type_info": "str or object with the joblib.Memory interface, default=None",
+                "description": "Used to cache the output of the computation of the tree. By default, no caching is done. If a string is given, it is the path to the caching directory."
+              },
+              {
+                "name": "connectivity",
+                "type_info": "array-like, sparse matrix, or callable, default=None",
+                "description": "Connectivity matrix. Defines for each feature the neighboring features following a given structure of the data. This can be a connectivity matrix itself or a callable that transforms the data into a connectivity matrix, such as derived from kneighbors_graph . Default is None , i.e, the hierarchical clustering algorithm is unstructured."
+              },
+              {
+                "name": "compute_full_tree",
+                "type_info": "\u2018auto\u2019 or bool, default=\u2019auto\u2019",
+                "description": "Stop early the construction of the tree at n_clusters . This is useful to decrease computation time if the number of clusters is not small compared to the number of features. This option is useful only when specifying a connectivity matrix. Note also that when varying the number of clusters and using caching, it may be advantageous to compute the full tree. It must be True if distance_threshold is not None . By default compute_full_tree is \u201cauto\u201d, which is equivalent to True when distance_threshold is not None or that n_clusters is inferior to the maximum between 100 or 0.02 * n_samples . Otherwise, \u201cauto\u201d is equivalent to False ."
+              },
+              {
+                "name": "linkage",
+                "type_info": "{\u201cward\u201d, \u201ccomplete\u201d, \u201caverage\u201d, \u201csingle\u201d}, default=\u201dward\u201d",
+                "description": "Which linkage criterion to use. The linkage criterion determines which distance to use between sets of features. The algorithm will merge the pairs of cluster that minimize this criterion."
+              },
+              {
+                "name": "pooling_func",
+                "type_info": "callable, default=np.mean",
+                "description": "This combines the values of agglomerated features into a single value, and should accept an array of shape [M, N] and the keyword argument axis=1 , and reduce it to an array of size [M]."
+              },
+              {
+                "name": "distance_threshold",
+                "type_info": "float, default=None",
+                "description": "The linkage distance threshold at or above which clusters will not be merged. If not None , n_clusters must be None and compute_full_tree must be True ."
+              },
+              {
+                "name": "compute_distances",
+                "type_info": "bool, default=False",
+                "description": "Computes distances between clusters even if distance_threshold is not used. This can be used to make dendrogram visualization, but introduces a computational and memory overhead."
+              },
+              {
+                "name": "X",
+                "type_info": "array-like of shape (n_samples, n_features)",
+                "description": "The data."
+              },
+              {
+                "name": "y",
+                "type_info": "Ignored",
+                "description": "Not used, present here for API consistency by convention."
+              },
+              {
+                "name": "X",
+                "type_info": "array-like of shape (n_samples, n_features)",
+                "description": "Input samples."
+              },
+              {
+                "name": "y",
+                "type_info": "array-like of shape (n_samples,) or (n_samples, n_outputs), default=None",
+                "description": "Target values (None for unsupervised transformations)."
+              },
+              {
+                "name": "**fit_params",
+                "type_info": "dict",
+                "description": "Additional fit parameters. Pass only if the estimator accepts additional params in its fit method."
+              },
+              {
+                "name": "input_features",
+                "type_info": "array-like of str or None, default=None",
+                "description": "Only used to validate feature names with the names seen in fit ."
+              },
+              {
+                "name": "routing",
+                "type_info": "MetadataRequest",
+                "description": "A MetadataRequest encapsulating routing information."
+              },
+              {
+                "name": "deep",
+                "type_info": "bool, default=True",
+                "description": "If True, will return the parameters for this estimator and contained subobjects that are estimators."
+              },
+              {
+                "name": "X",
+                "type_info": "array-like of shape (n_samples, n_clusters) or (n_clusters,)",
+                "description": "The values to be assigned to each cluster of samples."
+              },
+              {
+                "name": "transform",
+                "type_info": "{\u201cdefault\u201d, \u201cpandas\u201d, \u201cpolars\u201d}, default=None",
+                "description": "Configure output of transform and fit_transform ."
+              },
+              {
+                "name": "**params",
+                "type_info": "dict",
+                "description": "Estimator parameters."
+              },
+              {
+                "name": "X",
+                "type_info": "array-like of shape (n_samples, n_features) or (n_samples, n_samples)",
+                "description": "An M by N array of M observations in N dimensions or a length M array of M one-dimensional observations."
+              }
+            ],
+            "code_examples": [
+              ">>> import numpy as np >>> from sklearn import datasets , cluster >>> digits = datasets . load_digits () >>> images = digits . images >>> X = np . reshape ( images , ( len ( images ), - 1 )) >>> agglo = cluster . FeatureAgglomeration ( n_clusters = 32 ) >>> agglo . fit ( X ) FeatureAgglomeration(n_clusters=32) >>> X_reduced = agglo . transform ( X ) >>> X_reduced . shape (1797, 32)"
+            ],
+            "related_functions": [
+              {
+                "name": "AgglomerativeClustering",
+                "description": "Agglomerative clustering samples instead of features."
+              },
+              {
+                "name": "ward_tree",
+                "description": "Hierarchical clustering with ward linkage."
+              }
+            ],
+            "input": {
+              "url": "https://scikit-learn.org/stable/modules/generated/sklearn.cluster.FeatureAgglomeration.html"
+            }
+          }
+        ]
+      },
+      {
+        "url": "https://scikit-learn.org/stable/modules/generated/sklearn.cluster.DBSCAN.html",
+        "status": "extracted",
+        "data": [
+          {
+            "page_title": "DBSCAN #",
+            "parameters": [
+              {
+                "name": "eps",
+                "type_info": "float, default=0.5",
+                "description": "The maximum distance between two samples for one to be considered as in the neighborhood of the other. This is not a maximum bound on the distances of points within a cluster. This is the most important DBSCAN parameter to choose appropriately for your data set and distance function. Smaller values generally lead to more clusters."
+              },
+              {
+                "name": "min_samples",
+                "type_info": "int, default=5",
+                "description": "The number of samples (or total weight) in a neighborhood for a point to be considered as a core point. This includes the point itself. If min_samples is set to a higher value, DBSCAN will find denser clusters, whereas if it is set to a lower value, the found clusters will be more sparse."
+              },
+              {
+                "name": "metric",
+                "type_info": "str, or callable, default=\u2019euclidean\u2019",
+                "description": "The metric to use when calculating distance between instances in a feature array. If metric is a string or callable, it must be one of the options allowed by sklearn.metrics.pairwise_distances for its metric parameter. If metric is \u201cprecomputed\u201d, X is assumed to be a distance matrix and must be square. X may be a sparse graph , in which case only \u201cnonzero\u201d elements may be considered neighbors for DBSCAN."
+              },
+              {
+                "name": "metric_params",
+                "type_info": "dict, default=None",
+                "description": "Additional keyword arguments for the metric function."
+              },
+              {
+                "name": "algorithm",
+                "type_info": "{\u2018auto\u2019, \u2018ball_tree\u2019, \u2018kd_tree\u2019, \u2018brute\u2019}, default=\u2019auto\u2019",
+                "description": "The algorithm to be used by the NearestNeighbors module to compute pointwise distances and find nearest neighbors. \u2018auto\u2019 will attempt to decide the most appropriate algorithm based on the values passed to fit method. See NearestNeighbors documentation for details."
+              },
+              {
+                "name": "leaf_size",
+                "type_info": "int, default=30",
+                "description": "Leaf size passed to BallTree or cKDTree. This can affect the speed of the construction and query, as well as the memory required to store the tree. The optimal value depends on the nature of the problem."
+              },
+              {
+                "name": "p",
+                "type_info": "float, default=None",
+                "description": "The power of the Minkowski metric to be used to calculate distance between points. If None, then p=2 (equivalent to the Euclidean distance). When p=1, this is equivalent to Manhattan distance."
+              },
+              {
+                "name": "n_jobs",
+                "type_info": "int, default=None",
+                "description": "The number of parallel jobs to run. None means 1 unless in a joblib.parallel_backend context. -1 means using all processors. See Glossary for more details."
+              },
+              {
+                "name": "X",
+                "type_info": "{array-like, sparse matrix} of shape (n_samples, n_features), or (n_samples, n_samples)",
+                "description": "Training instances to cluster, or distances between instances if metric='precomputed' . If a sparse matrix is provided, it will be converted into a sparse csr_matrix ."
+              },
+              {
+                "name": "y",
+                "type_info": "Ignored",
+                "description": "Not used, present here for API consistency by convention."
+              },
+              {
+                "name": "sample_weight",
+                "type_info": "array-like of shape (n_samples,), default=None",
+                "description": "Weight of each sample, such that a sample with a weight of at least min_samples is by itself a core sample; a sample with a negative weight may inhibit its eps-neighbor from being core. Note that weights are absolute, and default to 1."
+              },
+              {
+                "name": "X",
+                "type_info": "{array-like, sparse matrix} of shape (n_samples, n_features), or (n_samples, n_samples)",
+                "description": "Training instances to cluster, or distances between instances if metric='precomputed' . If a sparse matrix is provided, it will be converted into a sparse csr_matrix ."
+              },
+              {
+                "name": "y",
+                "type_info": "Ignored",
+                "description": "Not used, present here for API consistency by convention."
+              },
+              {
+                "name": "sample_weight",
+                "type_info": "array-like of shape (n_samples,), default=None",
+                "description": "Weight of each sample, such that a sample with a weight of at least min_samples is by itself a core sample; a sample with a negative weight may inhibit its eps-neighbor from being core. Note that weights are absolute, and default to 1."
+              },
+              {
+                "name": "routing",
+                "type_info": "MetadataRequest",
+                "description": "A MetadataRequest encapsulating routing information."
+              },
+              {
+                "name": "deep",
+                "type_info": "bool, default=True",
+                "description": "If True, will return the parameters for this estimator and contained subobjects that are estimators."
+              },
+              {
+                "name": "sample_weight",
+                "type_info": "str, True, False, or None, default=sklearn.utils.metadata_routing.UNCHANGED",
+                "description": "Metadata routing for sample_weight parameter in fit ."
+              },
+              {
+                "name": "**params",
+                "type_info": "dict",
+                "description": "Estimator parameters."
+              }
+            ],
+            "code_examples": [
+              ">>> from sklearn.cluster import DBSCAN >>> import numpy as np >>> X = np . array ([[ 1 , 2 ], [ 2 , 2 ], [ 2 , 3 ], ... [ 8 , 7 ], [ 8 , 8 ], [ 25 , 80 ]]) >>> clustering = DBSCAN ( eps = 3 , min_samples = 2 ) . fit ( X ) >>> clustering . labels_ array([ 0, 0, 0, 1, 1, -1]) >>> clustering DBSCAN(eps=3, min_samples=2)"
+            ],
+            "related_functions": [
+              {
+                "name": "OPTICS",
+                "description": "A similar clustering at multiple values of eps. Our implementation is optimized for memory usage."
+              }
+            ],
+            "input": {
+              "url": "https://scikit-learn.org/stable/modules/generated/sklearn.cluster.DBSCAN.html"
+            }
+          }
+        ]
+      },
+      {
+        "url": "https://scikit-learn.org/stable/modules/generated/sklearn.cluster.HDBSCAN.html",
+        "status": "extracted",
+        "data": [
+          {
+            "page_title": "HDBSCAN #",
+            "parameters": [
+              {
+                "name": "min_cluster_size",
+                "type_info": "int, default=5",
+                "description": "The minimum number of samples in a group for that group to be considered a cluster; groupings smaller than this size will be left as noise."
+              },
+              {
+                "name": "min_samples",
+                "type_info": "int, default=None",
+                "description": "The parameter k used to calculate the distance between a point x_p and its k-th nearest neighbor. When None , defaults to min_cluster_size ."
+              },
+              {
+                "name": "cluster_selection_epsilon",
+                "type_info": "float, default=0.0",
+                "description": "A distance threshold. Clusters below this value will be merged. See [5] for more information."
+              },
+              {
+                "name": "max_cluster_size",
+                "type_info": "int, default=None",
+                "description": "A limit to the size of clusters returned by the \"eom\" cluster selection algorithm. There is no limit when max_cluster_size=None . Has no effect if cluster_selection_method=\"leaf\" ."
+              },
+              {
+                "name": "metric",
+                "type_info": "str or callable, default=\u2019euclidean\u2019",
+                "description": "The metric to use when calculating distance between instances in a feature array."
+              },
+              {
+                "name": "metric_params",
+                "type_info": "dict, default=None",
+                "description": "Arguments passed to the distance metric."
+              },
+              {
+                "name": "alpha",
+                "type_info": "float, default=1.0",
+                "description": "A distance scaling parameter as used in robust single linkage. See [3] for more information."
+              },
+              {
+                "name": "algorithm",
+                "type_info": "{\u201cauto\u201d, \u201cbrute\u201d, \u201ckd_tree\u201d, \u201cball_tree\u201d}, default=\u201dauto\u201d",
+                "description": "Exactly which algorithm to use for computing core distances; By default this is set to \"auto\" which attempts to use a KDTree tree if possible, otherwise it uses a BallTree tree. Both \"kd_tree\" and \"ball_tree\" algorithms use the NearestNeighbors estimator."
+              },
+              {
+                "name": "leaf_size",
+                "type_info": "int, default=40",
+                "description": "Leaf size for trees responsible for fast nearest neighbour queries when a KDTree or a BallTree are used as core-distance algorithms. A large dataset size and small leaf_size may induce excessive memory usage. If you are running out of memory consider increasing the leaf_size parameter. Ignored for algorithm=\"brute\" ."
+              },
+              {
+                "name": "n_jobs",
+                "type_info": "int, default=None",
+                "description": "Number of jobs to run in parallel to calculate distances. None means 1 unless in a joblib.parallel_backend context. -1 means using all processors. See Glossary for more details."
+              },
+              {
+                "name": "cluster_selection_method",
+                "type_info": "{\u201ceom\u201d, \u201cleaf\u201d}, default=\u201deom\u201d",
+                "description": "The method used to select clusters from the condensed tree. The standard approach for HDBSCAN* is to use an Excess of Mass ( \"eom\" ) algorithm to find the most persistent clusters. Alternatively you can instead select the clusters at the leaves of the tree \u2013 this provides the most fine grained and homogeneous clusters."
+              },
+              {
+                "name": "allow_single_cluster",
+                "type_info": "bool, default=False",
+                "description": "By default HDBSCAN* will not produce a single cluster, setting this to True will override this and allow single cluster results in the case that you feel this is a valid result for your dataset."
+              },
+              {
+                "name": "store_centers",
+                "type_info": "str, default=None",
+                "description": "Which, if any, cluster centers to compute and store. The options are:"
+              },
+              {
+                "name": "copy",
+                "type_info": "bool, default=False",
+                "description": "If copy=True then any time an in-place modifications would be made that would overwrite data passed to fit , a copy will first be made, guaranteeing that the original data will be unchanged. Currently, it only applies when metric=\"precomputed\" , when passing a dense array or a CSR sparse matrix and when algorithm=\"brute\" ."
+              },
+              {
+                "name": "cut_distance",
+                "type_info": "float",
+                "description": "The mutual reachability distance cut value to use to generate a flat clustering."
+              },
+              {
+                "name": "min_cluster_size",
+                "type_info": "int, default=5",
+                "description": "Clusters smaller than this value with be called \u2018noise\u2019 and remain unclustered in the resulting flat clustering."
+              },
+              {
+                "name": "X",
+                "type_info": "{array-like, sparse matrix} of shape (n_samples, n_features), or ndarray of shape (n_samples, n_samples)",
+                "description": "A feature array, or array of distances between samples if metric='precomputed' ."
+              },
+              {
+                "name": "y",
+                "type_info": "None",
+                "description": "Ignored."
+              },
+              {
+                "name": "X",
+                "type_info": "{array-like, sparse matrix} of shape (n_samples, n_features), or ndarray of shape (n_samples, n_samples)",
+                "description": "A feature array, or array of distances between samples if metric='precomputed' ."
+              },
+              {
+                "name": "y",
+                "type_info": "None",
+                "description": "Ignored."
+              },
+              {
+                "name": "routing",
+                "type_info": "MetadataRequest",
+                "description": "A MetadataRequest encapsulating routing information."
+              },
+              {
+                "name": "deep",
+                "type_info": "bool, default=True",
+                "description": "If True, will return the parameters for this estimator and contained subobjects that are estimators."
+              },
+              {
+                "name": "**params",
+                "type_info": "dict",
+                "description": "Estimator parameters."
+              }
+            ],
+            "code_examples": [
+              ">>> import numpy as np >>> from sklearn.cluster import HDBSCAN >>> from sklearn.datasets import load_digits >>> X , _ = load_digits ( return_X_y = True ) >>> hdb = HDBSCAN ( copy = True , min_cluster_size = 20 ) >>> hdb . fit ( X ) HDBSCAN(copy=True, min_cluster_size=20) >>> hdb . labels_ . shape == ( X . shape [ 0 ],) True >>> np . unique ( hdb . labels_ ) . tolist () [-1, 0, 1, 2, 3, 4, 5, 6, 7]"
+            ],
+            "related_functions": [
+              {
+                "name": "DBSCAN",
+                "description": "Density-Based Spatial Clustering of Applications with Noise."
+              },
+              {
+                "name": "OPTICS",
+                "description": "Ordering Points To Identify the Clustering Structure."
+              },
+              {
+                "name": "Birch",
+                "description": "Memory-efficient, online-learning algorithm."
+              }
+            ],
+            "input": {
+              "url": "https://scikit-learn.org/stable/modules/generated/sklearn.cluster.HDBSCAN.html"
+            }
+          }
+        ]
+      },
+      {
+        "url": "https://scikit-learn.org/stable/modules/generated/sklearn.cluster.KMeans.html",
+        "status": "extracted",
+        "data": [
+          {
+            "page_title": "KMeans #",
+            "parameters": [
+              {
+                "name": "n_clusters",
+                "type_info": "int, default=8",
+                "description": "The number of clusters to form as well as the number of centroids to generate."
+              },
+              {
+                "name": "init",
+                "type_info": "{\u2018k-means++\u2019, \u2018random\u2019}, callable or array-like of shape (n_clusters, n_features), default=\u2019k-means++\u2019",
+                "description": "Method for initialization:"
+              },
+              {
+                "name": "n_init",
+                "type_info": "\u2018auto\u2019 or int, default=\u2019auto\u2019",
+                "description": "Number of times the k-means algorithm is run with different centroid seeds. The final results is the best output of n_init consecutive runs in terms of inertia. Several runs are recommended for sparse high-dimensional problems (see Clustering sparse data with k-means )."
+              },
+              {
+                "name": "max_iter",
+                "type_info": "int, default=300",
+                "description": "Maximum number of iterations of the k-means algorithm for a single run."
+              },
+              {
+                "name": "tol",
+                "type_info": "float, default=1e-4",
+                "description": "Relative tolerance with regards to Frobenius norm of the difference in the cluster centers of two consecutive iterations to declare convergence."
+              },
+              {
+                "name": "verbose",
+                "type_info": "int, default=0",
+                "description": "Verbosity mode."
+              },
+              {
+                "name": "random_state",
+                "type_info": "int, RandomState instance or None, default=None",
+                "description": "Determines random number generation for centroid initialization. Use an int to make the randomness deterministic. See Glossary ."
+              },
+              {
+                "name": "copy_x",
+                "type_info": "bool, default=True",
+                "description": "When pre-computing distances it is more numerically accurate to center the data first. If copy_x is True (default), then the original data is not modified. If False, the original data is modified, and put back before the function returns, but small numerical differences may be introduced by subtracting and then adding the data mean. Note that if the original data is not C-contiguous, a copy will be made even if copy_x is False. If the original data is sparse, but not in CSR format, a copy will be made even if copy_x is False."
+              },
+              {
+                "name": "algorithm",
+                "type_info": "{\u201clloyd\u201d, \u201celkan\u201d}, default=\u201dlloyd\u201d",
+                "description": "K-means algorithm to use. The classical EM-style algorithm is \"lloyd\" . The \"elkan\" variation can be more efficient on some datasets with well-defined clusters, by using the triangle inequality. However it\u2019s more memory intensive due to the allocation of an extra array of shape (n_samples, n_clusters) ."
+              },
+              {
+                "name": "X",
+                "type_info": "{array-like, sparse matrix} of shape (n_samples, n_features)",
+                "description": "Training instances to cluster. It must be noted that the data will be converted to C ordering, which will cause a memory copy if the given data is not C-contiguous. If a sparse matrix is passed, a copy will be made if it\u2019s not in CSR format."
+              },
+              {
+                "name": "y",
+                "type_info": "Ignored",
+                "description": "Not used, present here for API consistency by convention."
+              },
+              {
+                "name": "sample_weight",
+                "type_info": "array-like of shape (n_samples,), default=None",
+                "description": "The weights for each observation in X. If None, all observations are assigned equal weight. sample_weight is not used during initialization if init is a callable or a user provided array."
+              },
+              {
+                "name": "X",
+                "type_info": "{array-like, sparse matrix} of shape (n_samples, n_features)",
+                "description": "New data to transform."
+              },
+              {
+                "name": "y",
+                "type_info": "Ignored",
+                "description": "Not used, present here for API consistency by convention."
+              },
+              {
+                "name": "sample_weight",
+                "type_info": "array-like of shape (n_samples,), default=None",
+                "description": "The weights for each observation in X. If None, all observations are assigned equal weight."
+              },
+              {
+                "name": "X",
+                "type_info": "{array-like, sparse matrix} of shape (n_samples, n_features)",
+                "description": "New data to transform."
+              },
+              {
+                "name": "y",
+                "type_info": "Ignored",
+                "description": "Not used, present here for API consistency by convention."
+              },
+              {
+                "name": "sample_weight",
+                "type_info": "array-like of shape (n_samples,), default=None",
+                "description": "The weights for each observation in X. If None, all observations are assigned equal weight."
+              },
+              {
+                "name": "input_features",
+                "type_info": "array-like of str or None, default=None",
+                "description": "Only used to validate feature names with the names seen in fit ."
+              },
+              {
+                "name": "routing",
+                "type_info": "MetadataRequest",
+                "description": "A MetadataRequest encapsulating routing information."
+              },
+              {
+                "name": "deep",
+                "type_info": "bool, default=True",
+                "description": "If True, will return the parameters for this estimator and contained subobjects that are estimators."
+              },
+              {
+                "name": "X",
+                "type_info": "{array-like, sparse matrix} of shape (n_samples, n_features)",
+                "description": "New data to predict."
+              },
+              {
+                "name": "X",
+                "type_info": "{array-like, sparse matrix} of shape (n_samples, n_features)",
+                "description": "New data."
+              },
+              {
+                "name": "y",
+                "type_info": "Ignored",
+                "description": "Not used, present here for API consistency by convention."
+              },
+              {
+                "name": "sample_weight",
+                "type_info": "array-like of shape (n_samples,), default=None",
+                "description": "The weights for each observation in X. If None, all observations are assigned equal weight."
+              },
+              {
+                "name": "sample_weight",
+                "type_info": "str, True, False, or None, default=sklearn.utils.metadata_routing.UNCHANGED",
+                "description": "Metadata routing for sample_weight parameter in fit ."
+              },
+              {
+                "name": "transform",
+                "type_info": "{\u201cdefault\u201d, \u201cpandas\u201d, \u201cpolars\u201d}, default=None",
+                "description": "Configure output of transform and fit_transform ."
+              },
+              {
+                "name": "**params",
+                "type_info": "dict",
+                "description": "Estimator parameters."
+              },
+              {
+                "name": "sample_weight",
+                "type_info": "str, True, False, or None, default=sklearn.utils.metadata_routing.UNCHANGED",
+                "description": "Metadata routing for sample_weight parameter in score ."
+              },
+              {
+                "name": "X",
+                "type_info": "{array-like, sparse matrix} of shape (n_samples, n_features)",
+                "description": "New data to transform."
+              }
+            ],
+            "code_examples": [
+              ">>> from sklearn.cluster import KMeans >>> import numpy as np >>> X = np . array ([[ 1 , 2 ], [ 1 , 4 ], [ 1 , 0 ], ... [ 10 , 2 ], [ 10 , 4 ], [ 10 , 0 ]]) >>> kmeans = KMeans ( n_clusters = 2 , random_state = 0 , n_init = \"auto\" ) . fit ( X ) >>> kmeans . labels_ array([1, 1, 1, 0, 0, 0], dtype=int32) >>> kmeans . predict ([[ 0 , 0 ], [ 12 , 3 ]]) array([1, 0], dtype=int32) >>> kmeans . cluster_centers_ array([[10., 2.], [ 1., 2.]])"
+            ],
+            "related_functions": [
+              {
+                "name": "MiniBatchKMeans",
+                "description": "Alternative online implementation that does incremental updates of the centers positions using mini-batches. For large scale learning (say n_samples > 10k) MiniBatchKMeans is probably much faster than the default batch implementation."
+              }
+            ],
+            "input": {
+              "url": "https://scikit-learn.org/stable/modules/generated/sklearn.cluster.KMeans.html"
+            }
+          }
+        ]
+      },
+      {
+        "url": "https://scikit-learn.org/stable/modules/generated/sklearn.cluster.OPTICS.html",
+        "status": "extracted",
+        "data": [
+          {
+            "page_title": "OPTICS #",
+            "parameters": [
+              {
+                "name": "min_samples",
+                "type_info": "int > 1 or float between 0 and 1, default=5",
+                "description": "The number of samples in a neighborhood for a point to be considered as a core point. Also, up and down steep regions can\u2019t have more than min_samples consecutive non-steep points. Expressed as an absolute number or a fraction of the number of samples (rounded to be at least 2)."
+              },
+              {
+                "name": "max_eps",
+                "type_info": "float, default=np.inf",
+                "description": "The maximum distance between two samples for one to be considered as in the neighborhood of the other. Default value of np.inf will identify clusters across all scales; reducing max_eps will result in shorter run times."
+              },
+              {
+                "name": "metric",
+                "type_info": "str or callable, default=\u2019minkowski\u2019",
+                "description": "Metric to use for distance computation. Any metric from scikit-learn or scipy.spatial.distance can be used."
+              },
+              {
+                "name": "p",
+                "type_info": "float, default=2",
+                "description": "Parameter for the Minkowski metric from pairwise_distances . When p = 1, this is equivalent to using manhattan_distance (l1), and euclidean_distance (l2) for p = 2. For arbitrary p, minkowski_distance (l_p) is used."
+              },
+              {
+                "name": "metric_params",
+                "type_info": "dict, default=None",
+                "description": "Additional keyword arguments for the metric function."
+              },
+              {
+                "name": "cluster_method",
+                "type_info": "{\u2018xi\u2019, \u2018dbscan\u2019}, default=\u2019xi\u2019",
+                "description": "The extraction method used to extract clusters using the calculated reachability and ordering."
+              },
+              {
+                "name": "eps",
+                "type_info": "float, default=None",
+                "description": "The maximum distance between two samples for one to be considered as in the neighborhood of the other. By default it assumes the same value as max_eps . Used only when cluster_method='dbscan' ."
+              },
+              {
+                "name": "xi",
+                "type_info": "float between 0 and 1, default=0.05",
+                "description": "Determines the minimum steepness on the reachability plot that constitutes a cluster boundary. For example, an upwards point in the reachability plot is defined by the ratio from one point to its successor being at most 1-xi. Used only when cluster_method='xi' ."
+              },
+              {
+                "name": "predecessor_correction",
+                "type_info": "bool, default=True",
+                "description": "Correct clusters according to the predecessors calculated by OPTICS [2] . This parameter has minimal effect on most datasets. Used only when cluster_method='xi' ."
+              },
+              {
+                "name": "min_cluster_size",
+                "type_info": "int > 1 or float between 0 and 1, default=None",
+                "description": "Minimum number of samples in an OPTICS cluster, expressed as an absolute number or a fraction of the number of samples (rounded to be at least 2). If None , the value of min_samples is used instead. Used only when cluster_method='xi' ."
+              },
+              {
+                "name": "algorithm",
+                "type_info": "{\u2018auto\u2019, \u2018ball_tree\u2019, \u2018kd_tree\u2019, \u2018brute\u2019}, default=\u2019auto\u2019",
+                "description": "Algorithm used to compute the nearest neighbors:"
+              },
+              {
+                "name": "leaf_size",
+                "type_info": "int, default=30",
+                "description": "Leaf size passed to BallTree or KDTree . This can affect the speed of the construction and query, as well as the memory required to store the tree. The optimal value depends on the nature of the problem."
+              },
+              {
+                "name": "memory",
+                "type_info": "str or object with the joblib.Memory interface, default=None",
+                "description": "Used to cache the output of the computation of the tree. By default, no caching is done. If a string is given, it is the path to the caching directory."
+              },
+              {
+                "name": "n_jobs",
+                "type_info": "int, default=None",
+                "description": "The number of parallel jobs to run for neighbors search. None means 1 unless in a joblib.parallel_backend context. -1 means using all processors. See Glossary for more details."
+              },
+              {
+                "name": "X",
+                "type_info": "{ndarray, sparse matrix} of shape (n_samples, n_features), or (n_samples, n_samples) if metric=\u2019precomputed\u2019",
+                "description": "A feature array, or array of distances between samples if metric=\u2019precomputed\u2019. If a sparse matrix is provided, it will be converted into CSR format."
+              },
+              {
+                "name": "y",
+                "type_info": "Ignored",
+                "description": "Not used, present for API consistency by convention."
+              },
+              {
+                "name": "X",
+                "type_info": "array-like of shape (n_samples, n_features)",
+                "description": "Input data."
+              },
+              {
+                "name": "y",
+                "type_info": "Ignored",
+                "description": "Not used, present for API consistency by convention."
+              },
+              {
+                "name": "**kwargs",
+                "type_info": "dict",
+                "description": "Arguments to be passed to fit ."
+              },
+              {
+                "name": "routing",
+                "type_info": "MetadataRequest",
+                "description": "A MetadataRequest encapsulating routing information."
+              },
+              {
+                "name": "deep",
+                "type_info": "bool, default=True",
+                "description": "If True, will return the parameters for this estimator and contained subobjects that are estimators."
+              },
+              {
+                "name": "**params",
+                "type_info": "dict",
+                "description": "Estimator parameters."
+              }
+            ],
+            "code_examples": [
+              ">>> from sklearn.cluster import OPTICS >>> import numpy as np >>> X = np . array ([[ 1 , 2 ], [ 2 , 5 ], [ 3 , 6 ], ... [ 8 , 7 ], [ 8 , 8 ], [ 7 , 3 ]]) >>> clustering = OPTICS ( min_samples = 2 ) . fit ( X ) >>> clustering . labels_ array([0, 0, 0, 1, 1, 1])"
+            ],
+            "related_functions": [
+              {
+                "name": "DBSCAN",
+                "description": "A similar clustering for a specified neighborhood radius (eps). Our implementation is optimized for runtime."
+              }
+            ],
+            "input": {
+              "url": "https://scikit-learn.org/stable/modules/generated/sklearn.cluster.OPTICS.html"
+            }
+          }
+        ]
+      },
+      {
+        "url": "https://scikit-learn.org/stable/modules/generated/sklearn.cluster.MiniBatchKMeans.html",
+        "status": "extracted",
+        "data": [
+          {
+            "page_title": "MiniBatchKMeans #",
+            "parameters": [
+              {
+                "name": "n_clusters",
+                "type_info": "int, default=8",
+                "description": "The number of clusters to form as well as the number of centroids to generate."
+              },
+              {
+                "name": "init",
+                "type_info": "{\u2018k-means++\u2019, \u2018random\u2019}, callable or array-like of shape (n_clusters, n_features), default=\u2019k-means++\u2019",
+                "description": "Method for initialization:"
+              },
+              {
+                "name": "max_iter",
+                "type_info": "int, default=100",
+                "description": "Maximum number of iterations over the complete dataset before stopping independently of any early stopping criterion heuristics."
+              },
+              {
+                "name": "batch_size",
+                "type_info": "int, default=1024",
+                "description": "Size of the mini batches. For faster computations, you can set batch_size > 256 * number_of_cores to enable parallelism on all cores."
+              },
+              {
+                "name": "verbose",
+                "type_info": "int, default=0",
+                "description": "Verbosity mode."
+              },
+              {
+                "name": "compute_labels",
+                "type_info": "bool, default=True",
+                "description": "Compute label assignment and inertia for the complete dataset once the minibatch optimization has converged in fit."
+              },
+              {
+                "name": "random_state",
+                "type_info": "int, RandomState instance or None, default=None",
+                "description": "Determines random number generation for centroid initialization and random reassignment. Use an int to make the randomness deterministic. See Glossary ."
+              },
+              {
+                "name": "tol",
+                "type_info": "float, default=0.0",
+                "description": "Control early stopping based on the relative center changes as measured by a smoothed, variance-normalized of the mean center squared position changes. This early stopping heuristics is closer to the one used for the batch variant of the algorithms but induces a slight computational and memory overhead over the inertia heuristic."
+              },
+              {
+                "name": "max_no_improvement",
+                "type_info": "int, default=10",
+                "description": "Control early stopping based on the consecutive number of mini batches that does not yield an improvement on the smoothed inertia."
+              },
+              {
+                "name": "init_size",
+                "type_info": "int, default=None",
+                "description": "Number of samples to randomly sample for speeding up the initialization (sometimes at the expense of accuracy): the only algorithm is initialized by running a batch KMeans on a random subset of the data. This needs to be larger than n_clusters."
+              },
+              {
+                "name": "n_init",
+                "type_info": "\u2018auto\u2019 or int, default=\u201dauto\u201d",
+                "description": "Number of random initializations that are tried. In contrast to KMeans, the algorithm is only run once, using the best of the n_init initializations as measured by inertia. Several runs are recommended for sparse high-dimensional problems (see Clustering sparse data with k-means )."
+              },
+              {
+                "name": "reassignment_ratio",
+                "type_info": "float, default=0.01",
+                "description": "Control the fraction of the maximum number of counts for a center to be reassigned. A higher value means that low count centers are more easily reassigned, which means that the model will take longer to converge, but should converge in a better clustering. However, too high a value may cause convergence issues, especially with a small batch size."
+              },
+              {
+                "name": "X",
+                "type_info": "{array-like, sparse matrix} of shape (n_samples, n_features)",
+                "description": "Training instances to cluster. It must be noted that the data will be converted to C ordering, which will cause a memory copy if the given data is not C-contiguous. If a sparse matrix is passed, a copy will be made if it\u2019s not in CSR format."
+              },
+              {
+                "name": "y",
+                "type_info": "Ignored",
+                "description": "Not used, present here for API consistency by convention."
+              },
+              {
+                "name": "sample_weight",
+                "type_info": "array-like of shape (n_samples,), default=None",
+                "description": "The weights for each observation in X. If None, all observations are assigned equal weight. sample_weight is not used during initialization if init is a callable or a user provided array."
+              },
+              {
+                "name": "X",
+                "type_info": "{array-like, sparse matrix} of shape (n_samples, n_features)",
+                "description": "New data to transform."
+              },
+              {
+                "name": "y",
+                "type_info": "Ignored",
+                "description": "Not used, present here for API consistency by convention."
+              },
+              {
+                "name": "sample_weight",
+                "type_info": "array-like of shape (n_samples,), default=None",
+                "description": "The weights for each observation in X. If None, all observations are assigned equal weight."
+              },
+              {
+                "name": "X",
+                "type_info": "{array-like, sparse matrix} of shape (n_samples, n_features)",
+                "description": "New data to transform."
+              },
+              {
+                "name": "y",
+                "type_info": "Ignored",
+                "description": "Not used, present here for API consistency by convention."
+              },
+              {
+                "name": "sample_weight",
+                "type_info": "array-like of shape (n_samples,), default=None",
+                "description": "The weights for each observation in X. If None, all observations are assigned equal weight."
+              },
+              {
+                "name": "input_features",
+                "type_info": "array-like of str or None, default=None",
+                "description": "Only used to validate feature names with the names seen in fit ."
+              },
+              {
+                "name": "routing",
+                "type_info": "MetadataRequest",
+                "description": "A MetadataRequest encapsulating routing information."
+              },
+              {
+                "name": "deep",
+                "type_info": "bool, default=True",
+                "description": "If True, will return the parameters for this estimator and contained subobjects that are estimators."
+              },
+              {
+                "name": "X",
+                "type_info": "{array-like, sparse matrix} of shape (n_samples, n_features)",
+                "description": "Training instances to cluster. It must be noted that the data will be converted to C ordering, which will cause a memory copy if the given data is not C-contiguous. If a sparse matrix is passed, a copy will be made if it\u2019s not in CSR format."
+              },
+              {
+                "name": "y",
+                "type_info": "Ignored",
+                "description": "Not used, present here for API consistency by convention."
+              },
+              {
+                "name": "sample_weight",
+                "type_info": "array-like of shape (n_samples,), default=None",
+                "description": "The weights for each observation in X. If None, all observations are assigned equal weight. sample_weight is not used during initialization if init is a callable or a user provided array."
+              },
+              {
+                "name": "X",
+                "type_info": "{array-like, sparse matrix} of shape (n_samples, n_features)",
+                "description": "New data to predict."
+              },
+              {
+                "name": "X",
+                "type_info": "{array-like, sparse matrix} of shape (n_samples, n_features)",
+                "description": "New data."
+              },
+              {
+                "name": "y",
+                "type_info": "Ignored",
+                "description": "Not used, present here for API consistency by convention."
+              },
+              {
+                "name": "sample_weight",
+                "type_info": "array-like of shape (n_samples,), default=None",
+                "description": "The weights for each observation in X. If None, all observations are assigned equal weight."
+              },
+              {
+                "name": "sample_weight",
+                "type_info": "str, True, False, or None, default=sklearn.utils.metadata_routing.UNCHANGED",
+                "description": "Metadata routing for sample_weight parameter in fit ."
+              },
+              {
+                "name": "transform",
+                "type_info": "{\u201cdefault\u201d, \u201cpandas\u201d, \u201cpolars\u201d}, default=None",
+                "description": "Configure output of transform and fit_transform ."
+              },
+              {
+                "name": "**params",
+                "type_info": "dict",
+                "description": "Estimator parameters."
+              },
+              {
+                "name": "sample_weight",
+                "type_info": "str, True, False, or None, default=sklearn.utils.metadata_routing.UNCHANGED",
+                "description": "Metadata routing for sample_weight parameter in partial_fit ."
+              },
+              {
+                "name": "sample_weight",
+                "type_info": "str, True, False, or None, default=sklearn.utils.metadata_routing.UNCHANGED",
+                "description": "Metadata routing for sample_weight parameter in score ."
+              },
+              {
+                "name": "X",
+                "type_info": "{array-like, sparse matrix} of shape (n_samples, n_features)",
+                "description": "New data to transform."
+              }
+            ],
+            "code_examples": [
+              ">>> from sklearn.cluster import MiniBatchKMeans >>> import numpy as np >>> X = np . array ([[ 1 , 2 ], [ 1 , 4 ], [ 1 , 0 ], ... [ 4 , 2 ], [ 4 , 0 ], [ 4 , 4 ], ... [ 4 , 5 ], [ 0 , 1 ], [ 2 , 2 ], ... [ 3 , 2 ], [ 5 , 5 ], [ 1 , - 1 ]]) >>> # manually fit on batches >>> kmeans = MiniBatchKMeans ( n_clusters = 2 , ... random_state = 0 , ... batch_size = 6 , ... n_init = \"auto\" ) >>> kmeans = kmeans . partial_fit ( X [ 0 : 6 ,:]) >>> kmeans = kmeans . partial_fit ( X [ 6 : 12 ,:]) >>> kmeans . cluster_centers_ array([[3.375, 3. ], [0.75 , 0.5 ]]) >>> kmeans . predict ([[ 0 , 0 ], [ 4 , 4 ]]) array([1, 0], dtype=int32) >>> # fit on the whole data >>> kmeans = MiniBatchKMeans ( n_clusters = 2 , ... random_state = 0 , ... batch_size = 6 , ... max_iter = 10 , ... n_init = \"auto\" ) . fit ( X ) >>> kmeans . cluster_centers_ array([[3.20967742, 3.56451613], [1.32758621, 0.77586207]]) >>> kmeans . predict ([[ 0 , 0 ], [ 4 , 4 ]]) array([1, 0], dtype=int32)"
+            ],
+            "related_functions": [
+              {
+                "name": "KMeans",
+                "description": "The classic implementation of the clustering method based on the Lloyd\u2019s algorithm. It consumes the whole set of input data at each iteration."
+              }
+            ],
+            "input": {
+              "url": "https://scikit-learn.org/stable/modules/generated/sklearn.cluster.MiniBatchKMeans.html"
+            }
+          }
+        ]
+      },
+      {
+        "url": "https://scikit-learn.org/stable/modules/generated/sklearn.cluster.MeanShift.html",
+        "status": "extracted",
+        "data": [
+          {
+            "page_title": "MeanShift #",
+            "parameters": [
+              {
+                "name": "bandwidth",
+                "type_info": "float, default=None",
+                "description": "Bandwidth used in the flat kernel."
+              },
+              {
+                "name": "seeds",
+                "type_info": "array-like of shape (n_samples, n_features), default=None",
+                "description": "Seeds used to initialize kernels. If not set, the seeds are calculated by clustering.get_bin_seeds with bandwidth as the grid size and default values for other parameters."
+              },
+              {
+                "name": "bin_seeding",
+                "type_info": "bool, default=False",
+                "description": "If true, initial kernel locations are not locations of all points, but rather the location of the discretized version of points, where points are binned onto a grid whose coarseness corresponds to the bandwidth. Setting this option to True will speed up the algorithm because fewer seeds will be initialized. The default value is False. Ignored if seeds argument is not None."
+              },
+              {
+                "name": "min_bin_freq",
+                "type_info": "int, default=1",
+                "description": "To speed up the algorithm, accept only those bins with at least min_bin_freq points as seeds."
+              },
+              {
+                "name": "cluster_all",
+                "type_info": "bool, default=True",
+                "description": "If true, then all points are clustered, even those orphans that are not within any kernel. Orphans are assigned to the nearest kernel. If false, then orphans are given cluster label -1."
+              },
+              {
+                "name": "n_jobs",
+                "type_info": "int, default=None",
+                "description": "The number of jobs to use for the computation. The following tasks benefit from the parallelization:"
+              },
+              {
+                "name": "max_iter",
+                "type_info": "int, default=300",
+                "description": "Maximum number of iterations, per seed point before the clustering operation terminates (for that seed point), if has not converged yet."
+              },
+              {
+                "name": "X",
+                "type_info": "array-like of shape (n_samples, n_features)",
+                "description": "Samples to cluster."
+              },
+              {
+                "name": "y",
+                "type_info": "Ignored",
+                "description": "Not used, present for API consistency by convention."
+              },
+              {
+                "name": "X",
+                "type_info": "array-like of shape (n_samples, n_features)",
+                "description": "Input data."
+              },
+              {
+                "name": "y",
+                "type_info": "Ignored",
+                "description": "Not used, present for API consistency by convention."
+              },
+              {
+                "name": "**kwargs",
+                "type_info": "dict",
+                "description": "Arguments to be passed to fit ."
+              },
+              {
+                "name": "routing",
+                "type_info": "MetadataRequest",
+                "description": "A MetadataRequest encapsulating routing information."
+              },
+              {
+                "name": "deep",
+                "type_info": "bool, default=True",
+                "description": "If True, will return the parameters for this estimator and contained subobjects that are estimators."
+              },
+              {
+                "name": "X",
+                "type_info": "array-like of shape (n_samples, n_features)",
+                "description": "New data to predict."
+              },
+              {
+                "name": "**params",
+                "type_info": "dict",
+                "description": "Estimator parameters."
+              }
+            ],
+            "code_examples": [
+              ">>> from sklearn.cluster import MeanShift >>> import numpy as np >>> X = np . array ([[ 1 , 1 ], [ 2 , 1 ], [ 1 , 0 ], ... [ 4 , 7 ], [ 3 , 5 ], [ 3 , 6 ]]) >>> clustering = MeanShift ( bandwidth = 2 ) . fit ( X ) >>> clustering . labels_ array([1, 1, 1, 0, 0, 0]) >>> clustering . predict ([[ 0 , 0 ], [ 5 , 5 ]]) array([1, 0]) >>> clustering MeanShift(bandwidth=2)"
+            ],
+            "related_functions": [
+              {
+                "name": "KMeans",
+                "description": "K-Means clustering."
+              }
+            ],
+            "input": {
+              "url": "https://scikit-learn.org/stable/modules/generated/sklearn.cluster.MeanShift.html"
+            }
+          }
+        ]
+      },
+      {
+        "url": "https://scikit-learn.org/stable/modules/generated/sklearn.cluster.SpectralClustering.html",
+        "status": "extracted",
+        "data": [
+          {
+            "page_title": "SpectralClustering #",
+            "parameters": [
+              {
+                "name": "n_clusters",
+                "type_info": "int, default=8",
+                "description": "Number of clusters to extract."
+              },
+              {
+                "name": "eigen_solver",
+                "type_info": "{\u2018arpack\u2019, \u2018lobpcg\u2019, \u2018amg\u2019}, default=None",
+                "description": "The eigenvalue decomposition strategy to use. AMG requires pyamg to be installed. It can be faster on very large, sparse problems, but may also lead to instabilities. If None, then 'arpack' is used. See [4] for more details regarding 'lobpcg' ."
+              },
+              {
+                "name": "n_components",
+                "type_info": "int, default=None",
+                "description": "Number of eigenvectors to use for the spectral embedding. If None, defaults to n_clusters ."
+              },
+              {
+                "name": "random_state",
+                "type_info": "int, RandomState instance, default=None",
+                "description": "A pseudo random number generator used for the initialization of the lobpcg eigenvectors decomposition when eigen_solver == 'amg' , and for the K-Means initialization. Use an int to make the results deterministic across calls (See Glossary )."
+              },
+              {
+                "name": "n_init",
+                "type_info": "int, default=10",
+                "description": "Number of time the k-means algorithm will be run with different centroid seeds. The final results will be the best output of n_init consecutive runs in terms of inertia. Only used if assign_labels='kmeans' ."
+              },
+              {
+                "name": "gamma",
+                "type_info": "float, default=1.0",
+                "description": "Kernel coefficient for rbf, poly, sigmoid, laplacian and chi2 kernels. Ignored for affinity='nearest_neighbors' , affinity='precomputed' or affinity='precomputed_nearest_neighbors' ."
+              },
+              {
+                "name": "affinity",
+                "type_info": "str or callable, default=\u2019rbf\u2019",
+                "description": "Only kernels that produce similarity scores (non-negative values that increase with similarity) should be used. This property is not checked by the clustering algorithm."
+              },
+              {
+                "name": "n_neighbors",
+                "type_info": "int, default=10",
+                "description": "Number of neighbors to use when constructing the affinity matrix using the nearest neighbors method. Ignored for affinity='rbf' ."
+              },
+              {
+                "name": "eigen_tol",
+                "type_info": "float, default=\u201dauto\u201d",
+                "description": "Stopping criterion for eigen decomposition of the Laplacian matrix. If eigen_tol=\"auto\" then the passed tolerance will depend on the eigen_solver :"
+              },
+              {
+                "name": "assign_labels",
+                "type_info": "{\u2018kmeans\u2019, \u2018discretize\u2019, \u2018cluster_qr\u2019}, default=\u2019kmeans\u2019",
+                "description": "The strategy for assigning labels in the embedding space. There are two ways to assign labels after the Laplacian embedding. k-means is a popular choice, but it can be sensitive to initialization. Discretization is another approach which is less sensitive to random initialization [3] . The cluster_qr method [5] directly extract clusters from eigenvectors in spectral clustering. In contrast to k-means and discretization, cluster_qr has no tuning parameters and runs no iterations, yet may outperform k-means and discretization in terms of both quality and speed."
+              },
+              {
+                "name": "degree",
+                "type_info": "float, default=3",
+                "description": "Degree of the polynomial kernel. Ignored by other kernels."
+              },
+              {
+                "name": "coef0",
+                "type_info": "float, default=1",
+                "description": "Zero coefficient for polynomial and sigmoid kernels. Ignored by other kernels."
+              },
+              {
+                "name": "kernel_params",
+                "type_info": "dict of str to any, default=None",
+                "description": "Parameters (keyword arguments) and values for kernel passed as callable object. Ignored by other kernels."
+              },
+              {
+                "name": "n_jobs",
+                "type_info": "int, default=None",
+                "description": "The number of parallel jobs to run when affinity='nearest_neighbors' or affinity='precomputed_nearest_neighbors' . The neighbors search will be done in parallel. None means 1 unless in a joblib.parallel_backend context. -1 means using all processors. See Glossary for more details."
+              },
+              {
+                "name": "verbose",
+                "type_info": "bool, default=False",
+                "description": "Verbosity mode."
+              },
+              {
+                "name": "X",
+                "type_info": "{array-like, sparse matrix} of shape (n_samples, n_features) or (n_samples, n_samples)",
+                "description": "Training instances to cluster, similarities / affinities between instances if affinity='precomputed' , or distances between instances if affinity='precomputed_nearest_neighbors . If a sparse matrix is provided in a format other than csr_matrix , csc_matrix , or coo_matrix , it will be converted into a sparse csr_matrix ."
+              },
+              {
+                "name": "y",
+                "type_info": "Ignored",
+                "description": "Not used, present here for API consistency by convention."
+              },
+              {
+                "name": "X",
+                "type_info": "{array-like, sparse matrix} of shape (n_samples, n_features) or (n_samples, n_samples)",
+                "description": "Training instances to cluster, similarities / affinities between instances if affinity='precomputed' , or distances between instances if affinity='precomputed_nearest_neighbors . If a sparse matrix is provided in a format other than csr_matrix , csc_matrix , or coo_matrix , it will be converted into a sparse csr_matrix ."
+              },
+              {
+                "name": "y",
+                "type_info": "Ignored",
+                "description": "Not used, present here for API consistency by convention."
+              },
+              {
+                "name": "routing",
+                "type_info": "MetadataRequest",
+                "description": "A MetadataRequest encapsulating routing information."
+              },
+              {
+                "name": "deep",
+                "type_info": "bool, default=True",
+                "description": "If True, will return the parameters for this estimator and contained subobjects that are estimators."
+              },
+              {
+                "name": "**params",
+                "type_info": "dict",
+                "description": "Estimator parameters."
+              }
+            ],
+            "code_examples": [
+              ">>> from sklearn.cluster import SpectralClustering >>> import numpy as np >>> X = np . array ([[ 1 , 1 ], [ 2 , 1 ], [ 1 , 0 ], ... [ 4 , 7 ], [ 3 , 5 ], [ 3 , 6 ]]) >>> clustering = SpectralClustering ( n_clusters = 2 , ... assign_labels = 'discretize' , ... random_state = 0 ) . fit ( X ) >>> clustering . labels_ array([1, 1, 1, 0, 0, 0]) >>> clustering SpectralClustering(assign_labels='discretize', n_clusters=2, random_state=0)"
+            ],
+            "related_functions": [
+              {
+                "name": "sklearn.cluster.KMeans",
+                "description": "K-Means clustering."
+              },
+              {
+                "name": "sklearn.cluster.DBSCAN",
+                "description": "Density-Based Spatial Clustering of Applications with Noise."
+              }
+            ],
+            "input": {
+              "url": "https://scikit-learn.org/stable/modules/generated/sklearn.cluster.SpectralClustering.html"
+            }
+          }
+        ]
+      },
+      {
+        "url": "https://scikit-learn.org/stable/modules/generated/sklearn.cluster.SpectralCoclustering.html",
+        "status": "extracted",
+        "data": [
+          {
+            "page_title": "SpectralCoclustering #",
+            "parameters": [
+              {
+                "name": "n_clusters",
+                "type_info": "int, default=3",
+                "description": "The number of biclusters to find."
+              },
+              {
+                "name": "svd_method",
+                "type_info": "{\u2018randomized\u2019, \u2018arpack\u2019}, default=\u2019randomized\u2019",
+                "description": "Selects the algorithm for finding singular vectors. May be \u2018randomized\u2019 or \u2018arpack\u2019. If \u2018randomized\u2019, use sklearn.utils.extmath.randomized_svd , which may be faster for large matrices. If \u2018arpack\u2019, use scipy.sparse.linalg.svds , which is more accurate, but possibly slower in some cases."
+              },
+              {
+                "name": "n_svd_vecs",
+                "type_info": "int, default=None",
+                "description": "Number of vectors to use in calculating the SVD. Corresponds to ncv when svd_method=arpack and n_oversamples when svd_method is \u2018randomized`."
+              },
+              {
+                "name": "mini_batch",
+                "type_info": "bool, default=False",
+                "description": "Whether to use mini-batch k-means, which is faster but may get different results."
+              },
+              {
+                "name": "init",
+                "type_info": "{\u2018k-means++\u2019, \u2018random\u2019}, or ndarray of shape (n_clusters, n_features), default=\u2019k-means++\u2019",
+                "description": "Method for initialization of k-means algorithm; defaults to \u2018k-means++\u2019."
+              },
+              {
+                "name": "n_init",
+                "type_info": "int, default=10",
+                "description": "Number of random initializations that are tried with the k-means algorithm."
+              },
+              {
+                "name": "random_state",
+                "type_info": "int, RandomState instance, default=None",
+                "description": "Used for randomizing the singular value decomposition and the k-means initialization. Use an int to make the randomness deterministic. See Glossary ."
+              },
+              {
+                "name": "X",
+                "type_info": "array-like of shape (n_samples, n_features)",
+                "description": "Training data."
+              },
+              {
+                "name": "y",
+                "type_info": "Ignored",
+                "description": "Not used, present for API consistency by convention."
+              },
+              {
+                "name": "i",
+                "type_info": "int",
+                "description": "The index of the cluster."
+              },
+              {
+                "name": "routing",
+                "type_info": "MetadataRequest",
+                "description": "A MetadataRequest encapsulating routing information."
+              },
+              {
+                "name": "deep",
+                "type_info": "bool, default=True",
+                "description": "If True, will return the parameters for this estimator and contained subobjects that are estimators."
+              },
+              {
+                "name": "i",
+                "type_info": "int",
+                "description": "The index of the cluster."
+              },
+              {
+                "name": "i",
+                "type_info": "int",
+                "description": "The index of the cluster."
+              },
+              {
+                "name": "data",
+                "type_info": "array-like of shape (n_samples, n_features)",
+                "description": "The data."
+              },
+              {
+                "name": "**params",
+                "type_info": "dict",
+                "description": "Estimator parameters."
+              }
+            ],
+            "code_examples": [
+              ">>> from sklearn.cluster import SpectralCoclustering >>> import numpy as np >>> X = np . array ([[ 1 , 1 ], [ 2 , 1 ], [ 1 , 0 ], ... [ 4 , 7 ], [ 3 , 5 ], [ 3 , 6 ]]) >>> clustering = SpectralCoclustering ( n_clusters = 2 , random_state = 0 ) . fit ( X ) >>> clustering . row_labels_ array([0, 1, 1, 0, 0, 0], dtype=int32) >>> clustering . column_labels_ array([0, 0], dtype=int32) >>> clustering SpectralCoclustering(n_clusters=2, random_state=0)"
+            ],
+            "related_functions": [
+              {
+                "name": "SpectralBiclustering",
+                "description": "Partitions rows and columns under the assumption that the data has an underlying checkerboard structure."
+              }
+            ],
+            "input": {
+              "url": "https://scikit-learn.org/stable/modules/generated/sklearn.cluster.SpectralCoclustering.html"
+            }
+          }
+        ]
+      },
+      {
+        "url": "https://scikit-learn.org/stable/modules/generated/sklearn.cluster.affinity_propagation.html",
+        "status": "extracted",
+        "data": [
+          {
+            "page_title": "affinity_propagation #",
+            "function_signature": "sklearn.cluster. affinity_propagation ( S , * , preference = None , convergence_iter = 15 , max_iter = 200 , damping = 0.5 , copy = True , verbose = False , return_n_iter = False , random_state = None ) [source] #",
+            "description": "Perform Affinity Propagation Clustering of data.",
+            "parameters": [
+              {
+                "name": "S",
+                "type_info": "array-like of shape (n_samples, n_samples)",
+                "description": "Matrix of similarities between points."
+              },
+              {
+                "name": "preference",
+                "type_info": "array-like of shape (n_samples,) or float, default=None",
+                "description": "Preferences for each point - points with larger values of preferences are more likely to be chosen as exemplars. The number of exemplars, i.e. of clusters, is influenced by the input preferences value. If the preferences are not passed as arguments, they will be set to the median of the input similarities (resulting in a moderate number of clusters). For a smaller amount of clusters, this can be set to the minimum value of the similarities."
+              },
+              {
+                "name": "convergence_iter",
+                "type_info": "int, default=15",
+                "description": "Number of iterations with no change in the number of estimated clusters that stops the convergence."
+              },
+              {
+                "name": "max_iter",
+                "type_info": "int, default=200",
+                "description": "Maximum number of iterations."
+              },
+              {
+                "name": "damping",
+                "type_info": "float, default=0.5",
+                "description": "Damping factor between 0.5 and 1."
+              },
+              {
+                "name": "copy",
+                "type_info": "bool, default=True",
+                "description": "If copy is False, the affinity matrix is modified inplace by the algorithm, for memory efficiency."
+              },
+              {
+                "name": "verbose",
+                "type_info": "bool, default=False",
+                "description": "The verbosity level."
+              },
+              {
+                "name": "return_n_iter",
+                "type_info": "bool, default=False",
+                "description": "Whether or not to return the number of iterations."
+              },
+              {
+                "name": "random_state",
+                "type_info": "int, RandomState instance or None, default=None",
+                "description": "Pseudo-random number generator to control the starting state. Use an int for reproducible results across function calls. See the Glossary ."
+              }
+            ],
+            "code_examples": [
+              ">>> import numpy as np >>> from sklearn.cluster import affinity_propagation >>> from sklearn.metrics.pairwise import euclidean_distances >>> X = np . array ([[ 1 , 2 ], [ 1 , 4 ], [ 1 , 0 ], ... [ 4 , 2 ], [ 4 , 4 ], [ 4 , 0 ]]) >>> S = - euclidean_distances ( X , squared = True ) >>> cluster_centers_indices , labels = affinity_propagation ( S , random_state = 0 ) >>> cluster_centers_indices array([0, 3]) >>> labels array([0, 0, 0, 1, 1, 1])"
+            ],
+            "input": {
+              "url": "https://scikit-learn.org/stable/modules/generated/sklearn.cluster.affinity_propagation.html"
+            }
+          }
+        ]
+      },
+      {
+        "url": "https://scikit-learn.org/stable/modules/generated/sklearn.cluster.cluster_optics_dbscan.html",
+        "status": "extracted",
+        "data": [
+          {
+            "page_title": "cluster_optics_dbscan #",
+            "function_signature": "sklearn.cluster. cluster_optics_dbscan ( * , reachability , core_distances , ordering , eps ) [source] #",
+            "description": "Perform DBSCAN extraction for an arbitrary epsilon.",
+            "parameters": [
+              {
+                "name": "reachability",
+                "type_info": "ndarray of shape (n_samples,)",
+                "description": "Reachability distances calculated by OPTICS ( reachability_ )."
+              },
+              {
+                "name": "core_distances",
+                "type_info": "ndarray of shape (n_samples,)",
+                "description": "Distances at which points become core ( core_distances_ )."
+              },
+              {
+                "name": "ordering",
+                "type_info": "ndarray of shape (n_samples,)",
+                "description": "OPTICS ordered point indices ( ordering_ )."
+              },
+              {
+                "name": "eps",
+                "type_info": "float",
+                "description": "DBSCAN eps parameter. Must be set to < max_eps . Results will be close to DBSCAN algorithm if eps and max_eps are close to one another."
+              }
+            ],
+            "code_examples": [
+              ">>> import numpy as np >>> from sklearn.cluster import cluster_optics_dbscan , compute_optics_graph >>> X = np . array ([[ 1 , 2 ], [ 2 , 5 ], [ 3 , 6 ], ... [ 8 , 7 ], [ 8 , 8 ], [ 7 , 3 ]]) >>> ordering , core_distances , reachability , predecessor = compute_optics_graph ( ... X , ... min_samples = 2 , ... max_eps = np . inf , ... metric = \"minkowski\" , ... p = 2 , ... metric_params = None , ... algorithm = \"auto\" , ... leaf_size = 30 , ... n_jobs = None , ... ) >>> eps = 4.5 >>> labels = cluster_optics_dbscan ( ... reachability = reachability , ... core_distances = core_distances , ... ordering = ordering , ... eps = eps , ... ) >>> labels array([0, 0, 0, 1, 1, 1])"
+            ],
+            "input": {
+              "url": "https://scikit-learn.org/stable/modules/generated/sklearn.cluster.cluster_optics_dbscan.html"
+            }
+          }
+        ]
+      },
+      {
+        "url": "https://scikit-learn.org/stable/modules/generated/sklearn.cluster.compute_optics_graph.html",
+        "status": "extracted",
+        "data": [
+          {
+            "page_title": "compute_optics_graph #",
+            "function_signature": "sklearn.cluster. compute_optics_graph ( X , * , min_samples , max_eps , metric , p , metric_params , algorithm , leaf_size , n_jobs ) [source] #",
+            "description": "Compute the OPTICS reachability graph.",
+            "parameters": [
+              {
+                "name": "X",
+                "type_info": "{ndarray, sparse matrix} of shape (n_samples, n_features), or (n_samples, n_samples) if metric=\u2019precomputed\u2019",
+                "description": "A feature array, or array of distances between samples if metric=\u2019precomputed\u2019."
+              },
+              {
+                "name": "min_samples",
+                "type_info": "int > 1 or float between 0 and 1",
+                "description": "The number of samples in a neighborhood for a point to be considered as a core point. Expressed as an absolute number or a fraction of the number of samples (rounded to be at least 2)."
+              },
+              {
+                "name": "max_eps",
+                "type_info": "float, default=np.inf",
+                "description": "The maximum distance between two samples for one to be considered as in the neighborhood of the other. Default value of np.inf will identify clusters across all scales; reducing max_eps will result in shorter run times."
+              },
+              {
+                "name": "metric",
+                "type_info": "str or callable, default=\u2019minkowski\u2019",
+                "description": "Metric to use for distance computation. Any metric from scikit-learn or scipy.spatial.distance can be used."
+              },
+              {
+                "name": "p",
+                "type_info": "float, default=2",
+                "description": "Parameter for the Minkowski metric from pairwise_distances . When p = 1, this is equivalent to using manhattan_distance (l1), and euclidean_distance (l2) for p = 2. For arbitrary p, minkowski_distance (l_p) is used."
+              },
+              {
+                "name": "metric_params",
+                "type_info": "dict, default=None",
+                "description": "Additional keyword arguments for the metric function."
+              },
+              {
+                "name": "algorithm",
+                "type_info": "{\u2018auto\u2019, \u2018ball_tree\u2019, \u2018kd_tree\u2019, \u2018brute\u2019}, default=\u2019auto\u2019",
+                "description": "Algorithm used to compute the nearest neighbors:"
+              },
+              {
+                "name": "leaf_size",
+                "type_info": "int, default=30",
+                "description": "Leaf size passed to BallTree or KDTree . This can affect the speed of the construction and query, as well as the memory required to store the tree. The optimal value depends on the nature of the problem."
+              },
+              {
+                "name": "n_jobs",
+                "type_info": "int, default=None",
+                "description": "The number of parallel jobs to run for neighbors search. None means 1 unless in a joblib.parallel_backend context. -1 means using all processors. See Glossary for more details."
+              }
+            ],
+            "code_examples": [
+              ">>> import numpy as np >>> from sklearn.cluster import compute_optics_graph >>> X = np . array ([[ 1 , 2 ], [ 2 , 5 ], [ 3 , 6 ], ... [ 8 , 7 ], [ 8 , 8 ], [ 7 , 3 ]]) >>> ordering , core_distances , reachability , predecessor = compute_optics_graph ( ... X , ... min_samples = 2 , ... max_eps = np . inf , ... metric = \"minkowski\" , ... p = 2 , ... metric_params = None , ... algorithm = \"auto\" , ... leaf_size = 30 , ... n_jobs = None , ... ) >>> ordering array([0, 1, 2, 5, 3, 4]) >>> core_distances array([3.16, 1.41, 1.41, 1. , 1. , 4.12]) >>> reachability array([ inf, 3.16, 1.41, 4.12, 1. , 5. ]) >>> predecessor array([-1, 0, 1, 5, 3, 2])"
+            ],
+            "input": {
+              "url": "https://scikit-learn.org/stable/modules/generated/sklearn.cluster.compute_optics_graph.html"
+            }
+          }
+        ]
+      },
+      {
+        "url": "https://scikit-learn.org/stable/modules/generated/sklearn.cluster.cluster_optics_xi.html",
+        "status": "extracted",
+        "data": [
+          {
+            "page_title": "cluster_optics_xi #",
+            "function_signature": "sklearn.cluster. cluster_optics_xi ( * , reachability , predecessor , ordering , min_samples , min_cluster_size = None , xi = 0.05 , predecessor_correction = True ) [source] #",
+            "description": "Automatically extract clusters according to the Xi-steep method.",
+            "parameters": [
+              {
+                "name": "reachability",
+                "type_info": "ndarray of shape (n_samples,)",
+                "description": "Reachability distances calculated by OPTICS ( reachability_ )."
+              },
+              {
+                "name": "predecessor",
+                "type_info": "ndarray of shape (n_samples,)",
+                "description": "Predecessors calculated by OPTICS."
+              },
+              {
+                "name": "ordering",
+                "type_info": "ndarray of shape (n_samples,)",
+                "description": "OPTICS ordered point indices ( ordering_ )."
+              },
+              {
+                "name": "min_samples",
+                "type_info": "int > 1 or float between 0 and 1",
+                "description": "The same as the min_samples given to OPTICS. Up and down steep regions can\u2019t have more then min_samples consecutive non-steep points. Expressed as an absolute number or a fraction of the number of samples (rounded to be at least 2)."
+              },
+              {
+                "name": "min_cluster_size",
+                "type_info": "int > 1 or float between 0 and 1, default=None",
+                "description": "Minimum number of samples in an OPTICS cluster, expressed as an absolute number or a fraction of the number of samples (rounded to be at least 2). If None , the value of min_samples is used instead."
+              },
+              {
+                "name": "xi",
+                "type_info": "float between 0 and 1, default=0.05",
+                "description": "Determines the minimum steepness on the reachability plot that constitutes a cluster boundary. For example, an upwards point in the reachability plot is defined by the ratio from one point to its successor being at most 1-xi."
+              },
+              {
+                "name": "predecessor_correction",
+                "type_info": "bool, default=True",
+                "description": "Correct clusters based on the calculated predecessors."
+              }
+            ],
+            "code_examples": [
+              ">>> import numpy as np >>> from sklearn.cluster import cluster_optics_xi , compute_optics_graph >>> X = np . array ([[ 1 , 2 ], [ 2 , 5 ], [ 3 , 6 ], ... [ 8 , 7 ], [ 8 , 8 ], [ 7 , 3 ]]) >>> ordering , core_distances , reachability , predecessor = compute_optics_graph ( ... X , ... min_samples = 2 , ... max_eps = np . inf , ... metric = \"minkowski\" , ... p = 2 , ... metric_params = None , ... algorithm = \"auto\" , ... leaf_size = 30 , ... n_jobs = None ... ) >>> min_samples = 2 >>> labels , clusters = cluster_optics_xi ( ... reachability = reachability , ... predecessor = predecessor , ... ordering = ordering , ... min_samples = min_samples , ... ) >>> labels array([0, 0, 0, 1, 1, 1]) >>> clusters array([[0, 2], [3, 5], [0, 5]])"
+            ],
+            "input": {
+              "url": "https://scikit-learn.org/stable/modules/generated/sklearn.cluster.cluster_optics_xi.html"
+            }
+          }
+        ]
+      },
+      {
+        "url": "https://scikit-learn.org/stable/modules/generated/dbscan-function.html",
+        "status": "extracted",
+        "data": [
+          {
+            "page_title": "dbscan #",
+            "function_signature": "sklearn.cluster. dbscan ( X , eps = 0.5 , * , min_samples = 5 , metric = 'minkowski' , metric_params = None , algorithm = 'auto' , leaf_size = 30 , p = 2 , sample_weight = None , n_jobs = None ) [source] #",
+            "description": "Perform DBSCAN clustering from vector array or distance matrix.",
+            "parameters": [
+              {
+                "name": "X",
+                "type_info": "{array-like, scipy sparse matrix} of shape (n_samples, n_features) or (n_samples, n_samples)",
+                "description": "A feature array, or array of distances between samples if metric='precomputed' . When using precomputed distances, X must be a square symmetric matrix."
+              },
+              {
+                "name": "eps",
+                "type_info": "float, default=0.5",
+                "description": "The maximum distance between two samples for one to be considered as in the neighborhood of the other. This is not a maximum bound on the distances of points within a cluster. This is the most important DBSCAN parameter to choose appropriately for your data set and distance function. Smaller values result in more clusters, while larger values result in fewer, larger clusters."
+              },
+              {
+                "name": "min_samples",
+                "type_info": "int, default=5",
+                "description": "The number of samples (or total weight) in a neighborhood for a point to be considered as a core point. This includes the point itself. Higher values yield fewer, denser clusters, while lower values yield more, sparser clusters."
+              },
+              {
+                "name": "metric",
+                "type_info": "str or callable, default=\u2019minkowski\u2019",
+                "description": "The metric to use when calculating distance between instances in a feature array. If metric is a string or callable, it must be one of the options allowed by sklearn.metrics.pairwise_distances for its metric parameter. If metric is \u201cprecomputed\u201d, X is assumed to be a distance matrix and must be square during fit. X may be a sparse graph , in which case only \u201cnonzero\u201d elements may be considered neighbors."
+              },
+              {
+                "name": "metric_params",
+                "type_info": "dict, default=None",
+                "description": "Additional keyword arguments for the metric function."
+              },
+              {
+                "name": "algorithm",
+                "type_info": "{\u2018auto\u2019, \u2018ball_tree\u2019, \u2018kd_tree\u2019, \u2018brute\u2019}, default=\u2019auto\u2019",
+                "description": "The algorithm to be used by the NearestNeighbors module to compute pointwise distances and find nearest neighbors. \u2018auto\u2019 will attempt to decide the most appropriate algorithm based on the values passed to fit method. See NearestNeighbors documentation for details."
+              },
+              {
+                "name": "leaf_size",
+                "type_info": "int, default=30",
+                "description": "Leaf size passed to BallTree or cKDTree. This can affect the speed of the construction and query, as well as the memory required to store the tree. The optimal value depends on the nature of the problem. Generally, smaller leaf sizes lead to faster queries but slower construction."
+              },
+              {
+                "name": "p",
+                "type_info": "float, default=2",
+                "description": "Power parameter for the Minkowski metric. When p = 1, this is equivalent to using manhattan_distance (l1), and euclidean_distance (l2) for p = 2. For arbitrary p, minkowski_distance (l_p) is used. This parameter is expected to be positive."
+              },
+              {
+                "name": "sample_weight",
+                "type_info": "array-like of shape (n_samples,), default=None",
+                "description": "Weight of each sample, such that a sample with a weight of at least min_samples is by itself a core sample; a sample with negative weight may inhibit its eps-neighbor from being core. Note that weights are absolute, and default to 1."
+              },
+              {
+                "name": "n_jobs",
+                "type_info": "int, default=None",
+                "description": "The number of parallel jobs to run for neighbors search. None means 1 unless in a joblib.parallel_backend context. -1 means using all processors. See Glossary for more details. If precomputed distances are used, parallel execution is not available and thus n_jobs will have no effect."
+              }
+            ],
+            "code_examples": [
+              ">>> from sklearn.cluster import dbscan >>> X = [[ 1 , 2 ], [ 2 , 2 ], [ 2 , 3 ], [ 8 , 7 ], [ 8 , 8 ], [ 25 , 80 ]] >>> core_samples , labels = dbscan ( X , eps = 3 , min_samples = 2 ) >>> core_samples array([0, 1, 2, 3, 4]) >>> labels array([ 0, 0, 0, 1, 1, -1])"
+            ],
+            "related_functions": [
+              {
+                "name": "DBSCAN",
+                "description": "An estimator interface for this clustering algorithm."
+              },
+              {
+                "name": "OPTICS",
+                "description": "A similar estimator interface clustering at multiple values of eps. Our implementation is optimized for memory usage."
+              }
+            ],
+            "input": {
+              "url": "https://scikit-learn.org/stable/modules/generated/dbscan-function.html"
+            }
+          }
+        ]
+      },
+      {
+        "url": "https://scikit-learn.org/stable/modules/generated/sklearn.cluster.estimate_bandwidth.html",
+        "status": "extracted",
+        "data": [
+          {
+            "page_title": "estimate_bandwidth #",
+            "function_signature": "sklearn.cluster. estimate_bandwidth ( X , * , quantile = 0.3 , n_samples = None , random_state = 0 , n_jobs = None ) [source] #",
+            "description": "Estimate the bandwidth to use with the mean-shift algorithm.",
+            "parameters": [
+              {
+                "name": "X",
+                "type_info": "array-like of shape (n_samples, n_features)",
+                "description": "Input points."
+              },
+              {
+                "name": "quantile",
+                "type_info": "float, default=0.3",
+                "description": "Should be between [0, 1] 0.5 means that the median of all pairwise distances is used."
+              },
+              {
+                "name": "n_samples",
+                "type_info": "int, default=None",
+                "description": "The number of samples to use. If not given, all samples are used."
+              },
+              {
+                "name": "random_state",
+                "type_info": "int, RandomState instance, default=None",
+                "description": "The generator used to randomly select the samples from input points for bandwidth estimation. Use an int to make the randomness deterministic. See Glossary ."
+              },
+              {
+                "name": "n_jobs",
+                "type_info": "int, default=None",
+                "description": "The number of parallel jobs to run for neighbors search. None means 1 unless in a joblib.parallel_backend context. -1 means using all processors. See Glossary for more details."
+              }
+            ],
+            "code_examples": [
+              ">>> import numpy as np >>> from sklearn.cluster import estimate_bandwidth >>> X = np . array ([[ 1 , 1 ], [ 2 , 1 ], [ 1 , 0 ], ... [ 4 , 7 ], [ 3 , 5 ], [ 3 , 6 ]]) >>> estimate_bandwidth ( X , quantile = 0.5 ) np.float64(1.61)"
+            ],
+            "input": {
+              "url": "https://scikit-learn.org/stable/modules/generated/sklearn.cluster.estimate_bandwidth.html"
+            }
+          }
+        ]
+      }
+    ]
+  },
+  "failed_urls": []
+}

@@ -6,7 +6,7 @@
   ],
   "signals": {
     "has_robots_txt": false,
-    "has_objects_inv": false,
+    "has_objects_inv": true,
     "has_sitemap": false,
     "has_search_index": false,
     "static_dir": "_static",

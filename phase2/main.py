@@ -97,7 +97,7 @@ def run_pipeline(input_path: str, output_path: str, verbose: bool = False) -> No
     try:
         generator, gen_confidence = detect_generator(ingested["phase1"], internal)
         if verbose:
-            print(f"       → {generator or 'unknown'} (confidence: {gen_confidence:.2f})")
+            print(f"       -> {generator or 'unknown'} (confidence: {gen_confidence:.2f})")
     except Exception as e:
         print(f"ERROR in stage GENERATOR_DETECTION: {e}", file=sys.stderr)
         raise
@@ -109,7 +109,7 @@ def run_pipeline(input_path: str, output_path: str, verbose: bool = False) -> No
         groups = discover_groups(internal, generator_hint=generator)
         templates = finalize_templates(groups, internal)
         if verbose:
-            print(f"       → {len(templates)} templates derived")
+            print(f"       -> {len(templates)} templates derived")
     except Exception as e:
         print(f"ERROR in stage STRUCTURAL_GROUPING: {e}", file=sys.stderr)
         raise
@@ -120,8 +120,8 @@ def run_pipeline(input_path: str, output_path: str, verbose: bool = False) -> No
     try:
         coverage, uncovered, template_map = compute_coverage(internal, templates)
         if verbose:
-            print(f"       → {coverage.coverage_percent:.1f}% coverage")
-            print(f"       → {len(uncovered)} uncovered URLs")
+            print(f"       -> {coverage.coverage_percent:.1f}% coverage")
+            print(f"       -> {len(uncovered)} uncovered URLs")
     except Exception as e:
         print(f"ERROR in stage COVERAGE: {e}", file=sys.stderr)
         raise
@@ -132,7 +132,7 @@ def run_pipeline(input_path: str, output_path: str, verbose: bool = False) -> No
     try:
         ext_domains = external_domain_analysis(external)
         if verbose:
-            print(f"       → {len(ext_domains)} external domains")
+            print(f"       -> {len(ext_domains)} external domains")
     except Exception as e:
         print(f"ERROR in stage EXTERNAL_ANALYSIS: {e}", file=sys.stderr)
         raise

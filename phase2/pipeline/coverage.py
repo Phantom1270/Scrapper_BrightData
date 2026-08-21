@@ -19,131 +19,172 @@ def match_url_to_template(url: ParsedURL, template: TemplatePattern) -> bool:
     """
     Check if a URL matches a template pattern.
 
-    Algorithm:
-    1. Get the URL's path (use version_free_path if available, else path)
-    2. Split into segments
-    3. Split the template pattern into segments
-    4. If segment counts differ → no match
-    5. For each position: literal must match exactly, <type> must match by type
-    6. All positions must match → return True
+    Handles:
+    - Literal segments (must match exactly, case-insensitive)
+    - <type> placeholders (match by segment type, with loose fallbacks)
+    - '...' wildcard (matches any number of remaining segments)
     """
     path = url.version_free_path if url.version_free_path else url.path
     url_segments = split_path_segments(path)
 
-    # Template pattern starts with "/" — split it
     pattern = template.pattern
     template_segments = split_path_segments(pattern)
 
+    if not template_segments:
+        return len(url_segments) == 0
+
+    # Check if template has a '...' wildcard (variable-depth suffix)
+    has_wildcard = '...' in template_segments
+    
+    if has_wildcard:
+        # Find the position of '...'
+        wildcard_idx = template_segments.index('...')
+        # Segments before the wildcard must match
+        prefix_segments = template_segments[:wildcard_idx]
+        
+        # URL must have at least as many segments as the prefix
+        if len(url_segments) < len(prefix_segments):
+            return False
+        
+        # Match prefix segments
+        for url_seg, tpl_seg in zip(url_segments, prefix_segments):
+            if not _segment_matches(url_seg, tpl_seg):
+                return False
+        
+        # The '...' matches any remaining segments
+        return True
+    
+    # No wildcard — exact segment count must match
     if len(url_segments) != len(template_segments):
         return False
 
     for url_seg, tpl_seg in zip(url_segments, template_segments):
-        if tpl_seg.startswith("<") and tpl_seg.endswith(">"):
-            # Variable segment — match by type
-            inner = tpl_seg[1:-1].lower()
-            # Handle compound patterns like "<dotted_path>.<camel_case>.html"
-            # For simple <type> placeholders:
-            actual_type = classify_segment(url_seg).value.lower()
-            if actual_type != inner:
-                # Allow loose matching: if it's a filename and the template has <filename>, ok
-                if inner == "filename" and ("." in url_seg):
-                    pass  # Accept
-                elif inner == "dotted_path" and "." in url_seg:
-                    pass  # Accept dotted paths loosely
-                elif inner == "literal":
-                    pass  # Accept anything as literal
-                elif inner == "unknown":
-                    pass  # Accept anything as unknown
-                elif inner == "slug" and actual_type in ("literal", "slug"):
-                    pass  # Accept
-                elif inner == "camel_case" and actual_type in ("camel_case", "literal"):
-                    pass
-                else:
-                    return False
-        else:
-            # Literal segment — must match exactly
-            if url_seg.lower() != tpl_seg.lower():
-                return False
+        if not _segment_matches(url_seg, tpl_seg):
+            return False
 
     return True
 
 
-def compute_coverage(
-    urls: list[ParsedURL],
-    templates: list[TemplatePattern],
-) -> tuple[CoverageReport, list[UncoveredURL], dict[str, list[str]]]:
-    """
-    Main coverage computation.
+def _segment_matches(url_seg: str, tpl_seg: str) -> bool:
+    """Check if a single URL segment matches a template segment."""
+    if tpl_seg.startswith("<") and tpl_seg.endswith(">"):
+        # Variable segment — match by type
+        inner = tpl_seg[1:-1].lower()
+        actual_type = classify_segment(url_seg).value.lower()
 
-    Returns:
-    1. CoverageReport with statistics
-    2. List of UncoveredURL objects (for Phase 3 self-heal)
-    3. template_map: dict mapping template_id → list of matched URL strings
+        if actual_type == inner:
+            return True
 
-    IMPORTANT: A URL should match at most ONE template.
-    Match the most specific template first (deepest path pattern).
-    """
-    # Sort templates by specificity: more segments = more specific
-    def template_specificity(t: TemplatePattern) -> int:
-        segs = split_path_segments(t.pattern)
-        # Count literal segments (more literals = more specific)
-        literal_count = sum(1 for s in segs if not (s.startswith("<") and s.endswith(">")))
-        return len(segs) * 10 + literal_count
+        # Loose matching rules
+        if inner == "filename" and ("." in url_seg):
+            return True
+        if inner == "dotted_path" and "." in url_seg:
+            return True
+        if inner == "literal":
+            return True  # <literal> matches anything
+        if inner == "unknown":
+            return True  # <unknown> matches anything
+        if inner == "slug" and actual_type in ("literal", "slug"):
+            return True
+        if inner == "camel_case" and actual_type in ("camel_case", "literal"):
+            return True
+        if inner == "version" and actual_type in ("version", "integer"):
+            return True
+        if inner == "integer" and actual_type == "version":
+            return True
 
-    sorted_templates = sorted(templates, key=template_specificity, reverse=True)
+        return False
+    else:
+        # Literal segment — must match exactly (case-insensitive)
+        return url_seg.lower() == tpl_seg.lower()
 
-    template_map: dict[str, list[str]] = {t.template_id: [] for t in templates}
-    uncovered_urls: list[UncoveredURL] = []
-    covered_count = 0
 
+def compute_coverage(urls, templates):
+    def specificity(t):
+        parts = t.pattern.strip("/").split("/")
+        literal_count = sum(1 for p in parts if not p.startswith("<") and p != "...")
+        return (-literal_count, -len(parts), -t.member_count)
+    sorted_templates = sorted(templates, key=specificity)
+    template_map = {t.template_id: [] for t in templates}
+    covered_urls = set()
     for url in urls:
-        matched = False
-        for tpl in sorted_templates:
-            if match_url_to_template(url, tpl):
-                template_map[tpl.template_id].append(url.canonical_url)
-                matched = True
-                covered_count += 1
+        if url.canonical_url in covered_urls:
+            continue
+        for template in sorted_templates:
+            if match_url_to_template(url, template):
+                template_map[template.template_id].append(url.canonical_url)
+                covered_urls.add(url.canonical_url)
                 break
-
-        if not matched:
-            uncovered_urls.append(UncoveredURL(
+    uncovered = []
+    for url in urls:
+        if url.canonical_url not in covered_urls:
+            path = url.version_free_path or url.path
+            uncovered.append(UncoveredURL(
                 url=url.canonical_url,
-                reason="no_template_match",
+                reason=f"no_template_match (path={path[:80]})",
                 recommendation="self_heal",
             ))
-
     total = len(urls)
-    coverage_pct = round((covered_count / total * 100) if total > 0 else 0.0, 2)
-
-    if coverage_pct < TARGET_COVERAGE * 100:
-        logger.warning(
-            f"Coverage {coverage_pct:.1f}% is below target {TARGET_COVERAGE * 100:.0f}%"
-        )
-
-    avg_per_template = round(covered_count / len(templates) if templates else 0.0, 2)
-
-    report = CoverageReport(
-        total_internal_urls=total,
-        covered_urls=covered_count,
-        uncovered_urls=len(uncovered_urls),
-        coverage_percent=coverage_pct,
-        template_count=len(templates),
-        avg_urls_per_template=avg_per_template,
+    covered = len(covered_urls)
+    pct = (covered / total * 100) if total > 0 else 0.0
+    tpl_count = len(templates)
+    avg = covered / tpl_count if tpl_count > 0 else 0.0
+    coverage = CoverageReport(
+        total_internal_urls=total, covered_urls=covered,
+        uncovered_urls=total - covered, coverage_percent=round(pct, 2),
+        template_count=tpl_count, avg_urls_per_template=round(avg, 1),
     )
+    return coverage, uncovered, template_map
 
-    return report, uncovered_urls, template_map
+
+# ─── Domain classification sets ─────────────────────────────
+
+SOCIAL_DOMAINS = {
+    "twitter.com", "x.com", "facebook.com", "linkedin.com",
+    "reddit.com", "mastodon.social", "bsky.app",
+    "discord.com", "discord.gg",
+    "youtube.com", "youtu.be",
+}
+
+QA_DOMAINS = {
+    "stackoverflow.com", "stackexchange.com",
+    "superuser.com", "serverfault.com",
+    "askubuntu.com",
+}
+
+PACKAGE_INDEX_DOMAINS = {
+    "pypi.org", "pip.pypa.io", "npmjs.com", "crates.io",
+    "rubygems.org", "packagist.org", "nuget.org",
+    "anaconda.org", "conda.io", "conda-forge.org",
+}
+
+CODE_HOSTING_DOMAINS = {
+    "github.com", "gitlab.com", "bitbucket.org",
+    "codeberg.org", "sourceforge.net",
+    "github.io",  # GitHub Pages (project sites)
+}
+
+ACADEMIC_DOMAINS = {
+    "arxiv.org", "doi.org", "scholar.google.com",
+    "researchgate.net", "ieee.org", "acm.org",
+    "dl.acm.org", "link.springer.com",
+}
+
+DOC_PATH_SIGNALS = [
+    "/doc/", "/docs/", "/documentation/", "/api/",
+    "/reference/", "/stable/", "/en/latest/", "/doc/stable/",
+    "/manual/", "/guide/", "/tutorial/",
+    "/_static/", "/_sources/", "/objects.inv",
+]
 
 
 def external_domain_analysis(
     external_urls: list[ParsedURL],
-) -> list[dict]:
+) -> list[ExternalDomain]:
     """
     Analyze external URLs by domain.
 
-    Steps:
-    1. Group external URLs by domain
-    2. For each domain, count URLs and classify
-    3. Return list of ExternalDomain dicts
+    Returns list of ExternalDomain objects (not dicts).
     """
     domain_groups: dict[str, list[ParsedURL]] = {}
     for u in external_urls:
@@ -154,25 +195,8 @@ def external_domain_analysis(
         paths = [u.path for u in urls]
         observed = paths[:10]  # limit
 
-        # Classify domain type
-        if domain in ("pypi.org", "pip.pypa.io"):
-            classification = ExternalDomainType.PACKAGE_INDEX
-        elif domain in ("github.com", "gitlab.com", "bitbucket.org"):
-            classification = ExternalDomainType.CODE_HOSTING
-        else:
-            # Check paths for documentation signals
-            doc_signals = ["/doc/", "/docs/", "/documentation/", "/api/",
-                           "/reference/", "/stable/", "/en/latest/", "/doc/stable/"]
-            is_doc = any(
-                any(sig in p for sig in doc_signals)
-                for p in paths
-            )
-            if is_doc:
-                classification = ExternalDomainType.DOCUMENTATION_CROSSREF
-            elif all(p in ("", "/") for p in paths):
-                classification = ExternalDomainType.PROJECT_HOMEPAGE
-            else:
-                classification = ExternalDomainType.UNKNOWN
+        # Classify domain type using comprehensive domain sets
+        classification = _classify_domain(domain, paths)
 
         ext_domain = ExternalDomain(
             domain=domain,
@@ -181,6 +205,59 @@ def external_domain_analysis(
             observed_paths=observed,
             note="",
         )
-        results.append(ext_domain.model_dump())
+        results.append(ext_domain)
 
     return results
+
+
+def _classify_domain(domain: str, paths: list[str]) -> ExternalDomainType:
+    """Classify an external domain based on known domain lists and path signals."""
+    domain_lower = domain.lower()
+
+    # Check against known domain sets
+    if domain_lower in PACKAGE_INDEX_DOMAINS:
+        return ExternalDomainType.PACKAGE_INDEX
+
+    if domain_lower in CODE_HOSTING_DOMAINS:
+        return ExternalDomainType.CODE_HOSTING
+
+    if domain_lower in SOCIAL_DOMAINS:
+        return ExternalDomainType.SOCIAL_MEDIA
+
+    if domain_lower in QA_DOMAINS:
+        return ExternalDomainType.QA_FORUM
+
+    if domain_lower in ACADEMIC_DOMAINS:
+        return ExternalDomainType.ACADEMIC
+
+    # Check for .github.io subdomains (project documentation)
+    if domain_lower.endswith(".github.io"):
+        return ExternalDomainType.DOCUMENTATION_CROSSREF
+
+    # Check for .readthedocs.io / .readthedocs.org subdomains
+    if domain_lower.endswith(".readthedocs.io") or domain_lower.endswith(".readthedocs.org"):
+        return ExternalDomainType.DOCUMENTATION_CROSSREF
+
+    # Check paths for documentation signals
+    is_doc = any(
+        any(sig in p for sig in DOC_PATH_SIGNALS)
+        for p in paths
+    )
+    if is_doc:
+        return ExternalDomainType.DOCUMENTATION_CROSSREF
+
+    # Root-only links are likely project homepages
+    if all(p in ("", "/") for p in paths):
+        return ExternalDomainType.PROJECT_HOMEPAGE
+
+    # If domain contains common doc/project keywords
+    if any(kw in domain_lower for kw in ("docs.", "doc.", "wiki.", "documentation")):
+        return ExternalDomainType.DOCUMENTATION_CROSSREF
+
+    # Default: classify as documentation_crossref if it looks like a project site
+    # (has meaningful paths, not just root)
+    if any(p.count("/") >= 2 for p in paths):
+        return ExternalDomainType.DOCUMENTATION_CROSSREF
+
+    return ExternalDomainType.UNKNOWN
+

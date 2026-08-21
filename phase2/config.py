@@ -21,10 +21,10 @@ ASSET_EXTENSIONS: set[str] = {
 # ─── Segment classification ──────────────────────────────────
 # Thresholds for determining if a path segment is static or variable.
 # If a segment value appears in >80% of URLs at the same position, treat as static.
-STATIC_THRESHOLD: float = 0.80
+STATIC_THRESHOLD: float = 0.75
 
-# If a segment value appears in <10% of URLs, it is likely unique per page (variable).
-VARIABLE_THRESHOLD: float = 0.10
+# If a segment value appears in <15% of URLs, it is likely unique per page (variable).
+VARIABLE_THRESHOLD: float = 0.15
 
 # ─── Pattern grouping ────────────────────────────────────────
 # Minimum number of URLs to form a group.

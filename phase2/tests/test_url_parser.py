@@ -50,6 +50,16 @@ class TestClassifySegment:
         assert classify_segment("sklearn.linear_model") == SegmentType.DOTTED_PATH
         assert classify_segment("sklearn.linear_model.LogisticRegression.html") == SegmentType.FILENAME
 
+    def test_version_with_extension_is_filename(self):
+        """v1.8.html should be FILENAME, not VERSION."""
+        assert classify_segment("v1.8.html") == SegmentType.FILENAME
+        assert classify_segment("v0.24.html") == SegmentType.FILENAME
+
+    def test_bare_version_still_version(self):
+        """v1.8 without extension should remain VERSION."""
+        assert classify_segment("v1.8") == SegmentType.VERSION
+        assert classify_segment("0.24") == SegmentType.VERSION
+
     def test_uuid(self):
         assert classify_segment("550e8400-e29b-41d4-a716-446655440000") == SegmentType.UUID
 
