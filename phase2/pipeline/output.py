@@ -19,7 +19,7 @@ def build_output(
     templates: list[TemplatePattern],
     coverage: CoverageReport,
     uncovered: list[UncoveredURL],
-    external_domains: list[dict],
+    external_domains: list[ExternalDomain],
     template_map: dict[str, list[str]],
 ) -> Phase2Output:
     """
@@ -46,9 +46,6 @@ def build_output(
     # 3. Trim uncovered
     trimmed_uncovered = uncovered[:MAX_UNCOVERED_IN_OUTPUT]
 
-    # Convert external_domains dicts back to ExternalDomain objects
-    ext_domain_objs = [ExternalDomain(**d) for d in external_domains]
-
     return Phase2Output(
         crawl_id=phase1.crawl_id,
         root_domain=phase1.root_domain,
@@ -57,7 +54,7 @@ def build_output(
         summary=coverage,
         templates=trimmed_templates,
         uncovered_urls=trimmed_uncovered,
-        external_domains=ext_domain_objs,
+        external_domains=external_domains,
         template_map=template_map,
     )
 
@@ -75,54 +72,32 @@ def save_output(output: Phase2Output, output_path: str) -> None:
 
 
 def print_summary(output: Phase2Output) -> None:
-    """
-    Print a human-readable summary to stdout.
-
-    Format:
-    ═══════════════════════════════════════════════
-    PHASE 2 RESULTS — scikit-learn.org
-    ═══════════════════════════════════════════════
-    Generator detected: sphinx (confidence: 0.95)
-    Coverage: 217/235 URLs (92.3%) with 4 templates
-    Templates:
-      tpl_001  modules/generated/<>.<>.html  (143 URLs)  ← api_reference
-      ...
-    Uncovered: 18 URLs → self-heal
-    External domains: numpy.org (5), scipy.org (3)
-    ═══════════════════════════════════════════════
-    """
-    sep = "=" * 53
-    print(sep)
-    print(f"PHASE 2 RESULTS — {output.root_domain}")
-    print(sep)
+    width = 65
+    print("=" * width)
+    print(f"PHASE 2 RESULTS - {output.root_domain}")
+    print("=" * width)
     print()
-
-    if output.generator_detected:
-        print(f"Generator detected: {output.generator_detected} "
-              f"(confidence: {output.generator_confidence:.2f})")
-    else:
-        print("Generator detected: unknown")
+    gen = output.generator_detected or "unknown"
+    print(f"Generator: {gen} (confidence: {output.generator_confidence:.2f})")
     print()
-
     s = output.summary
-    print(f"Coverage: {s.covered_urls}/{s.total_internal_urls} URLs "
-          f"({s.coverage_percent:.1f}%) with {s.template_count} templates")
+    print(f"Coverage: {s.covered_urls}/{s.total_internal_urls} URLs ({s.coverage_percent:.1f}%) with {s.template_count} templates")
     print()
-
     print("Templates:")
-    for tpl in output.templates:
-        name_tag = f"← {tpl.name}" if tpl.name else ""
-        print(f"  {tpl.template_id}  {tpl.pattern}  ({tpl.member_count} URLs)  {name_tag}")
-
+    print("-" * width)
+    for t in output.templates:
+        name_str = f"  <- {t.name}" if t.name else ""
+        print(f"  {t.template_id}  {t.pattern:<55s} ({t.member_count:>4d} URLs){name_str}")
+    print("-" * width)
     print()
-    print(f"Uncovered: {len(output.uncovered_urls)} URLs → self-heal")
-
+    print(f"Uncovered: {len(output.uncovered_urls)} URLs -> self-heal")
+    if output.uncovered_urls:
+        print("  Sample:")
+        for u in output.uncovered_urls[:5]:
+            print(f"    {u.url}")
+    print()
     if output.external_domains:
-        ext_summary = ", ".join(
-            f"{d.domain} ({d.url_count})" for d in output.external_domains[:5]
-        )
-        print()
-        print(f"External domains: {ext_summary}")
-
-    print()
-    print(sep)
+        print(f"External domains: {len(output.external_domains)}")
+        for d in output.external_domains[:8]:
+            print(f"  {d.domain} ({d.url_count}) [{d.classification.value}]")
+    print("=" * width)

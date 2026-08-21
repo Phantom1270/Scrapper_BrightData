@@ -40,6 +40,9 @@ class ExternalDomainType(str, Enum):
     PROJECT_HOMEPAGE = "project_homepage"
     PACKAGE_INDEX = "package_index"
     CODE_HOSTING = "code_hosting"
+    SOCIAL_MEDIA = "social_media"
+    QA_FORUM = "qa_forum"
+    ACADEMIC = "academic"
     UNKNOWN = "unknown"
 
 

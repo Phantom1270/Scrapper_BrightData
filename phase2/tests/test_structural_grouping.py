@@ -81,3 +81,77 @@ class TestFinalizeTemplates:
         templates = finalize_templates(groups, urls)
         if len(templates) >= 2:
             assert templates[0].member_count >= templates[1].member_count
+
+class TestSectionBoundaries:
+    def test_modules_vs_user_guide_separate(self):
+        urls = [
+            make_url("/modules/generated/sklearn.linear_model.LogisticRegression.html"),
+            make_url("/modules/generated/sklearn.ensemble.RandomForestClassifier.html"),
+            make_url("/modules/generated/sklearn.svm.SVC.html"),
+            make_url("/modules/generated/sklearn.cluster.KMeans.html"),
+            make_url("/modules/generated/sklearn.tree.DecisionTreeClassifier.html"),
+            make_url("/user_guide/linear_model.html"),
+            make_url("/user_guide/ensemble.html"),
+            make_url("/user_guide/clustering.html"),
+            make_url("/user_guide/svm.html"),
+        ]
+        groups = discover_groups(urls)
+        templates = finalize_templates(groups, urls)
+        assert len(templates) >= 2
+        patterns = [t.pattern for t in templates]
+        assert any("modules" in p or "generated" in p for p in patterns)
+        assert any("user_guide" in p for p in patterns)
+
+    def test_auto_examples_merged(self):
+        urls = []
+        for subdir in ["cluster", "linear_model", "ensemble", "svm"]:
+            for i in range(4):
+                urls.append(make_url(f"/auto_examples/{subdir}/plot_example_{i}.html"))
+        groups = discover_groups(urls)
+        templates = finalize_templates(groups, urls)
+        assert len(templates) == 1
+        assert "auto_examples" in templates[0].pattern
+
+    def test_no_generic_catch_all(self):
+        urls = [
+            make_url("/modules/generated/a.b.C.html"),
+            make_url("/modules/generated/d.e.F.html"),
+            make_url("/modules/generated/g.h.I.html"),
+            make_url("/user_guide/guide1.html"),
+            make_url("/user_guide/guide2.html"),
+            make_url("/user_guide/guide3.html"),
+            make_url("/auto_examples/cat1/plot1.html"),
+            make_url("/auto_examples/cat2/plot2.html"),
+            make_url("/auto_examples/cat3/plot3.html"),
+        ]
+        groups = discover_groups(urls)
+        templates = finalize_templates(groups, urls)
+        for t in templates:
+            if t.member_count >= 5:
+                parts = t.pattern.strip("/").split("/")
+                has_literal = any(not p.startswith("<") and p != "..." for p in parts)
+                assert has_literal, f"Template too generic: {t.pattern}"
+
+class TestTemplatePatterns:
+    def test_api_reference_pattern(self):
+        urls = [
+            make_url("/modules/generated/sklearn.linear_model.LogisticRegression.html"),
+            make_url("/modules/generated/sklearn.ensemble.RandomForestClassifier.html"),
+            make_url("/modules/generated/sklearn.svm.SVC.html"),
+        ]
+        groups = discover_groups(urls)
+        templates = finalize_templates(groups, urls)
+        assert len(templates) >= 1
+        assert "modules" in templates[0].pattern
+        assert "generated" in templates[0].pattern
+
+    def test_user_guide_pattern(self):
+        urls = [
+            make_url("/user_guide/linear_model.html"),
+            make_url("/user_guide/ensemble.html"),
+            make_url("/user_guide/clustering.html"),
+        ]
+        groups = discover_groups(urls)
+        templates = finalize_templates(groups, urls)
+        assert len(templates) >= 1
+        assert "user_guide" in templates[0].pattern
