@@ -26,6 +26,15 @@
   cursor: pointer;
 }
 
+.new-chat-btn:disabled,
+.history-item:disabled,
+.settings-btn:disabled,
+.send-btn:disabled,
+.composer textarea:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
 .chat-history {
   display: flex;
   flex-direction: column;
@@ -83,9 +92,18 @@
   background: var(--surface-subtle);
 }
 
+.message.error {
+  border-color: #e26262;
+}
+
+.message.loading {
+  opacity: 0.8;
+}
+
 .message p {
   margin: 0;
   line-height: 1.5;
+  white-space: pre-wrap;
 }
 
 .sources {
@@ -103,8 +121,21 @@
   padding-left: 18px;
 }
 
+.sources li + li {
+  margin-top: 10px;
+}
+
 .sources a {
   color: var(--link);
+}
+
+.source-meta {
+  margin-top: 4px;
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  color: var(--text-muted);
+  font-size: 12px;
 }
 
 .meta-row {
@@ -128,6 +159,25 @@
   color: #1f9d64;
 }
 
+.confidence.medium {
+  border-color: #c7a331;
+  color: #c7a331;
+}
+
+.confidence.low {
+  border-color: #d46b6b;
+  color: #d46b6b;
+}
+
+.pipeline-row {
+  margin-top: 8px;
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  font-size: 12px;
+  color: var(--text-muted);
+}
+
 .composer-wrap {
   position: sticky;
   bottom: 0;
@@ -145,6 +195,45 @@
   display: flex;
   flex-direction: column;
   gap: 10px;
+}
+
+.advanced-settings {
+  margin: 0;
+  padding: 10px;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  background: var(--surface-subtle);
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.advanced-settings legend {
+  padding: 0 6px;
+  color: var(--text-muted);
+  font-size: 12px;
+}
+
+.advanced-settings label {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  font-size: 13px;
+}
+
+.advanced-settings input,
+.advanced-settings select {
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--surface);
+  color: var(--text-primary);
+  padding: 8px;
+}
+
+.advanced-settings .checkbox-label {
+  flex-direction: row;
+  align-items: center;
+  gap: 8px;
 }
 
 .composer textarea {
@@ -191,5 +280,9 @@
   .messages,
   .composer-wrap {
     padding-inline: 14px;
+  }
+
+  .advanced-settings {
+    grid-template-columns: 1fr;
   }
 }
