@@ -1,0 +1,57 @@
+general:
+  project_name: "rag-docs-assistant"
+  log_level: "INFO"
+  data_dir: "./rag/data"
+
+scraper_output:
+  directory: "./scraped_output"
+
+chunking:
+  max_tokens: 512
+  min_tokens: 100
+  overlap_tokens: 75
+  encoding_name: "cl100k_base"
+
+embedding:
+  model_name: "all-MiniLM-L6-v2"
+  batch_size: 64
+  device: "cpu"
+  dimensions: null
+
+vector_store:
+  provider: "chroma"
+  persist_dir: "./rag/data/indexes/chroma"
+  collection_name: "docs"
+
+bm25:
+  index_path: "./rag/data/indexes/bm25.pkl"
+
+retrieval:
+  top_k: 5
+  candidate_k: 20
+  vector_weight: 0.6
+  bm25_weight: 0.4
+  rrf_k: 60
+  use_query_transform: false
+
+reranker:
+  enabled: false
+  model_name: "BAAI/bge-reranker-large"
+
+generation:
+  model: "gpt-4o-mini"
+  temperature: 0.1
+  max_tokens: 2000
+  max_context_tokens: 3000
+
+serving:
+  host: "0.0.0.0"
+  port: 8000
+  cache_ttl_seconds: 3600
+
+llm:
+  provider: "ollama"
+  model: "qwen2.5:3b"
+  base_url: "http://localhost:11434"
+  temperature: 0.1
+  max_tokens: 300
