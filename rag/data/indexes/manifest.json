@@ -1,9 +1,9 @@
 {
-  "built_at": "2026-08-22T18:14:01.079148Z",
-  "total_chunks": 3,
+  "built_at": "2026-08-22T19:33:19.417626Z",
+  "total_chunks": 2336,
   "embedding_model": "all-MiniLM-L6-v2",
   "embedding_dimension": 384,
   "vector_store_provider": "ChromaVectorStore",
-  "bm25_chunk_count": 3,
+  "bm25_chunk_count": 2336,
   "force_rebuild": true
 }

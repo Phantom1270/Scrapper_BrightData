@@ -6,6 +6,7 @@ Dependency injection for FastAPI routes.
 _generation_engine = None
 _retrieval_engine = None
 _index_builder = None
+_search_engine = None
 _store = None
 _cache = None
 _settings = None
@@ -14,7 +15,7 @@ _start_time = None
 
 def initialize_dependencies(settings=None) -> None:
     """Called during app startup. Creates all shared instances."""
-    global _generation_engine, _retrieval_engine, _index_builder
+    global _generation_engine, _retrieval_engine, _index_builder, _search_engine
     global _store, _cache, _settings, _start_time
 
     import time
@@ -40,6 +41,16 @@ def initialize_dependencies(settings=None) -> None:
     _generation_engine = None
     _retrieval_engine = None
     _index_builder = None
+    _search_engine = None
+
+
+def get_search_engine():
+    """Get or create the SearchEngine singleton."""
+    global _search_engine
+    if _search_engine is None:
+        from rag.search.search_engine import SearchEngine
+        _search_engine = SearchEngine(settings=_settings, store=_store)
+    return _search_engine
 
 
 def get_generation_engine():
@@ -56,7 +67,7 @@ def get_retrieval_engine():
     global _retrieval_engine
     if _retrieval_engine is None:
         from rag.retrieval.retrieval_engine import RetrievalEngine
-        _retrieval_engine = RetrievalEngine(settings=_settings)
+        _retrieval_engine = RetrievalEngine(settings=_settings, search_engine=get_search_engine())
     return _retrieval_engine
 
 
@@ -65,7 +76,7 @@ def get_index_builder():
     global _index_builder
     if _index_builder is None:
         from rag.search.indexer import IndexBuilder
-        _index_builder = IndexBuilder(settings=_settings)
+        _index_builder = IndexBuilder(settings=_settings, store=_store, search_engine=get_search_engine())
     return _index_builder
 
 
@@ -87,10 +98,11 @@ def get_start_time():
 
 def shutdown_dependencies() -> None:
     """Called during app shutdown. Cleanup resources."""
-    global _generation_engine, _retrieval_engine, _index_builder
+    global _generation_engine, _retrieval_engine, _index_builder, _search_engine
     global _store, _cache
     _generation_engine = None
     _retrieval_engine = None
     _index_builder = None
+    _search_engine = None
     _cache = None
     # Store can persist — it's just a SQLite file.

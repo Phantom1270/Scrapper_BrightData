@@ -42,7 +42,14 @@ class RetrievalEngine:
         else:
             self.reranker = reranker
 
-        self.query_transformer = query_transformer
+        if query_transformer is None:
+            if getattr(settings.retrieval, 'use_query_transform', False):
+                from rag.retrieval.query_transform.multi_query import MultiQueryTransformer
+                self.query_transformer = MultiQueryTransformer(settings)
+            else:
+                self.query_transformer = None
+        else:
+            self.query_transformer = query_transformer
         
         if fusion is None:
             self.fusion = ReciprocalRankFusion(k=getattr(settings.retrieval, 'rrf_k', 60))
@@ -91,9 +98,12 @@ class RetrievalEngine:
             raise ValueError("Query string cannot be empty")
 
         # 2. Build metadata filters
-        if content_type_filter is None:
-            auto_filters = self.filter_builder.build_filters(question)
-            content_type_filter = auto_filters.get("content_type")
+        # Note: only apply auto-filters if the user explicitly passed one.
+        # Auto-inferred filters from query text are too aggressive and will
+        # silently discard all results when the inferred type doesn't match
+        # the chunk-level content_type (e.g., 'prose' vs 'api_reference').
+        # Auto-filter is intentionally disabled here; use explicit filter_content_type
+        # in the QueryRequest to filter results.
 
         # 3. Query transformation
         queries = [question]
@@ -182,11 +192,14 @@ class RetrievalEngine:
         else:
             candidates = candidates[:top_k]
 
-        # 8. Post-retrieval filtering
+        # 8. Post-retrieval filtering (only when an explicit filter is set)
         if content_type_filter is not None:
             filtered = []
             for c in candidates:
-                if c.source == "reranked" or c.content_type == content_type_filter:
+                # Check both chunk-level content_type and document-level document_content_type
+                doc_ct = c.metadata.get("document_content_type", "")
+                chunk_ct = c.content_type
+                if c.source == "reranked" or chunk_ct == content_type_filter or doc_ct == content_type_filter:
                     filtered.append(c)
             candidates = filtered
 
@@ -204,10 +217,6 @@ class RetrievalEngine:
         
         content_type_filter = request.filter_content_type if request else None
         doc_id_filter = request.filter_doc_id if request else None
-        
-        if content_type_filter is None:
-            auto_filters = self.filter_builder.build_filters(question)
-            content_type_filter = auto_filters.get("content_type")
 
         transform_used = None
         if self.query_transformer and self.use_query_transform:
