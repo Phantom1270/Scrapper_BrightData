@@ -40,7 +40,10 @@ class Phase2Output(BaseModel):
     root_domain: str
     generator_detected: Optional[str] = None
     generator_confidence: float = 0.0
-    summary: CoverageReport = Field(default_factory=dict)
+    summary: CoverageReport = Field(default_factory=lambda: CoverageReport(
+        total_internal_urls=0, covered_urls=0, uncovered_urls=0,
+        coverage_percent=0.0, template_count=0, avg_urls_per_template=0.0
+    ))
     templates: list[TemplatePattern] = Field(default_factory=list)
     uncovered_urls: list[UncoveredURL] = Field(default_factory=list)
     external_domains: list[dict] = Field(default_factory=list)

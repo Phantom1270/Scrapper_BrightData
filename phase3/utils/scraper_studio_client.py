@@ -39,15 +39,28 @@ class ScraperStudioCLI:
             return None
             
         try:
-            # The CLI might output logs or spinners before the JSON result
-            # We attempt to find the first JSON object or array
-            match = re.search(r'(\{.*\}|\[.*\])', result.stdout, re.DOTALL)
-            if match:
-                return json.loads(match.group(1))
+            # Try direct parse first (cleanest case)
             return json.loads(result.stdout)
         except json.JSONDecodeError:
-            # If it's not valid JSON, just return the raw text wrapped in a dict
-            return {"raw_output": result.stdout.strip()}
+            pass
+
+        # CLI may prefix the JSON with spinner/log lines.
+        # Scan for the first valid JSON object or array by trying each candidate.
+        for start_char, end_char in [('{', '}'), ('[', ']')]:
+            idx = result.stdout.find(start_char)
+            while idx != -1:
+                candidate = result.stdout[idx:]
+                # Find the matching closing bracket
+                end_idx = candidate.rfind(end_char)
+                if end_idx != -1:
+                    try:
+                        return json.loads(candidate[:end_idx + 1])
+                    except json.JSONDecodeError:
+                        pass
+                idx = result.stdout.find(start_char, idx + 1)
+
+        # If it's not valid JSON, return the raw text wrapped in a dict
+        return {"raw_output": result.stdout.strip()}
 
     def heal_scraper(self, collector_id: str, prompt: str) -> bool:
         print(f"    [CLI] Healing scraper {collector_id}...")

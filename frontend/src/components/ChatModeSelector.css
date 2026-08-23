@@ -1,0 +1,120 @@
+/* ── Mode selector ────────────────────────────────────────────── */
+.mode-selector {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 40px 24px;
+  overflow-y: auto;
+  background: var(--bg);
+}
+
+.mode-content {
+  max-width: 560px;
+  width: 100%;
+  text-align: center;
+}
+
+.mode-title {
+  font-size: 1.6rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin: 0 0 8px;
+  letter-spacing: -0.025em;
+}
+
+.mode-subtitle {
+  font-size: 0.9rem;
+  color: var(--text-muted);
+  margin: 0 0 32px;
+}
+
+/* ── Cards ────────────────────────────────────────────────────── */
+.mode-cards {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+
+@media (max-width: 520px) {
+  .mode-cards { grid-template-columns: 1fr; }
+}
+
+.mode-card {
+  background: var(--surface);
+  border: 1.5px solid var(--border);
+  border-radius: 16px;
+  padding: 24px 20px;
+  text-align: left;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  font-family: inherit;
+  color: inherit;
+  box-shadow: var(--shadow-xs);
+}
+
+.mode-card:hover {
+  border-color: var(--accent-border);
+  box-shadow: var(--shadow-md);
+  transform: translateY(-3px);
+}
+
+.mode-card-accent {
+  border-color: var(--accent-border);
+  background: var(--accent-bg);
+}
+
+.mode-card-accent:hover {
+  box-shadow: 0 8px 32px rgba(108, 92, 231, 0.15);
+}
+
+.mode-card-icon {
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
+  background: var(--surface-subtle);
+  border: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-muted);
+}
+
+.mode-card-accent .mode-card-icon {
+  color: var(--accent);
+  border-color: var(--accent-border);
+  background: rgba(108, 92, 231, 0.08);
+}
+
+.mode-card h2 {
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin: 0;
+}
+
+.mode-card-accent h2 {
+  color: var(--accent);
+}
+
+.mode-card p {
+  font-size: 0.82rem;
+  color: var(--text-muted);
+  line-height: 1.6;
+  margin: 0;
+  flex: 1;
+}
+
+.mode-action {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--accent);
+  transition: letter-spacing 0.2s ease;
+}
+
+.mode-card:hover .mode-action {
+  letter-spacing: 0.03em;
+}
