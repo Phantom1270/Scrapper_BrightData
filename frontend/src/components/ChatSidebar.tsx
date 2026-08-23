@@ -54,7 +54,12 @@ export function ChatSidebar({
     <aside className="chat-sidebar">
       {/* Header */}
       <div className="sidebar-header">
-        <h1 className="sidebar-title">RAG Chat</h1>
+        <h1 className="sidebar-title">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+            <path d="M12 2a10 10 0 100 20 10 10 0 000-20zm0 18a8 8 0 110-16 8 8 0 010 16z"/><circle cx="9" cy="10" r="1.5"/><circle cx="15" cy="10" r="1.5"/><path d="M12 15.5c-1.8 0-3.3-1.1-3.8-2.6h7.6c-.5 1.5-2 2.6-3.8 2.6z"/>
+          </svg>
+          RoboAi
+        </h1>
         <div className="sidebar-actions">
           <button
             className="new-chat-btn"
@@ -138,11 +143,19 @@ export function ChatSidebar({
       <div className="sidebar-bottom">
         {children}
         <div className="sidebar-user">
-          <span className="user-name">
-            {user?.displayName ?? 'Guest'}
-          </span>
+          <div className="user-avatar">
+            <img src="https://i.pravatar.cc/150?u=a042581f4e29026704d" alt="User avatar" />
+          </div>
+          <div className="user-info-text">
+            <span className="user-name">{user?.displayName ?? 'Guest'}</span>
+            <span className="user-plan">Free plan</span>
+          </div>
           <button className="logout-btn" onClick={logout} title="Sign out">
-            Sign out
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
+              <polyline points="16 17 21 12 16 7"></polyline>
+              <line x1="21" y1="12" x2="9" y2="12"></line>
+            </svg>
           </button>
         </div>
       </div>
