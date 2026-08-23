@@ -7,8 +7,9 @@ from fastapi import APIRouter
 
 from rag.serving.schemas import HealthResponse
 from rag.serving.dependencies import (
-    get_start_time, get_store, get_index_builder
+    get_start_time, get_store
 )
+import rag.serving.dependencies as _deps
 
 
 router = APIRouter()
@@ -47,24 +48,29 @@ def health_check():
     except Exception as e:
         components["llm"] = {"status": "unavailable", "error": str(e)}
 
-    # Check vector store
-    try:
-        builder = get_index_builder()
-        vcount = builder.vector_store.count()
-        components["vector_store"] = {"status": "healthy", "count": vcount}
-    except Exception as e:
-        components["vector_store"] = {"status": "unavailable", "error": str(e)}
+    # Check vector store — only if already initialized (don't trigger 60s lazy load)
+    if _deps._index_builder is not None:
+        try:
+            vcount = _deps._index_builder.vector_store.count()
+            components["vector_store"] = {"status": "healthy", "count": vcount}
+        except Exception as e:
+            components["vector_store"] = {"status": "unavailable", "error": str(e)}
 
-    # Check BM25
-    try:
-        builder = get_index_builder()
-        bcount = builder.bm25_index.count()
-        components["bm25"] = {"status": "healthy", "count": bcount}
-    except Exception as e:
-        components["bm25"] = {"status": "unavailable", "error": str(e)}
+        try:
+            bcount = _deps._index_builder.bm25_index.count()
+            components["bm25"] = {"status": "healthy", "count": bcount}
+        except Exception as e:
+            components["bm25"] = {"status": "unavailable", "error": str(e)}
+    else:
+        components["vector_store"] = {"status": "not_initialized"}
+        components["bm25"] = {"status": "not_initialized"}
 
-    # Determine overall status
-    statuses = [c.get("status", "unknown") for c in components.values()]
+    # Determine overall status — ignore 'not_initialized' (lazy load, not a real failure)
+    statuses = [
+        c.get("status", "unknown")
+        for c in components.values()
+        if c.get("status") != "not_initialized"
+    ]
     if all(s == "healthy" for s in statuses):
         overall = "healthy"
     elif any(s == "unhealthy" for s in statuses):

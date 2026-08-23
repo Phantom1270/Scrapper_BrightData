@@ -118,7 +118,7 @@ export async function queryRag(payload: QueryRequest): Promise<QueryResponse> {
 export async function checkHealth(baseUrl?: string): Promise<HealthResponse> {
   const url = baseUrl ?? getApiBaseUrl()
   const controller = new AbortController()
-  const timeout = setTimeout(() => controller.abort(), 5_000)
+  const timeout = setTimeout(() => controller.abort(), 15_000)
 
   try {
     const response = await fetch(`${url}/api/v1/health`, {
