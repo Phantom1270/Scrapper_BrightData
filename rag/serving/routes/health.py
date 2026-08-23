@@ -15,7 +15,7 @@ router = APIRouter()
 
 
 @router.get("/health", response_model=HealthResponse)
-async def health_check():
+def health_check():
     """
     Basic health check. Returns system status and component health.
     """
@@ -32,12 +32,12 @@ async def health_check():
     except Exception as e:
         components["storage"] = {"status": "unhealthy", "error": str(e)}
 
-    # Check LLM
+    # Check LLM — reuse singleton, don't create a fresh client on every poll
     try:
-        from rag.llm import create_llm_client
         from rag.config.settings import get_settings
         settings = get_settings()
-        llm = create_llm_client(settings)
+        from rag.llm.ollama_client import OllamaClient
+        llm = OllamaClient(settings=settings)
         available = llm.is_available()
         components["llm"] = {
             "status": "healthy" if available else "unavailable",
@@ -81,10 +81,10 @@ async def health_check():
 
 
 @router.get("/health/components")
-async def component_health():
+def component_health():
     """
     Detailed component health. Same as /health but returns
     just the components dict for quick checks.
     """
-    health = await health_check()
+    health = health_check()
     return health.components

@@ -3,9 +3,10 @@ import './ChatModeSelector.css'
 type Props = {
   onSelectLLM: () => void
   onSelectRAG: () => void
+  onSelectSampleRAG: () => void
 }
 
-export function ChatModeSelector({ onSelectLLM, onSelectRAG }: Props) {
+export function ChatModeSelector({ onSelectLLM, onSelectRAG, onSelectSampleRAG }: Props) {
   return (
     <div className="mode-selector">
       <div className="mode-content">
@@ -31,7 +32,22 @@ export function ChatModeSelector({ onSelectLLM, onSelectRAG }: Props) {
             <span className="mode-action">Start chatting &rarr;</span>
           </button>
 
-          <button className="mode-card mode-card-accent" onClick={onSelectRAG}>
+          <button className="mode-card mode-card-accent" onClick={onSelectSampleRAG}>
+            <div className="mode-card-icon">
+              <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20" />
+                <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z" />
+              </svg>
+            </div>
+            <h2>Chat with Demo Data</h2>
+            <p>
+              Skip the scraping process and instantly chat with already-embedded 
+              documentation. Perfect for quick demos.
+            </p>
+            <span className="mode-action">Instant RAG &rarr;</span>
+          </button>
+
+          <button className="mode-card" onClick={onSelectRAG}>
             <div className="mode-card-icon">
               <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
                 <circle cx="12" cy="12" r="10" />
@@ -39,12 +55,12 @@ export function ChatModeSelector({ onSelectLLM, onSelectRAG }: Props) {
                 <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z" />
               </svg>
             </div>
-            <h2>Scrape &amp; Chat with RAG</h2>
+            <h2>Scrape &amp; Chat</h2>
             <p>
-              Provide a documentation URL. We'll crawl it, build a knowledge base, 
-              and let you ask questions grounded in that data.
+              Provide a URL. We'll crawl it, build a knowledge base, 
+              and let you ask questions grounded in that new data.
             </p>
-            <span className="mode-action">Get started &rarr;</span>
+            <span className="mode-action">Start scraping &rarr;</span>
           </button>
         </div>
       </div>

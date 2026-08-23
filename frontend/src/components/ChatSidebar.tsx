@@ -107,7 +107,13 @@ export function ChatSidebar({
                 </div>
                 {conv.sourceUrl && (
                   <span className="conversation-source">
-                    {new URL(conv.sourceUrl).hostname}
+                    {(() => {
+                      try {
+                        return new URL(conv.sourceUrl).hostname
+                      } catch {
+                        return conv.sourceUrl
+                      }
+                    })()}
                   </span>
                 )}
                 <span className="conversation-time">

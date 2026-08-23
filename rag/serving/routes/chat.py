@@ -24,7 +24,7 @@ class DirectChatRequest(BaseModel):
 
 
 @router.post("/chat")
-async def direct_chat(request: DirectChatRequest):
+def direct_chat(request: DirectChatRequest):
     """
     Send a message directly to the LLM without RAG retrieval.
     Supports conversation history for multi-turn dialogue.
@@ -34,10 +34,9 @@ async def direct_chat(request: DirectChatRequest):
 
     settings = get_settings()
 
-    client = OllamaClient(
-        model_name=request.model or settings.llm.model,
-        base_url=settings.llm.base_url,
-    )
+    client = OllamaClient(settings=settings)
+    if request.model:
+        client.model_name = request.model
 
     # Build messages array for the LLM
     messages = []

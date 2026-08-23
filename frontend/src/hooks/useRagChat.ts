@@ -199,6 +199,21 @@ export function useRagChat() {
 
   // ── Delete conversation ────────────────────────────────────
 
+  const deleteMessagePair = useCallback((messageId: string) => {
+    setMessages((prev) => {
+      const idx = prev.findIndex((m) => m.id === messageId)
+      if (idx === -1) return prev
+      const next = [...prev]
+      // Remove the message at idx
+      next.splice(idx, 1)
+      // If the next message (now at same idx) is an assistant reply, remove it too
+      if (next[idx] && next[idx].role === 'assistant') {
+        next.splice(idx, 1)
+      }
+      return next
+    })
+  }, [])
+
   const removeChat = useCallback((id: string) => {
     if (!user) return
     deleteConversation(user.id, id)
@@ -223,5 +238,6 @@ export function useRagChat() {
     startRAGChat,
     loadChat,
     removeChat,
+    deleteMessagePair,
   }
 }

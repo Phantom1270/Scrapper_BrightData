@@ -241,6 +241,33 @@
   border-color: var(--border-strong);
 }
 
+/* ── Delete pair button ───────────────────────────────────────────── */
+.delete-pair-btn {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  color: var(--text-muted);
+  font-size: 0.78rem;
+  padding: 3px 7px;
+  cursor: pointer;
+  opacity: 0;
+  transition: opacity 0.15s, color 0.15s, border-color 0.15s;
+  line-height: 1;
+}
+
+.message-bubble:hover .delete-pair-btn {
+  opacity: 1;
+}
+
+.delete-pair-btn:hover {
+  color: var(--error, #e17055);
+  border-color: var(--error, #e17055);
+  background: var(--error-bg, rgba(225,112,85,0.08));
+}
+
 /* ── Typing indicator ─────────────────────────────────────────── */
 .typing-indicator {
   display: flex;

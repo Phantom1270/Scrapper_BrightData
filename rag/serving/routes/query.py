@@ -12,7 +12,7 @@ router = APIRouter()
 
 
 @router.post("/query", response_model=QueryApiResponse)
-async def query(request: QueryApiRequest):
+def query(request: QueryApiRequest):
     """
     Ask a question about the indexed documentation.
     Returns a grounded answer with citations and source chunks.
