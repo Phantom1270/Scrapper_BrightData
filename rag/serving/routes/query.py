@@ -36,6 +36,7 @@ async def query(request: QueryApiRequest):
         filter_content_type=request.filter_content_type,
         filter_doc_id=request.filter_doc_id,
         use_reranking=request.use_reranking,
+        use_query_transform=request.use_query_transform,
     )
 
     engine = get_generation_engine()

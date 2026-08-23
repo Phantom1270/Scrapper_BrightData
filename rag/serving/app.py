@@ -38,11 +38,15 @@ def create_app(settings=None) -> FastAPI:
     from rag.serving.routes.index import router as index_router
     from rag.serving.routes.evaluation import router as eval_router
     from rag.serving.routes.health import router as health_router
+    from rag.serving.routes.settings import router as settings_router
+    from rag.serving.routes.chat import router as chat_router
 
     app.include_router(query_router, prefix="/api/v1", tags=["query"])
     app.include_router(index_router, prefix="/api/v1", tags=["index"])
     app.include_router(eval_router, prefix="/api/v1", tags=["evaluation"])
     app.include_router(health_router, prefix="/api/v1", tags=["health"])
+    app.include_router(settings_router, prefix="/api/v1", tags=["settings"])
+    app.include_router(chat_router, prefix="/api/v1", tags=["chat"])
 
     from rag.serving.dependencies import initialize_dependencies, shutdown_dependencies
 

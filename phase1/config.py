@@ -17,7 +17,7 @@ MAX_INTERNAL_DEPTH: int = 3
 # Maximum total internal URLs to discover.
 # Safety net — stops the crawl if something generates an unexpectedly
 # large number of pages (e.g. infinite pagination or query-string explosion).
-MAX_INTERNAL_URLS: int = 10000
+MAX_INTERNAL_URLS: int = 500
 
 # Maximum external URLs to record per domain.
 # We don't want 10,000 github.com links.

@@ -107,7 +107,13 @@ class RetrievalEngine:
 
         # 3. Query transformation
         queries = [question]
-        if self.use_query_transform and self.query_transformer is not None:
+        effective_use_transform = (
+            request.use_query_transform
+            if (request is not None and request.use_query_transform is not None)
+            else self.use_query_transform
+        )
+
+        if effective_use_transform and self.query_transformer is not None:
             try:
                 queries = self.query_transformer.transform(question)
             except Exception as e:

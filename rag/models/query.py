@@ -19,6 +19,7 @@ class QueryRequest:
     filter_content_type: Optional[str] = None
     filter_doc_id: Optional[str] = None
     use_reranking: bool = True
+    use_query_transform: Optional[bool] = None
 
     def __post_init__(self) -> None:
         if not self.question or not self.question.strip():
@@ -33,6 +34,7 @@ class QueryRequest:
             "filter_content_type": self.filter_content_type,
             "filter_doc_id": self.filter_doc_id,
             "use_reranking": self.use_reranking,
+            "use_query_transform": self.use_query_transform,
         }
 
     @classmethod
@@ -43,6 +45,7 @@ class QueryRequest:
             filter_content_type=data.get("filter_content_type"),
             filter_doc_id=data.get("filter_doc_id"),
             use_reranking=data.get("use_reranking", True),
+            use_query_transform=data.get("use_query_transform"),
         )
 
 

@@ -8,10 +8,13 @@ from collections import deque, defaultdict
 from typing import Optional
 from urllib.parse import urlparse
 from models import CrawlQueueItem, DiscoveredURL, URLClassification
-from config import (
-    MAX_INTERNAL_DEPTH, MAX_INTERNAL_URLS,
-    MAX_EXTERNAL_URLS_PER_DOMAIN, MAX_EXTERNAL_URLS_TOTAL,
-)
+import config as _cfg
+
+# Read limits dynamically so runtime patches (e.g. --depth CLI flag) take effect
+def _max_internal_depth() -> int:   return _cfg.MAX_INTERNAL_DEPTH
+def _max_internal_urls() -> int:    return _cfg.MAX_INTERNAL_URLS
+def _max_ext_per_domain() -> int:   return _cfg.MAX_EXTERNAL_URLS_PER_DOMAIN
+def _max_ext_total() -> int:        return _cfg.MAX_EXTERNAL_URLS_TOTAL
 
 
 import posixpath
@@ -126,11 +129,11 @@ class Frontier:
             return False, "external_not_crawled"
 
         # Depth limit
-        if item.depth > MAX_INTERNAL_DEPTH:
+        if item.depth > _max_internal_depth():
             return False, "max_depth"
 
         # Internal URL count limit
-        if len(self.internal_urls) >= MAX_INTERNAL_URLS:
+        if len(self.internal_urls) >= _max_internal_urls():
             return False, "max_internal_urls"
 
         return True, "ok"
@@ -167,13 +170,13 @@ class Frontier:
         2. If this domain's count >= MAX_EXTERNAL_URLS_PER_DOMAIN → skip
         3. Otherwise → add to self.external_urls as DiscoveredURL
         """
-        if self.external_total >= MAX_EXTERNAL_URLS_TOTAL:
+        if self.external_total >= _max_ext_total():
             return
 
         parsed = urlparse(item.url)
         domain = parsed.netloc.lower()
 
-        if self.external_domain_counts[domain] >= MAX_EXTERNAL_URLS_PER_DOMAIN:
+        if self.external_domain_counts[domain] >= _max_ext_per_domain():
             return
 
         self.external_urls.append(DiscoveredURL(

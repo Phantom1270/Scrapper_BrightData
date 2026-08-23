@@ -1,0 +1,100 @@
+/* ── Status bar ───────────────────────────────────────────────── */
+.status-bar {
+  padding: 10px 16px;
+}
+
+.status-indicator {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 6px 8px;
+  width: 100%;
+  color: var(--text-muted);
+  font-size: 0.78rem;
+  font-family: inherit;
+  border-radius: 8px;
+  transition: all 0.15s;
+}
+
+.status-indicator:hover {
+  background: var(--surface-hover);
+  color: var(--text-primary);
+}
+
+.status-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.dot-ok {
+  background: var(--success);
+  box-shadow: 0 0 5px rgba(0, 184, 148, 0.5);
+}
+
+.dot-error {
+  background: var(--error);
+  box-shadow: 0 0 5px rgba(225, 112, 85, 0.5);
+}
+
+.status-label {
+  font-weight: 500;
+}
+
+/* ── Expanded details ─────────────────────────────────────────── */
+.status-details {
+  margin-top: 6px;
+  padding: 10px 12px;
+  background: var(--surface-subtle);
+  border-radius: 10px;
+  border: 1px solid var(--border);
+  animation: fadeIn 0.15s ease;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(-4px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.status-detail-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 3px 0;
+  font-size: 0.73rem;
+}
+
+.detail-key {
+  color: var(--text-muted);
+  text-transform: capitalize;
+}
+
+.detail-value {
+  color: var(--text-primary);
+  font-weight: 600;
+}
+
+.detail-ok,
+.detail-healthy,
+.detail-connected {
+  color: var(--success);
+}
+
+.detail-error,
+.detail-unreachable,
+.detail-disconnected {
+  color: var(--error);
+}
+
+.detail-url {
+  font-size: 0.7rem;
+  max-width: 140px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: var(--text-muted);
+}

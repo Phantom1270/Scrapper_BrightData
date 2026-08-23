@@ -1,0 +1,522 @@
+/* ── Scrape flow ──────────────────────────────────────────────── */
+.scrape-flow {
+  flex: 1;
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  padding: 40px 24px;
+  overflow-y: auto;
+  background: var(--bg);
+}
+
+.scrape-content {
+  max-width: 560px;
+  width: 100%;
+}
+
+/* ── Step container ───────────────────────────────────────────── */
+.scrape-step {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  animation: fadeUp 0.3s ease;
+}
+
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(12px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.scrape-step h2 {
+  font-size: 1.3rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin: 0;
+  letter-spacing: -0.02em;
+}
+
+.step-description {
+  font-size: 0.88rem;
+  color: var(--text-muted);
+  line-height: 1.65;
+  margin: 0;
+}
+
+.step-icon {
+  width: 52px;
+  height: 52px;
+  border-radius: 14px;
+  background: var(--accent-bg);
+  border: 1.5px solid var(--accent-border);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--accent);
+  margin-bottom: 4px;
+}
+
+/* ── Config sections ──────────────────────────────────────────── */
+.config-section {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.config-group {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  padding: 18px;
+  background: var(--surface);
+  border: 1.5px solid var(--border);
+  border-radius: 14px;
+  box-shadow: var(--shadow-xs);
+}
+
+.config-group-title {
+  font-size: 0.7rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--text-muted);
+  margin: 0;
+}
+
+.config-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+
+@media (max-width: 500px) {
+  .config-row { grid-template-columns: 1fr; }
+}
+
+.config-field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.config-label {
+  font-size: 0.83rem;
+  font-weight: 600;
+  color: var(--text-secondary);
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.required { color: var(--error); }
+
+.config-hint {
+  font-size: 0.7rem;
+  font-weight: 400;
+  color: var(--text-muted);
+  line-height: 1.4;
+}
+
+.config-input {
+  padding: 9px 12px;
+  background: var(--surface);
+  border: 1.5px solid var(--border);
+  border-radius: 8px;
+  color: var(--text-primary);
+  font-size: 0.85rem;
+  font-family: inherit;
+  transition: border-color 0.15s, box-shadow 0.15s;
+}
+
+.config-input:focus {
+  outline: none;
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px var(--accent-bg);
+}
+
+.config-input::placeholder {
+  color: var(--text-muted);
+}
+
+.config-input-mono {
+  font-family: 'SF Mono', 'Fira Code', monospace;
+  font-size: 0.82rem;
+}
+
+/* ── Range inputs ─────────────────────────────────────────────── */
+.range-with-value {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.range-with-value input[type="range"] {
+  flex: 1;
+  accent-color: var(--accent);
+  cursor: pointer;
+}
+
+.range-value {
+  min-width: 48px;
+  text-align: right;
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: var(--accent);
+  font-variant-numeric: tabular-nums;
+}
+
+/* ── Toggle row ───────────────────────────────────────────────── */
+.config-toggle-row {
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.config-toggle-row .config-label {
+  flex: 1;
+}
+
+/* ── Selector presets ─────────────────────────────────────────── */
+.selector-presets {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+  margin-top: 2px;
+}
+
+/* ── URL input ────────────────────────────────────────────────── */
+.url-input-group {
+  display: flex;
+  gap: 8px;
+}
+
+.url-input {
+  flex: 1;
+  padding: 12px 16px;
+  background: var(--surface);
+  border: 1.5px solid var(--border);
+  border-radius: 10px;
+  color: var(--text-primary);
+  font-size: 0.9rem;
+  font-family: inherit;
+  transition: border-color 0.15s, box-shadow 0.15s;
+  box-shadow: var(--shadow-xs);
+}
+
+.url-input:focus {
+  outline: none;
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px var(--accent-bg);
+}
+
+.url-input::placeholder {
+  color: var(--text-muted);
+}
+
+.input-error { border-color: var(--error) !important; }
+
+.field-error {
+  font-size: 0.78rem;
+  color: var(--error);
+  background: var(--error-bg);
+  padding: 6px 10px;
+  border-radius: 6px;
+}
+
+/* ── Example URLs ─────────────────────────────────────────────── */
+.url-examples {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.examples-label {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+}
+
+.example-url {
+  padding: 4px 10px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  color: var(--text-secondary);
+  font-size: 0.75rem;
+  font-family: inherit;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.example-url:hover {
+  border-color: var(--accent-border);
+  color: var(--accent);
+  background: var(--accent-bg);
+}
+
+/* ── Advanced toggle ──────────────────────────────────────────── */
+.advanced-toggle {
+  background: none;
+  border: none;
+  color: var(--text-muted);
+  font-size: 0.82rem;
+  font-family: inherit;
+  cursor: pointer;
+  padding: 4px 0;
+  transition: color 0.15s;
+  text-align: left;
+}
+
+.advanced-toggle:hover { color: var(--text-primary); }
+
+.advanced-config {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  animation: fadeUp 0.2s ease;
+}
+
+/* ── Step actions ─────────────────────────────────────────────── */
+.step-actions {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 4px;
+}
+
+.back-link {
+  background: none;
+  border: none;
+  color: var(--text-muted);
+  font-size: 0.82rem;
+  font-family: inherit;
+  cursor: pointer;
+  padding: 0;
+  transition: color 0.15s;
+}
+
+.back-link:hover { color: var(--text-primary); }
+
+/* ── Start button ─────────────────────────────────────────────── */
+.btn-start {
+  padding: 12px 22px;
+  background: var(--accent);
+  color: #fff;
+  border: none;
+  border-radius: 10px;
+  font-size: 0.88rem;
+  font-weight: 700;
+  font-family: inherit;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: all 0.15s;
+  box-shadow: 0 2px 12px rgba(108, 92, 231, 0.3);
+}
+
+.btn-start:hover:not(:disabled) {
+  background: var(--accent-hover);
+  box-shadow: 0 4px 20px rgba(108, 92, 231, 0.4);
+  transform: translateY(-1px);
+}
+
+.btn-start:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+  box-shadow: none;
+}
+
+/* ── Toggle buttons ───────────────────────────────────────────── */
+.toggle-btn {
+  padding: 5px 14px;
+  border-radius: 20px;
+  border: 1.5px solid var(--border);
+  font-size: 0.72rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.15s;
+  min-width: 52px;
+  flex-shrink: 0;
+  font-family: inherit;
+}
+
+.toggle-on {
+  background: var(--accent);
+  color: #fff;
+  border-color: var(--accent);
+}
+
+.toggle-off {
+  background: transparent;
+  color: var(--text-muted);
+}
+
+/* ── Progress steps ───────────────────────────────────────────── */
+.source-url-label {
+  font-family: 'SF Mono', 'Fira Code', monospace;
+  font-size: 0.82rem;
+  color: var(--accent);
+}
+
+.progress-steps {
+  display: flex;
+  flex-direction: column;
+  background: var(--surface);
+  border: 1.5px solid var(--border);
+  border-radius: 14px;
+  padding: 4px 0;
+  margin: 8px 0;
+  box-shadow: var(--shadow-xs);
+}
+
+.progress-step {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 14px 18px;
+  position: relative;
+}
+
+.progress-step:not(:last-child)::after {
+  content: '';
+  position: absolute;
+  left: 27px;
+  top: 38px;
+  bottom: -4px;
+  width: 1px;
+  background: var(--border);
+}
+
+.step-complete:not(:last-child)::after {
+  background: var(--success);
+}
+
+.step-indicator {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  font-size: 0.68rem;
+  font-weight: 700;
+}
+
+.step-complete .step-indicator {
+  background: var(--success-bg);
+  color: var(--success);
+  border: 1.5px solid rgba(0, 184, 148, 0.3);
+}
+
+.step-current .step-indicator {
+  background: var(--accent-bg);
+  border: 2px solid var(--accent);
+}
+
+.step-pending .step-indicator {
+  background: var(--surface-subtle);
+  border: 1px solid var(--border);
+}
+
+.step-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--border-strong);
+}
+
+.step-spinner {
+  width: 10px;
+  height: 10px;
+  border: 2px solid var(--accent-border);
+  border-top-color: var(--accent);
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin { to { transform: rotate(360deg); } }
+
+.step-info {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.step-name {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.step-pending .step-name { color: var(--text-muted); }
+
+.step-detail {
+  font-size: 0.73rem;
+  color: var(--text-muted);
+  font-variant-numeric: tabular-nums;
+}
+
+/* ── Cancel button ────────────────────────────────────────────── */
+.btn-cancel {
+  padding: 8px 16px;
+  background: transparent;
+  border: 1.5px solid var(--border);
+  border-radius: 8px;
+  color: var(--text-muted);
+  font-size: 0.82rem;
+  font-family: inherit;
+  cursor: pointer;
+  align-self: flex-start;
+  transition: all 0.15s;
+}
+
+.btn-cancel:hover {
+  border-color: var(--error);
+  color: var(--error);
+  background: var(--error-bg);
+}
+
+/* ── Done step ────────────────────────────────────────────────── */
+.done-icon { margin-bottom: 4px; }
+
+.done-stats {
+  background: var(--surface);
+  border: 1.5px solid var(--border);
+  border-radius: 14px;
+  padding: 18px 22px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  box-shadow: var(--shadow-xs);
+}
+
+.stat-row {
+  display: flex;
+  gap: 24px;
+}
+
+.stat {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.stat-value {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  font-variant-numeric: tabular-nums;
+}
+
+.stat-label {
+  font-size: 0.72rem;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.btn-start-chat {
+  align-self: flex-start;
+  padding: 11px 26px;
+  font-size: 0.9rem;
+}

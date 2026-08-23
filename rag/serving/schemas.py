@@ -23,6 +23,10 @@ class QueryApiRequest(BaseModel):
         default=True,
         description="Whether to apply cross-encoder re-ranking"
     )
+    use_query_transform: Optional[bool] = Field(
+        default=None,
+        description="Override query transform for this request. None = use config default."
+    )
 
 
 class QueryApiResponse(BaseModel):
