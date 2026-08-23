@@ -1,6 +1,6 @@
 # Parent-Child Chunking
 
-The repository implements a hierarchical chunking strategy via the `ParentChildBuilder` (`rag/chunking/parent_child.py`).
+The **doc//rag** system implements a hierarchical chunking strategy via the `ParentChildBuilder` (`rag/chunking/parent_child.py`).
 
 ## 1. Intuition
 Traditional fixed-size chunking (e.g., breaking text every 500 tokens) causes severe context fragmentation. An LLM might retrieve a chunk containing an answer, but lack the surrounding document context needed to make sense of it.

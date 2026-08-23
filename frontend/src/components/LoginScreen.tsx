@@ -37,8 +37,8 @@ export function LoginScreen({ onLogin }: Props) {
     <div className="login-screen">
       <div className={`login-card ${shake ? 'login-shake' : ''}`}>
         <div className="login-header">
-          <div className="login-logo">R</div>
-          <h1>RAG Assistant</h1>
+          <div className="login-logo">d</div>
+          <h1>doc//rag</h1>
           <p>Sign in to your account</p>
         </div>
 

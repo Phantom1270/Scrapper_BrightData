@@ -1,6 +1,6 @@
 # Deduplication Engine
 
-The `DocumentDeduplicator` (`rag/pipeline/deduplicator.py`) is responsible for removing exact and near-duplicate documents prior to vector indexing. 
+In the **doc//rag** system, the `DocumentDeduplicator` (`rag/pipeline/deduplicator.py`) is responsible for removing exact and near-duplicate documents prior to vector indexing. 
 
 ## 1. Algorithm Intuition
 Web scraping frequently yields identical pages (exact duplicates) or pages with only slight dynamic variations like timestamps (near-duplicates). Indexing these pollutes the vector space, causing retrieval to return 5 identical chunks instead of 5 diverse sources. 

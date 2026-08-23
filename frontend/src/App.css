@@ -15,7 +15,7 @@
   height: 100vh;
   overflow: hidden;
   min-width: 0;
-  background: var(--surface);
+  background: var(--bg);
 }
 
 /* ── Responsive ────────────────────────────────────────────────── */

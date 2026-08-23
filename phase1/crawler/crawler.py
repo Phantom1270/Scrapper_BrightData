@@ -137,6 +137,11 @@ class Crawler:
                     should_fetch, reason = self.frontier.should_crawl(item)
 
                     if not should_fetch:
+                        if reason == "max_internal_urls":
+                            # Flush the queue to stop instantly instead of printing thousands of SKIPs
+                            self.frontier.queue.clear()
+                            continue
+
                         self._pages_skipped += 1
                         self.on_progress("skipped", {
                             "url": item.url, "reason": reason, "depth": item.depth

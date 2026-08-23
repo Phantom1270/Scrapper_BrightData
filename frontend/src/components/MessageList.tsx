@@ -6,9 +6,10 @@ import './MessageList.css'
 type Props = {
   messages: ChatMessage[]
   isLoading: boolean
+  onDeletePair: (messageId: string) => void
 }
 
-export function MessageList({ messages, isLoading }: Props) {
+export function MessageList({ messages, isLoading, onDeletePair }: Props) {
   return (
     <section className="message-list">
       {messages.length === 0 && (
@@ -19,7 +20,7 @@ export function MessageList({ messages, isLoading }: Props) {
       )}
 
       {messages.map((msg) => (
-        <MessageBubble key={msg.id} message={msg} />
+        <MessageBubble key={msg.id} message={msg} onDeletePair={msg.role === 'user' ? onDeletePair : undefined} />
       ))}
 
       {isLoading && (
@@ -37,7 +38,7 @@ export function MessageList({ messages, isLoading }: Props) {
 
 // ── Single message ────────────────────────────────────────────────
 
-function MessageBubble({ message }: { message: ChatMessage }) {
+function MessageBubble({ message, onDeletePair }: { message: ChatMessage; onDeletePair?: (id: string) => void }) {
   const isUser = message.role === 'user'
 
   return (
@@ -51,6 +52,18 @@ function MessageBubble({ message }: { message: ChatMessage }) {
             <Markdown>{message.content}</Markdown>
           )}
         </div>
+
+        {/* Delete button — only on user messages, appears on hover */}
+        {onDeletePair && (
+          <button
+            className="delete-pair-btn"
+            onClick={() => onDeletePair(message.id)}
+            title="Delete this Q&A pair"
+            aria-label="Delete question and response"
+          >
+            🗑
+          </button>
+        )}
 
         {/* Copy button for assistant messages */}
         {!isUser && !message.isError && (
@@ -146,14 +159,18 @@ function SourceCard({
   source,
   index,
 }: {
-  source: NonNullable<ChatMessage['sources']>[number]
+  source: NonNullable<ChatMessage['sources']>[number] & { [key: string]: any }
   index: number
 }) {
   const meta = source.metadata ?? {}
-  const heading = (meta.heading as string) ?? (meta.title as string) ?? `Source ${index + 1}`
-  const url = meta.url as string | undefined
-  const contentType = meta.content_type as string | undefined
-  const scorePercent = Math.round((source.score ?? 0) * 100)
+  const heading = (source.heading as string) ?? (meta.heading as string) ?? (meta.title as string) ?? `Source ${index + 1}`
+  const url = (source.url as string) ?? (meta.url as string | undefined)
+  const contentType = (source.content_type as string) ?? (meta.content_type as string | undefined)
+  
+  const rawScore = source.score ?? meta.score ?? 0
+  // Handle both probabilities (0.0-1.0) and cross-encoder logits (typically 1-10)
+  const percentVal = rawScore > 1 ? rawScore * 10 : rawScore * 100
+  const scoreFormatted = percentVal.toFixed(1)
 
   return (
     <div className="source-card">
@@ -177,10 +194,10 @@ function SourceCard({
           <div className="score-bar">
             <div
               className="score-fill"
-              style={{ width: `${scorePercent}%` }}
+              style={{ width: `${Math.min(100, Math.max(0, percentVal))}%` }}
             />
           </div>
-          <span className="score-label">{scorePercent}%</span>
+          <span className="score-label">{scoreFormatted}%</span>
         </div>
       </div>
       <p className="source-preview">{source.content?.slice(0, 200)}{(source.content?.length ?? 0) > 200 ? '...' : ''}</p>

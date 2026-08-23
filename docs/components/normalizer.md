@@ -3,7 +3,7 @@
 The `UniversalNormalizer` (`rag/pipeline/normalizer.py`) and its helper `FieldClassifier` (`rag/pipeline/field_classifier.py`) are the foundational components that decouple the Bright Data scraper from the RAG pipeline.
 
 ## 1. Intuition
-Scraping arbitrary documentation sites produces heterogeneous JSON schemas. One site might use `page_title` and `summary`, while another uses `heading` and `description`. A standard RAG pipeline breaks if it expects a hardcoded schema. The normalizer heuristically transforms these arbitrary JSON keys into a standardized `NormalizedDocument`.
+Scraping arbitrary documentation sites produces heterogeneous JSON schemas. One site might use `page_title` and `summary`, while another uses `heading` and `description`. The **doc//rag** pipeline avoids breaking on unexpected schemas because the normalizer heuristically transforms these arbitrary JSON keys into a standardized `NormalizedDocument`.
 
 ## 2. Implementation: Field Classification
 

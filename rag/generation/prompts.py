@@ -87,13 +87,14 @@ class PromptBuilder:
         # The first result should be the highest scoring one
         best_result = results[0]
         
-        # Check if the source is reranked
+        # Cross-encoder reranker returns raw logits (typically -10 to +10 range).
+        # A score above -3 means the chunk is a relevant match.
         if best_result.source == "reranked":
-            if best_result.score < 1.0:
+            if best_result.score < -3.0:
                 return "low"
             return "high"
             
-        # Standard cosine similarity or hybrid scores
+        # Standard cosine similarity or hybrid scores (0.0 – 1.0 range)
         if best_result.score < 0.3:
             return "low"
             

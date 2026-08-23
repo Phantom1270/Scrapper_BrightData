@@ -1,6 +1,6 @@
 # Evaluation & Performance
 
-This repository implements a local evaluation framework within the `rag.evaluation` module to measure retrieval and generation accuracy.
+The **doc//rag** system implements a local evaluation framework within the `rag.evaluation` module to measure retrieval and generation accuracy.
 
 ## 1. Implemented Evaluation Functionality
 
@@ -10,7 +10,7 @@ The `rag.evaluation.evaluator.EvaluationRunner` orchestrates the evaluation pipe
 2. **Generation Metrics (`GenerationMetrics`)**: Measures if the generated answer is faithful to the retrieved context and answers the question.
 
 ### Note on RAGAS
-While external RAG evaluation frameworks like RAGAS exist, this repository implements its own internal scoring mechanisms to avoid external dependencies. *It does not currently use RAGAS.*
+While external RAG evaluation frameworks like RAGAS exist, **doc//rag** implements its own internal scoring mechanisms to avoid external dependencies. *It does not currently use RAGAS.*
 
 ## 2. Evaluation Structure
 
@@ -24,7 +24,7 @@ Results are aggregated into an `EvaluationReport` tracking `total_questions`, `a
 
 ## 3. Complexity & Performance Theory
 
-While hardcoded latency benchmarks are not present in the repository, the theoretical complexity of the system is tightly controlled:
+While hardcoded latency benchmarks are not present in the repository, the theoretical complexity of the **doc//rag** system is tightly controlled:
 
 - **Normalization**: `UniversalNormalizer` maps keys in `O(n)` time per document, with `O(1)` dict lookups for fields.
 - **Deduplication**: `DocumentDeduplicator` avoids the `O(n²)` pairwise comparison trap by utilizing exact MD5 hashes and LSH MinHash, bringing near-duplicate detection down to roughly `O(n)` time.

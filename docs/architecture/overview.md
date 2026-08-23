@@ -1,5 +1,7 @@
 # Architecture Overview
 
+**doc//rag** is designed as a decoupled, full-stack application connecting a modern React UI to a high-performance Python FastAPI RAG backend.
+
 ## 1. System Goals
 This system is designed to seamlessly ingest heterogeneous, schema-less JSON scraped by Bright Data tools and convert it into a highly precise RAG knowledge base. The primary goals are:
 - **Decoupling**: Strictly separating scraping logic from the RAG pipeline (`UniversalNormalizer`).
@@ -11,30 +13,53 @@ This system is designed to seamlessly ingest heterogeneous, schema-less JSON scr
 
 ```mermaid
 flowchart TD
-    A[Raw Scraped JSON] --> B[UniversalNormalizer]
-    B --> C[FieldClassifier]
-    C --> B
-    B --> D[DocumentDeduplicator]
-    D --> E[ParentChildBuilder / Chunking]
+    %% Frontend
+    subgraph Frontend [React SPA]
+        UI[Chat Interface]
+        Composer[Composer / Mode Select]
+        ScrapeUI[Scrape Flow]
+    end
+
+    %% Ingestion Pipeline
+    subgraph Ingestion [Ingestion Pipeline]
+        A[Raw Scraped JSON] --> B[UniversalNormalizer]
+        B --> C[FieldClassifier]
+        C --> B
+        B --> D[DocumentDeduplicator]
+        D --> E[ParentChildBuilder / Chunking]
+        E --> F[ChromaVectorStore]
+        E --> G[BM25Index]
+    end
     
-    E --> F[ChromaVectorStore]
-    E --> G[BM25Index]
+    %% Retrieval Pipeline
+    subgraph Backend [FastAPI Backend]
+        API[FastAPI / POST api/v1/query]
+        RE[RetrievalEngine]
+        QT[MultiQueryTransformer<br>qwen2.5:3b]
+        H[SearchEngine]
+        RRF[ReciprocalRankFusion]
+        CE[CrossEncoderReranker<br>ms-marco-MiniLM-L-6-v2]
+        CB[ContextBuilder]
+        LLM[GenerationEngine<br>qwen2.5:3b]
+    end
+
+    %% Data flow
+    UI & Composer --> API
+    ScrapeUI -.->|Trigger| Ingestion
     
-    U[Client Request] --> API[FastAPI / POST api/v1/query]
-    API --> RE[RetrievalEngine]
-    
-    RE --> QT[MultiQueryTransformer<br>qwen2.5:3b]
-    QT --> H[SearchEngine]
+    API --> RE
+    RE --> QT
+    QT --> H
     
     H --> F
     H --> G
     
-    F --> RRF[ReciprocalRankFusion]
+    F --> RRF
     G --> RRF
     
-    RRF --> CE[CrossEncoderReranker<br>ms-marco-MiniLM-L-6-v2]
-    CE --> CB[ContextBuilder]
-    CB --> LLM[GenerationEngine]
+    RRF --> CE
+    CE --> CB
+    CB --> LLM
     LLM --> API
 ```
 

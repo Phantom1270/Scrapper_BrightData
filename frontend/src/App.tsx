@@ -37,6 +37,7 @@ function AppContent() {
     startRAGChat,
     loadChat,
     removeChat,
+    deleteMessagePair,
   } = useRagChat()
 
   // ── Auth gate ───────────────────────────────────────────────
@@ -111,6 +112,10 @@ function AppContent() {
           <ChatModeSelector
             onSelectLLM={handleSelectLLM}
             onSelectRAG={handleSelectRAG}
+            onSelectSampleRAG={() => {
+              startRAGChat('https://demo-data.local')
+              setView('chat')
+            }}
           />
         )}
 
@@ -124,7 +129,7 @@ function AppContent() {
         {view === 'chat' && (
           <>
             <ChatHeader mode={mode} sourceUrl={sourceUrl} />
-            <MessageList messages={messages} isLoading={isLoading} />
+            <MessageList messages={messages} isLoading={isLoading} onDeletePair={deleteMessagePair} />
             <Composer
               question={question}
               onQuestionChange={setQuestion}

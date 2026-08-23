@@ -24,7 +24,7 @@ router = APIRouter()
 
 
 @router.get("/settings")
-async def get_current_settings():
+def get_current_settings():
     """
     Returns the current runtime configuration.
     Frontend uses this to populate the settings panel.
@@ -52,7 +52,7 @@ async def get_current_settings():
     }
 
 @router.get("/ollama/models")
-async def list_ollama_models():
+def list_ollama_models():
     """
     Queries the Ollama API to list installed models.
     Returns model names for the frontend dropdown.
@@ -84,7 +84,7 @@ async def list_ollama_models():
         return {"models": [], "error": f"Ollama unreachable: {str(e)}"}
 
 @router.put("/settings")
-async def update_settings(patch: SettingsPatch):
+def update_settings(patch: SettingsPatch):
     """
     Updates settings in-memory AND writes changes to default.yaml.
     Engine singletons are reset so changes take effect on the next query.
