@@ -15,7 +15,7 @@ export function WelcomeScreen({ onStartChat, onStartScrape }: Props) {
             <line x1="9" y1="21" x2="15" y2="21" />
           </svg>
         </div>
-        <h1 className="welcome-title">RAG Assistant</h1>
+        <h1 className="welcome-title">doc//rag</h1>
         <p className="welcome-subtitle">
           Chat directly with the AI or scrape a website to build a searchable knowledge base.
         </p>

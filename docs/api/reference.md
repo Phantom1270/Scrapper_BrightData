@@ -1,6 +1,6 @@
 # API Reference
 
-The primary interface for this RAG pipeline is a FastAPI REST API defined in `rag/serving/app.py`.
+The primary backend interface for **doc//rag** is a FastAPI REST API defined in `rag/serving/app.py`.
 
 ## Request Lifecycle (POST `/api/v1/query`)
 
@@ -63,6 +63,7 @@ Performs an end-to-end RAG query.
 | `top_k` | integer | No | 5 | Number of results to return |
 | `filter_content_type` | string | No | null | Post-retrieval filter for chunk/doc type |
 | `filter_doc_id` | string | No | null | Filter to restrict search to a specific document |
+| `use_query_transform` | boolean | No | true | Whether to use the LLM to generate semantic query variants |
 | `use_reranking` | boolean | No | true | Whether to apply the cross-encoder re-ranking pass |
 
 **Example Request:**
@@ -71,6 +72,7 @@ Performs an end-to-end RAG query.
   "question": "How do I use sklearn config_context?",
   "top_k": 3,
   "filter_content_type": "api_reference",
+  "use_query_transform": true,
   "use_reranking": true
 }
 ```

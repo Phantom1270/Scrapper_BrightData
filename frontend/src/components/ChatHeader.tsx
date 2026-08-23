@@ -22,7 +22,7 @@ export function ChatHeader({ mode, sourceUrl }: Props) {
   return (
     <header className="chat-header">
       <div className="header-left">
-        <h2 className="header-title">RAG Assistant</h2>
+        <h2 className="header-title">doc//rag</h2>
         <span className="header-source">
           <span className={`header-mode-badge header-mode-${mode}`}>
             {mode === 'llm' ? '⚡ LLM' : '🔍 RAG'}

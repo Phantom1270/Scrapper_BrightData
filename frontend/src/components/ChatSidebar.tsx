@@ -58,7 +58,7 @@ export function ChatSidebar({
           <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
             <path d="M12 2a10 10 0 100 20 10 10 0 000-20zm0 18a8 8 0 110-16 8 8 0 010 16z"/><circle cx="9" cy="10" r="1.5"/><circle cx="15" cy="10" r="1.5"/><path d="M12 15.5c-1.8 0-3.3-1.1-3.8-2.6h7.6c-.5 1.5-2 2.6-3.8 2.6z"/>
           </svg>
-          RoboAi
+          doc//rag
         </h1>
         <div className="sidebar-actions">
           <button

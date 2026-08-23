@@ -1,6 +1,6 @@
 # Hybrid Search & RRF Fusion
 
-The system combines Dense and Sparse retrieval, fused mathematically using Reciprocal Rank Fusion, orchestrated by `rag.search.search_engine.SearchEngine` and `rag.retrieval.fusion.ReciprocalRankFusion`.
+The **doc//rag** system combines Dense and Sparse retrieval, fused mathematically using Reciprocal Rank Fusion, orchestrated by `rag.search.search_engine.SearchEngine` and `rag.retrieval.fusion.ReciprocalRankFusion`.
 
 ## 1. Dense Retrieval (ChromaVectorStore)
 - **Model:** `SentenceTransformerEmbedder` using `all-MiniLM-L6-v2`.

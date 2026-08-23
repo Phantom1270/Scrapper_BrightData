@@ -89,7 +89,7 @@
   background: var(--accent);
   color: #fff;
   border-bottom-right-radius: 4px;
-  box-shadow: 0 2px 12px rgba(108, 92, 231, 0.2);
+  box-shadow: 0 2px 12px rgba(124, 106, 247, 0.3);
 }
 
 .message--assistant .message-bubble {

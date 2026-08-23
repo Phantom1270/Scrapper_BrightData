@@ -16,13 +16,13 @@
   --text-muted:     #888888;
 
   /* Accent */
-  --accent:         #ffffff;
-  --accent-hover:   #eeeeee;
-  --accent-bg:      rgba(255, 255, 255, 0.1);
-  --accent-border:  rgba(255, 255, 255, 0.2);
+  --accent:         #7c6af7;
+  --accent-hover:   #6c5ae7;
+  --accent-bg:      rgba(124, 106, 247, 0.12);
+  --accent-border:  rgba(124, 106, 247, 0.3);
 
   /* Semantic */
-  --link:           #ffffff;
+  --link:           #a89ff8;
   --success:        #00b894;
   --success-bg:     rgba(0, 184, 148, 0.1);
   --warning:        #fdcb6e;
